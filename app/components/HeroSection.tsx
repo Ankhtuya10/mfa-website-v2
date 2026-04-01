@@ -12,15 +12,15 @@ export const HeroSection = () => {
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, delay: 0.4 + (i * 0.15) }
-    })
+      transition: { duration: 0.7, delay: 0.4 + i * 0.15 },
+    }),
   };
 
   return (
     <div ref={ref} className="relative h-screen w-full overflow-hidden">
       <div className="flex flex-col md:flex-row h-full w-full">
-        
-        {/* LEFT PANEL - 60% width */}
+
+        {/* LEFT PANEL — 60% */}
         <div className="relative w-full md:w-[60%] h-[50vh] md:h-full bg-[#0A0A0A]">
           <div className="relative w-full h-full">
             <Image
@@ -32,10 +32,10 @@ export const HeroSection = () => {
             />
           </div>
 
-          {/* Rotated sidebar text */}
+          {/* Rotated sidebar text — fixed to white/20 so it reads on dark photo */}
           <div className="absolute left-[3%] top-1/2 -translate-y-1/2 hidden md:block">
-            <span 
-              className="font-sans font-extralight text-[10px] tracking-[3.5px] uppercase text-[#252525]"
+            <span
+              className="font-sans font-extralight text-[10px] tracking-[3.5px] uppercase text-white/20"
               style={{ transform: 'rotate(-90deg)', display: 'block', whiteSpace: 'nowrap' }}
             >
               Mongolian Highlands — Spring Collection 2026
@@ -43,37 +43,26 @@ export const HeroSection = () => {
           </div>
         </div>
 
-        {/* RIGHT PANEL - 40% width */}
+        {/* RIGHT PANEL — 40% */}
         <div
           className="relative w-full md:w-[40%] h-[50vh] md:h-full flex items-center"
           style={{
-            background: 'linear-gradient(210deg, #DCCEC1 15%, #F9F2EC 39%, #FFFBF8 56%, #EAEAEA 77%)'
+            background: 'linear-gradient(210deg, #DCCEC1 15%, #F9F2EC 39%, #FFFBF8 56%, #EAEAEA 77%)',
           }}
         >
-          {/* Thin left accent bar */}
-          <div 
-            className="absolute left-0 top-[10%] h-[40%] w-[3px]"
-            style={{
-              background: 'linear-gradient(to bottom, rgba(3,2,19,0), rgba(112,112,112,0))'
-            }}
-          />
-
           {/* Main content */}
-          <motion.div
-            className="px-12 md:px-[70px] w-full text-center"
-          >
-            {/* Eyebrow */}
+          <motion.div className="px-12 md:px-[70px] w-full text-center">
+
             <motion.span
               custom={0}
               variants={childVariants}
               initial="hidden"
               animate="visible"
-              className="font-sans font-bold text-[11px] tracking-[4.95px] uppercase text-[#B7AEA9] mb-10"
+              className="font-sans font-bold text-[11px] tracking-[4.95px] uppercase text-[#B7AEA9] mb-10 block"
             >
-              Spring Collection  ·  2026
+              Spring Collection · 2026
             </motion.span>
 
-            {/* Heading */}
             <motion.h1
               custom={1}
               variants={childVariants}
@@ -82,22 +71,23 @@ export const HeroSection = () => {
               className="font-serif font-normal text-[48px] md:text-[66px] leading-[1.05] tracking-[-0.01em] mb-4"
             >
               <span className="block text-[#B7AEA9]">Dadadu</span>
-              <span className="block text-[#B7AEA9]">of <em className="text-[#393931] italic">Mongolian</em></span>
+              <span className="block text-[#B7AEA9]">
+                of <em className="text-[#393931] italic">Mongolian</em>
+              </span>
               <span className="block text-[#B7AEA9]">Cashmere</span>
             </motion.h1>
 
-            {/* Body text */}
             <motion.p
               custom={2}
               variants={childVariants}
               initial="hidden"
               animate="visible"
-              className="font-sans font-normal text-[15px] leading-[1.9] text-[#B7AEA9] max-w-[480px] text-center mb-12"
+              className="font-sans font-normal text-[15px] leading-[1.9] text-[#B7AEA9] max-w-[480px] text-center mb-12 mx-auto"
             >
-              Woven from the finest inner fleece of Mongolian goats, each piece carries the silence of the steppe — a warmth that endures, a softness that lasts a lifetime.
+              Woven from the finest inner fleece of Mongolian goats, each piece carries the silence
+              of the steppe — a warmth that endures, a softness that lasts a lifetime.
             </motion.p>
 
-            {/* CTA buttons */}
             <motion.div
               custom={3}
               variants={childVariants}
@@ -106,41 +96,42 @@ export const HeroSection = () => {
               className="flex flex-row gap-8 items-center justify-center"
             >
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="bg-[#393931] px-10 py-3 text-white font-sans font-bold text-[11px] tracking-[4px] uppercase"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="bg-[#393931] px-10 py-3 text-white font-sans font-bold text-[11px] tracking-[4px] uppercase shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
-                VIEW COLLECTION
+                View Collection
               </motion.button>
 
               <motion.button
-                whileHover={{ opacity: 0.7 }}
-                className="font-sans font-bold text-[11px] tracking-[3.5px] uppercase text-[#B7AEA9] pb-0.5 border-b border-[#B7AEA9]"
+                whileHover={{ opacity: 0.8, x: 5 }}
+                className="font-sans font-bold text-[11px] tracking-[3.5px] uppercase text-[#B7AEA9] pb-0.5 border-b border-[#B7AEA9] hover:border-[#393931] transition-all duration-300"
               >
-                READ STORY
+                Read Story
               </motion.button>
             </motion.div>
           </motion.div>
 
-          {/* Scroll indicator - bottom center */}
+          {/* Scroll indicator — fixed from lime #C6F135 to warm #B7AEA9 */}
           <div className="absolute bottom-8 left-[60%] -translate-x-1/2 hidden md:flex flex-col items-center gap-2">
-            <div className="w-px h-[36px] bg-gradient-to-b from-[#C6F135] to-transparent" />
-            <span className="font-sans text-[9px] tracking-[3.6px] uppercase text-[rgba(198,241,53,0.5)]">
-              SCROLL
+            <div className="w-px h-[36px] bg-gradient-to-b from-[#B7AEA9] to-transparent animate-pulse" />
+            <span className="font-sans text-[9px] tracking-[3.6px] uppercase text-[#B7AEA9]/50 animate-pulse">
+              Scroll
             </span>
           </div>
 
-          {/* Location tag - bottom right */}
+          {/* Location tag — fixed dot from #FF3CAC to #B7AEA9 */}
           <div className="absolute bottom-6 right-6 flex flex-row gap-4 items-center">
-            <span className="font-sans text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.3)]">
+            <span className="font-sans text-[10px] tracking-[3px] uppercase text-white/30">
               Ulaanbaatar, Mongolia
             </span>
-            <div className="w-1 h-1 rounded-full bg-[#FF3CAC]" />
-            <span className="font-sans text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.3)]">
+            <div className="w-1 h-1 rounded-full bg-[#B7AEA9]" />
+            <span className="font-sans text-[10px] tracking-[3px] uppercase text-white/30">
               Est. 1998
             </span>
           </div>
         </div>
+
       </div>
     </div>
   );

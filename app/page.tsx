@@ -4,14 +4,22 @@ import { StickyNavbar, HeroSection, DiscoverSection, CollectionsGrid, Footer } f
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen justify-between bg-[#F5F2ED]">
+    <div className="h-screen w-full overflow-hidden">
       <StickyNavbar />
-      <main className="flex-grow">
-        <HeroSection />
-        <DiscoverSection />
-        <CollectionsGrid />
-      </main>
-      <Footer />
+      <div className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+        <div className="snap-start h-screen w-full">
+          <HeroSection />
+        </div>
+        <div className="snap-start h-screen w-full">
+          <DiscoverSection />
+        </div>
+        <div className="snap-start h-screen w-full bg-[#F5F2ED] flex items-center justify-center">
+          <CollectionsGrid />
+        </div>
+        <div className="snap-start h-screen w-full">
+          <Footer />
+        </div>
+      </div>
     </div>
   );
 }

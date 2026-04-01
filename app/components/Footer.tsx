@@ -1,154 +1,136 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 export const Footer = () => {
   return (
-    <footer className="relative w-full bg-[#0F0F0F] text-gray-300 mt-auto">
-      <div className="w-full pl-[15%]">
-        {/* Upper Section - Brand & Description */}
-        <div className="py-20 px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col items-center justify-center text-center"
-          >
-            <span className="font-serif font-bold text-7xl lg:text-8xl text-white mb-6">Anoce</span>
-            <p className="font-sans text-sm text-gray-400 font-light leading-relaxed max-w-xl tracking-wide mb-10">
-              Celebrating Mongolian heritage through contemporary design and exceptional craftsmanship.
-            </p>
-            <div className="w-px h-10 bg-gradient-to-b from-[#B7AEA9] to-transparent" />
-          </motion.div>
+    <footer className="relative w-full h-screen bg-[#0F0F0F] text-gray-300 flex flex-col justify-between py-8">
+
+      {/* Brand block — fully centered */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false }}
+        transition={{ duration: 0.6 }}
+        className="flex flex-col items-center justify-center text-center pt-20 pb-12 px-8 border-b border-white/[0.06]"
+      >
+        <span className="font-serif font-bold text-6xl lg:text-8xl text-white mb-4 hover:text-[#F5F2ED] transition-colors duration-500 cursor-default">
+          Anoce
+        </span>
+        <p className="font-sans text-sm text-[#555] leading-relaxed max-w-sm tracking-wide">
+          Celebrating Mongolian heritage through contemporary design and exceptional craftsmanship.
+        </p>
+        <div className="w-px h-8 bg-gradient-to-b from-[#333] to-transparent mt-10" />
+      </motion.div>
+
+      {/* Columns */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-10 px-8 lg:px-24 py-14 border-b border-white/[0.06]"
+      >
+        {/* Explore */}
+        <div>
+          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
+            Explore
+          </h4>
+          <ul className="space-y-3">
+            {[['Home', '/'], ['Collections', '/collections'], ['Editorial', '/editorial'], ['Contact', '/contact']].map(([label, href]) => (
+              <li key={label}>
+                <Link href={href} className="font-sans text-sm text-[#777] hover:text-white transition-colors duration-300">
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Middle Section - Links & Newsletter */}
-        <div className="py-12 px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 justify-items-center">
-            {/* Column 1 - Explore */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="flex flex-col items-center text-center"
-            >
-              <h4 className="font-sans text-[10px] uppercase font-semibold tracking-[0.25em] text-gray-200 mb-5">
-                Explore
-              </h4>
-              <ul className="space-y-3">
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Home</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Collections</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Editorial</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Contact</span></li>
-              </ul>
-            </motion.div>
-
-            {/* Column 2 - Support */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-col items-center text-center"
-            >
-              <h4 className="font-sans text-[10px] uppercase font-semibold tracking-[0.25em] text-gray-200 mb-5">
-                Support
-              </h4>
-              <ul className="space-y-3">
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Shipping</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Returns</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">FAQ</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Contact</span></li>
-              </ul>
-            </motion.div>
-
-            {/* Column 3 - Company */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col items-center text-center"
-            >
-              <h4 className="font-sans text-[10px] uppercase font-semibold tracking-[0.25em] text-gray-200 mb-5">
-                Company
-              </h4>
-              <ul className="space-y-3">
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">About</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Careers</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Press</span></li>
-                <li><span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Journal</span></li>
-              </ul>
-            </motion.div>
-
-            {/* Column 4 - Newsletter */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex flex-col items-center text-center"
-            >
-              <h4 className="font-sans text-[10px] uppercase font-semibold tracking-[0.25em] text-gray-200 mb-5">
-                Newsletter
-              </h4>
-              <p className="font-sans text-sm text-gray-400 mb-5 leading-relaxed">
-                Subscribe for updates.
-              </p>
-              <div className="flex flex-col gap-2">
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-2.5 bg-transparent border border-gray-700 text-gray-200 placeholder-gray-600 font-sans text-sm focus:outline-none focus:border-gray-400 transition-colors"
-                />
-                <button className="w-full px-6 py-2.5 bg-white text-[#0F0F0F] font-sans text-[10px] font-semibold uppercase tracking-widest hover:bg-gray-100 transition-colors">
-                  Subscribe
-                </button>
-              </div>
-            </motion.div>
-          </div>
+        {/* Support */}
+        <div>
+          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
+            Support
+          </h4>
+          <ul className="space-y-3">
+            {['Shipping', 'Returns', 'FAQ', 'Contact'].map((item) => (
+              <li key={item}>
+                <Link href="#" className="font-sans text-sm text-[#777] hover:text-white transition-colors duration-300">
+                  {item}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Social Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: false }}
-          transition={{ duration: 0.5 }}
-          className="py-12 px-8 border-t border-[rgba(255,255,255,0.08)]"
-        >
-          <div className="flex flex-col items-center justify-center text-center">
-            <h4 className="font-sans text-[10px] uppercase font-semibold tracking-[0.25em] text-gray-200 mb-6">
-              Follow Us
-            </h4>
-            <div className="flex flex-wrap justify-center gap-8">
-              <span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Instagram</span>
-              <span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">LinkedIn</span>
-              <span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Twitter</span>
-              <span className="font-sans text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">TikTok</span>
-            </div>
-          </div>
-        </motion.div>
+        {/* Company */}
+        <div>
+          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
+            Company
+          </h4>
+          <ul className="space-y-3">
+            {['About', 'Careers', 'Press', 'Journal'].map((item) => (
+              <li key={item}>
+                <Link href="#" className="font-sans text-sm text-[#777] hover:text-white transition-colors duration-300">
+                  {item}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        {/* Bottom Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: false }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center justify-center gap-4 py-8 px-8 border-t border-[rgba(255,255,255,0.05)]"
-        >
-          <p className="font-sans text-xs text-gray-500 tracking-wide">
-            © 2026 Anoce. All rights reserved.
+        {/* Newsletter */}
+        <div>
+          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
+            Newsletter
+          </h4>
+          <p className="font-sans text-sm text-[#555] mb-4 leading-relaxed">
+            Subscribe for updates.
           </p>
-          <div className="flex gap-8">
-            <span className="font-sans text-[10px] uppercase tracking-widest text-gray-600 hover:text-gray-400 transition-colors cursor-pointer">Privacy</span>
-            <span className="font-sans text-[10px] uppercase tracking-widest text-gray-600 hover:text-gray-400 transition-colors cursor-pointer">Terms</span>
+          <div className="flex flex-col gap-2">
+            <input
+              type="email"
+              placeholder="your@email.com"
+              className="w-full px-4 py-2.5 bg-transparent border border-[#2a2a2a] text-gray-200 placeholder-[#3a3a3a] font-sans text-sm focus:outline-none focus:border-[#555] transition-all duration-300"
+            />
+            <button className="w-full px-6 py-2.5 bg-[#F5F2ED] text-[#0F0F0F] font-sans text-[10px] font-semibold uppercase tracking-widest hover:bg-white transition-all duration-300">
+              Subscribe
+            </button>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
+
+      {/* Bottom bar */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: false }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 lg:px-24 py-7"
+      >
+        <p className="font-sans text-xs text-[#3a3a3a] tracking-wide">
+          © 2026 Anoce. All rights reserved.
+        </p>
+
+        <div className="flex items-center gap-6">
+          {['Instagram', 'LinkedIn', 'Twitter', 'TikTok'].map((s) => (
+            <Link key={s} href="#" className="font-sans text-[11px] text-[#444] hover:text-[#888] transition-colors duration-300">
+              {s}
+            </Link>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-6">
+          <Link href="#" className="font-sans text-[10px] uppercase tracking-widest text-[#3a3a3a] hover:text-[#666] transition-colors duration-300">
+            Privacy
+          </Link>
+          <Link href="#" className="font-sans text-[10px] uppercase tracking-widest text-[#3a3a3a] hover:text-[#666] transition-colors duration-300">
+            Terms
+          </Link>
+        </div>
+      </motion.div>
+
     </footer>
   );
 };

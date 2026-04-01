@@ -26,6 +26,22 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+.snap-container {
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.snap-container::-webkit-scrollbar {
+  display: none;
+}
+
+.snap-section,
+.snap-container > div {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
 @layer components {
   .btn-primary {
     @apply px-8 py-3 bg-[#1f2937] text-white rounded font-sans font-medium tracking-wider uppercase text-sm transition-all duration-300 hover:opacity-90;
