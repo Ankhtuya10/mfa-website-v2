@@ -2,134 +2,182 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Collections', href: '/collections' },
+  { label: 'Editorial', href: '/editorial' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const secondaryLinks = [
+  { label: 'About', href: '#' },
+  { label: 'Careers', href: '#' },
+  { label: 'Press', href: '#' },
+  { label: 'Journal', href: '#' },
+  { label: 'Shipping', href: '#' },
+  { label: 'Returns', href: '#' },
+];
+
+const socials = ['Instagram', 'TikTok', 'LinkedIn', 'Twitter'];
 
 export const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  const handleSubmit = () => {
+    if (email) setSubmitted(true);
+  };
+
   return (
-    <footer className="relative w-full h-screen bg-[#0F0F0F] text-gray-300 flex flex-col justify-between py-8">
+    <footer className="relative w-full h-screen bg-[#0A0907] overflow-hidden flex flex-col">
 
-      {/* Brand block — fully centered */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false }}
-        transition={{ duration: 0.6 }}
-        className="flex flex-col items-center justify-center text-center pt-20 pb-12 px-8 border-b border-white/[0.06]"
-      >
-        <span className="font-serif font-bold text-6xl lg:text-8xl text-white mb-4 hover:text-[#F5F2ED] transition-colors duration-500 cursor-default">
-          Anoce
+      {/* Atmospheric background */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Warm glow bottom-left */}
+        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.07]"
+          style={{ background: 'radial-gradient(circle, #C8A882, transparent 70%)' }} />
+        {/* Cool accent top-right */}
+        <div className="absolute -top-20 right-0 w-[400px] h-[400px] rounded-full opacity-[0.04]"
+          style={{ background: 'radial-gradient(circle, #8A7B6A, transparent 70%)' }} />
+        {/* Thin horizontal rule lines */}
+        <div className="absolute top-[38%] left-0 right-0 h-px bg-white/[0.03]" />
+        <div className="absolute top-[62%] left-0 right-0 h-px bg-white/[0.03]" />
+      </div>
+
+      {/* Top strip — issue line */}
+      <div className="flex-shrink-0 border-b border-white/[0.05] px-8 lg:px-16 py-3 flex items-center justify-between">
+        <span className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/15">
+          Anoce · Est. 2026 · Ulaanbaatar, Mongolia
         </span>
-        <p className="font-sans text-sm text-[#555] leading-relaxed max-w-sm tracking-wide">
-          Celebrating Mongolian heritage through contemporary design and exceptional craftsmanship.
-        </p>
-        <div className="w-px h-8 bg-gradient-to-b from-[#333] to-transparent mt-10" />
-      </motion.div>
+        <span className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/15">
+          Volume XII · Spring 2026
+        </span>
+      </div>
 
-      {/* Columns */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-10 px-8 lg:px-24 py-14 border-b border-white/[0.06]"
-      >
-        {/* Explore */}
-        <div>
-          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
-            Explore
-          </h4>
-          <ul className="space-y-3">
-            {[['Home', '/'], ['Collections', '/collections'], ['Editorial', '/editorial'], ['Contact', '/contact']].map(([label, href]) => (
-              <li key={label}>
-                <Link href={href} className="font-sans text-sm text-[#777] hover:text-white transition-colors duration-300">
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* CENTER — giant wordmark */}
+      <div className="flex-1 flex flex-col items-center justify-center relative min-h-0 px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center relative"
+        >
+          {/* Super large wordmark — editorial centerpiece */}
+          <h2
+            className="font-serif font-bold text-white leading-none select-none cursor-default"
+            style={{ fontSize: 'clamp(80px, 18vw, 280px)', letterSpacing: '-0.02em' }}
+          >
+            Anoce
+          </h2>
 
-        {/* Support */}
-        <div>
-          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
-            Support
-          </h4>
-          <ul className="space-y-3">
-            {['Shipping', 'Returns', 'FAQ', 'Contact'].map((item) => (
-              <li key={item}>
-                <Link href="#" className="font-sans text-sm text-[#777] hover:text-white transition-colors duration-300">
-                  {item}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Company */}
-        <div>
-          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
-            Company
-          </h4>
-          <ul className="space-y-3">
-            {['About', 'Careers', 'Press', 'Journal'].map((item) => (
-              <li key={item}>
-                <Link href="#" className="font-sans text-sm text-[#777] hover:text-white transition-colors duration-300">
-                  {item}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Newsletter */}
-        <div>
-          <h4 className="font-sans text-[9px] uppercase tracking-[0.22em] text-[#555] mb-5">
-            Newsletter
-          </h4>
-          <p className="font-sans text-sm text-[#555] mb-4 leading-relaxed">
-            Subscribe for updates.
+          {/* Tagline sits over the baseline */}
+          <p className="font-sans text-[10px] tracking-[0.4em] uppercase text-white/20 mt-4 mx-auto">
+            Mongolian Heritage · Contemporary Luxury
           </p>
-          <div className="flex flex-col gap-2">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              className="w-full px-4 py-2.5 bg-transparent border border-[#2a2a2a] text-gray-200 placeholder-[#3a3a3a] font-sans text-sm focus:outline-none focus:border-[#555] transition-all duration-300"
-            />
-            <button className="w-full px-6 py-2.5 bg-[#F5F2ED] text-[#0F0F0F] font-sans text-[10px] font-semibold uppercase tracking-widest hover:bg-white transition-all duration-300">
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* Bottom bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: false }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="flex flex-col md:flex-row items-center justify-between gap-4 px-8 lg:px-24 py-7"
-      >
-        <p className="font-sans text-xs text-[#3a3a3a] tracking-wide">
-          © 2026 Anoce. All rights reserved.
-        </p>
-
-        <div className="flex items-center gap-6">
-          {['Instagram', 'LinkedIn', 'Twitter', 'TikTok'].map((s) => (
-            <Link key={s} href="#" className="font-sans text-[11px] text-[#444] hover:text-[#888] transition-colors duration-300">
-              {s}
+        {/* Nav links — horizontal, centered below wordmark */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: false }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex items-center gap-8 mt-10"
+        >
+          {navLinks.map(({ label, href }) => (
+            <Link key={label} href={href}
+              className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/30 hover:text-white transition-colors duration-300 relative group">
+              {label}
+              <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-white/40 group-hover:w-full transition-all duration-300" />
             </Link>
           ))}
+        </motion.div>
+      </div>
+
+      {/* Bottom section */}
+      <div className="flex-shrink-0 border-t border-white/[0.05]">
+
+        {/* Links + newsletter row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-white/[0.05]">
+
+          {/* Secondary links */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-8 lg:px-16 py-5 border-b md:border-b-0 md:border-r border-white/[0.05]">
+            {secondaryLinks.map(({ label, href }) => (
+              <Link key={label} href={href}
+                className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/20 hover:text-white/50 transition-colors duration-300">
+                {label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Social */}
+          <div className="flex items-center justify-center gap-6 px-8 py-5 border-b md:border-b-0 md:border-r border-white/[0.05]">
+            {socials.map((s) => (
+              <Link key={s} href="#"
+                className="font-sans text-[10px] tracking-[0.2em] uppercase text-white/20 hover:text-white/60 transition-colors duration-300">
+                {s}
+              </Link>
+            ))}
+          </div>
+
+          {/* Newsletter */}
+          <div className="flex items-center gap-3 px-8 lg:px-12 py-5">
+            {!hydrated ? (
+              <div aria-hidden="true" className="flex w-full items-center gap-3">
+                <div className="h-[30px] flex-1 border-b border-white/10" />
+                <div className="h-[30px] w-[112px] border border-white/10 flex-shrink-0" />
+              </div>
+            ) : submitted ? (
+              <motion.span
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-sans text-[10px] tracking-[0.25em] uppercase text-white/40"
+              >
+                Thank you ·
+              </motion.span>
+            ) : (
+              <>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="flex-1 bg-transparent border-b border-white/10 text-white/60 placeholder-white/15 font-sans text-[11px] py-1.5 focus:outline-none focus:border-white/30 transition-colors duration-300"
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="font-sans text-[9px] tracking-[0.25em] uppercase text-white/30 hover:text-white border border-white/10 hover:border-white/30 px-4 py-1.5 transition-all duration-300 flex-shrink-0"
+                >
+                  Subscribe
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <Link href="#" className="font-sans text-[10px] uppercase tracking-widest text-[#3a3a3a] hover:text-[#666] transition-colors duration-300">
-            Privacy
-          </Link>
-          <Link href="#" className="font-sans text-[10px] uppercase tracking-widest text-[#3a3a3a] hover:text-[#666] transition-colors duration-300">
-            Terms
-          </Link>
+        {/* Copyright bar */}
+        <div className="flex items-center justify-between px-8 lg:px-16 py-4">
+          <p className="font-sans text-[10px] text-white/15 tracking-wide">
+            © 2026 Anoce. All rights reserved.
+          </p>
+          <div className="flex items-center gap-5">
+            {['Privacy', 'Terms', 'Cookies'].map((item) => (
+              <Link key={item} href="#"
+                className="font-sans text-[9px] uppercase tracking-[0.2em] text-white/15 hover:text-white/40 transition-colors duration-300">
+                {item}
+              </Link>
+            ))}
+          </div>
         </div>
-      </motion.div>
+      </div>
 
     </footer>
   );

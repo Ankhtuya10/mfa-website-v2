@@ -11,18 +11,16 @@ const frames = [
     frameId: '01',
     tag: 'Contemporary Interpretations',
     title: "Spring '26 Lookbook",
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=1000&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=1200&fit=crop&q=80',
     href: '/collections/spring-26',
-    type: 'hero',
   },
   {
     id: 2,
     frameId: '02',
     tag: 'Premium Cashmere',
     title: 'FW 2025 — Gobi',
-    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=600&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=800&fit=crop&q=80',
     href: '/collections/fw-2025-gobi',
-    type: 'normal',
   },
   {
     id: 3,
@@ -31,249 +29,155 @@ const frames = [
     title: 'SS 2025 — Goyol',
     image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=800&fit=crop&q=80',
     href: '/collections/ss-2025-goyol',
-    type: 'normal',
   },
   {
     id: 4,
     frameId: '04',
     tag: 'Timeless Meets Contemporary',
     title: 'Emerging — Michel&Amazonka',
-    image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=600&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=800&fit=crop&q=80',
     href: '/collections/michel-amazonka',
-    type: 'normal',
-  },
-  {
-    id: 5,
-    frameId: '05',
-    tag: null,
-    title: null,
-    image: null,
-    href: '/collections',
-    type: 'season',
   },
 ];
 
 export const CollectionsGrid = () => {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
-  const heroFrame = frames[0];
-  const midTop = frames[1];
-  const midBottom = frames[2];
-  const rightTop = frames[3];
-  const seasonBlock = frames[4];
-
-  const getFrameClass = (id: number) => {
+  const getDimClass = (id: number) => {
     if (hoveredId === null) return '';
-    if (hoveredId === id) return 'brightness-110';
-    return 'brightness-75 saturate-50';
+    if (hoveredId === id) return '';
+    return 'opacity-35';
   };
 
   return (
-    <section className="relative w-full bg-[#F5F2ED] py-16 overflow-hidden">
+    <section className="relative w-full h-screen bg-[#F5F0EA] flex flex-col overflow-hidden">
 
       {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.2 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-baseline justify-between mb-6"
+        viewport={{ once: false, amount: 0.3 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="flex items-end justify-between px-6 md:px-10 pt-8 pb-4 flex-shrink-0"
       >
         <div>
-          <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#9B9590] block mb-2">
+          <span className="font-sans text-[9px] tracking-[0.35em] uppercase text-[#A09890] block mb-2">
             Featured Collections
           </span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[#2A2522] leading-tight">
+          <h2 className="font-serif text-4xl md:text-5xl font-normal text-[#1E1B18] leading-none">
             Latest Collections
           </h2>
         </div>
         <Link
           href="/collections"
-          className="hidden md:flex items-center gap-3 font-sans text-[10px] tracking-[0.2em] uppercase text-[#9B9590] hover:text-[#2A2522] transition-colors duration-300 group"
+          className="hidden md:flex items-center gap-3 font-sans text-[9px] tracking-[0.25em] uppercase text-[#A09890] hover:text-[#1E1B18] transition-colors duration-300 group mb-1"
         >
-          <span className="w-8 h-px bg-[#9B9590] group-hover:bg-[#2A2522] group-hover:w-12 transition-all duration-300" />
-          View All Collections
-          <span className="w-8 h-px bg-[#9B9590] group-hover:bg-[#2A2522] group-hover:w-12 transition-all duration-300" />
+          View All
+          <span className="w-6 h-px bg-current transition-all duration-300 group-hover:w-10" />
         </Link>
       </motion.div>
 
-      {/* Film wrapper */}
+      {/* Film strip — fills the rest */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.15 }}
-        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-[#1a1815] p-3 w-full"
+        viewport={{ once: false, amount: 0.1 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="flex-1 flex flex-col px-6 md:px-10 pb-6 min-h-0"
       >
-        {/* Grid: 3 cols, 2 rows */}
-        <div
-          className="grid gap-[3px] w-full"
-          style={{
-            gridTemplateColumns: '1.8fr 1fr 1fr',
-            gridTemplateRows: 'repeat(2, minmax(200px, 1fr))',
-          }}
-        >
-          {/* LEFT — hero spans 2 rows */}
-          <Link
-            href={heroFrame.href}
-            className={`relative overflow-hidden group transition-all duration-500 ${getFrameClass(heroFrame.id)}`}
-            style={{ gridRow: 'span 2' }}
-            onMouseEnter={() => setHoveredId(heroFrame.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            <div className="relative w-full h-full">
-              <Image
-                src={heroFrame.image!}
-                alt={heroFrame.title!}
-                fill
-                className="object-cover transition-transform duration-600 group-hover:scale-[1.03]"
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-            <span className="absolute top-2 left-2 z-10 font-mono text-[9px] tracking-[0.1em] text-white/30">
-              {heroFrame.frameId}
-            </span>
-            <div className="absolute inset-0 border border-white/[0.07] z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 p-4 z-10">
-              <p className="font-sans text-[9px] tracking-[0.18em] uppercase text-white/55 mb-1">
-                {heroFrame.tag}
-              </p>
-              <h3 className="font-serif text-xl lg:text-2xl text-white font-normal">
-                {heroFrame.title}
-              </h3>
-            </div>
-          </Link>
+        <div className="bg-[#161412] p-2 md:p-2.5 flex flex-col h-full">
 
-          {/* MIDDLE TOP */}
-          <Link
-            href={midTop.href}
-            className={`relative overflow-hidden group transition-all duration-500 ${getFrameClass(midTop.id)}`}
-            onMouseEnter={() => setHoveredId(midTop.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            <div className="relative w-full h-full">
-              <Image
-                src={midTop.image!}
-                alt={midTop.title!}
-                fill
-                className="object-cover transition-transform duration-600 group-hover:scale-[1.03]"
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-            <span className="absolute top-2 left-2 z-10 font-mono text-[9px] tracking-[0.1em] text-white/30">
-              {midTop.frameId}
-            </span>
-            <div className="absolute inset-0 border border-white/[0.07] z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 p-3 z-10">
-              <p className="font-sans text-[9px] tracking-[0.18em] uppercase text-white/55 mb-1">
-                {midTop.tag}
-              </p>
-              <h3 className="font-serif text-base text-white font-normal">
-                {midTop.title}
-              </h3>
-            </div>
-          </Link>
+          {/* Perforations top */}
+          <div className="flex items-center gap-[5px] mb-2 flex-shrink-0 overflow-hidden">
+            {Array.from({ length: 50 }).map((_, i) => (
+              <div key={i} className="w-2.5 h-[5px] rounded-sm bg-white/[0.08] flex-shrink-0" />
+            ))}
+          </div>
 
-          {/* RIGHT TOP */}
-          <Link
-            href={rightTop.href}
-            className={`relative overflow-hidden group transition-all duration-500 ${getFrameClass(rightTop.id)}`}
-            onMouseEnter={() => setHoveredId(rightTop.id)}
-            onMouseLeave={() => setHoveredId(null)}
+          {/* Grid */}
+          <div className="grid gap-[3px] flex-1 min-h-0"
+            style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '1fr 1fr' }}
           >
-            <div className="relative w-full h-full">
-              <Image
-                src={rightTop.image!}
-                alt={rightTop.title!}
-                fill
-                className="object-cover transition-transform duration-600 group-hover:scale-[1.03]"
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-            <span className="absolute top-2 left-2 z-10 font-mono text-[9px] tracking-[0.1em] text-white/30">
-              {rightTop.frameId}
-            </span>
-            <div className="absolute inset-0 border border-white/[0.07] z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 p-3 z-10">
-              <p className="font-sans text-[9px] tracking-[0.18em] uppercase text-white/55 mb-1">
-                {rightTop.tag}
-              </p>
-              <h3 className="font-serif text-base text-white font-normal">
-                {rightTop.title}
-              </h3>
-            </div>
-          </Link>
+            {/* Frame 01 — spans 2 rows */}
+            <Link
+              href={frames[0].href}
+              className={`relative overflow-hidden group row-span-2 transition-all duration-500 ${getDimClass(frames[0].id)}`}
+              onMouseEnter={() => setHoveredId(frames[0].id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              <Image src={frames[0].image} alt={frames[0].title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+              <div className="absolute inset-0 border border-white/[0.06]" />
+              <span className="absolute top-3 left-3 font-mono text-[8px] tracking-[0.12em] text-white/20">{frames[0].frameId}</span>
+              <div className="absolute bottom-0 left-0 p-4">
+                <p className="font-sans text-[7px] tracking-[0.22em] uppercase text-white/45 mb-1.5">{frames[0].tag}</p>
+                <h3 className="font-serif text-xl text-white font-normal leading-snug">{frames[0].title}</h3>
+              </div>
+            </Link>
 
-          {/* MIDDLE BOTTOM */}
-          <Link
-            href={midBottom.href}
-            className={`relative overflow-hidden group transition-all duration-500 ${getFrameClass(midBottom.id)}`}
-            onMouseEnter={() => setHoveredId(midBottom.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            <div className="relative w-full h-full">
-              <Image
-                src={midBottom.image!}
-                alt={midBottom.title!}
-                fill
-                className="object-cover transition-transform duration-600 group-hover:scale-[1.03]"
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-            <span className="absolute top-2 left-2 z-10 font-mono text-[9px] tracking-[0.1em] text-white/30">
-              {midBottom.frameId}
-            </span>
-            <div className="absolute inset-0 border border-white/[0.07] z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 p-3 z-10">
-              <p className="font-sans text-[9px] tracking-[0.18em] uppercase text-white/55 mb-1">
-                {midBottom.tag}
-              </p>
-              <h3 className="font-serif text-base text-white font-normal">
-                {midBottom.title}
-              </h3>
-            </div>
-          </Link>
+            {/* Frame 02 */}
+            <Link href={frames[1].href} className={`relative overflow-hidden group transition-all duration-500 ${getDimClass(frames[1].id)}`}
+              onMouseEnter={() => setHoveredId(frames[1].id)} onMouseLeave={() => setHoveredId(null)}>
+              <Image src={frames[1].image} alt={frames[1].title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+              <div className="absolute inset-0 border border-white/[0.06]" />
+              <span className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.12em] text-white/20">{frames[1].frameId}</span>
+              <div className="absolute bottom-0 left-0 p-3">
+                <p className="font-sans text-[7px] tracking-[0.22em] uppercase text-white/45 mb-1">{frames[1].tag}</p>
+                <h3 className="font-serif text-sm text-white font-normal">{frames[1].title}</h3>
+              </div>
+            </Link>
 
-          {/* BOTTOM RIGHT — SS 2026 season block */}
-          <Link
-            href={seasonBlock.href}
-            className={`relative overflow-hidden group transition-all duration-500 bg-[#111] flex flex-col items-center justify-center gap-2 ${getFrameClass(seasonBlock.id)}`}
-            onMouseEnter={() => setHoveredId(seasonBlock.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            <span className="absolute top-2 left-2 z-10 font-mono text-[9px] tracking-[0.1em] text-white/30">
-              {seasonBlock.frameId}
-            </span>
-            <div className="absolute inset-0 border border-white/[0.07] z-10 pointer-events-none" />
-            <div className="text-center transition-transform duration-500 group-hover:scale-105">
-              <span className="font-sans text-[9px] tracking-[0.22em] uppercase text-[#555] block mb-2">
-                New Season
-              </span>
-              <span className="font-serif text-3xl lg:text-4xl font-bold text-[#f0ede6] block">
-                SS 2026
-              </span>
-              <span className="block w-5 h-px bg-[#444] mx-auto mt-3" />
-            </div>
-          </Link>
+            {/* Frame 03 */}
+            <Link href={frames[2].href} className={`relative overflow-hidden group transition-all duration-500 ${getDimClass(frames[2].id)}`}
+              onMouseEnter={() => setHoveredId(frames[2].id)} onMouseLeave={() => setHoveredId(null)}>
+              <Image src={frames[2].image} alt={frames[2].title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+              <div className="absolute inset-0 border border-white/[0.06]" />
+              <span className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.12em] text-white/20">{frames[2].frameId}</span>
+              <div className="absolute bottom-0 left-0 p-3">
+                <p className="font-sans text-[7px] tracking-[0.22em] uppercase text-white/45 mb-1">{frames[2].tag}</p>
+                <h3 className="font-serif text-sm text-white font-normal">{frames[2].title}</h3>
+              </div>
+            </Link>
+
+            {/* Frame 04 */}
+            <Link href={frames[3].href} className={`relative overflow-hidden group transition-all duration-500 ${getDimClass(frames[3].id)}`}
+              onMouseEnter={() => setHoveredId(frames[3].id)} onMouseLeave={() => setHoveredId(null)}>
+              <Image src={frames[3].image} alt={frames[3].title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+              <div className="absolute inset-0 border border-white/[0.06]" />
+              <span className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.12em] text-white/20">{frames[3].frameId}</span>
+              <div className="absolute bottom-0 left-0 p-3">
+                <p className="font-sans text-[7px] tracking-[0.22em] uppercase text-white/45 mb-1">{frames[3].tag}</p>
+                <h3 className="font-serif text-sm text-white font-normal">{frames[3].title}</h3>
+              </div>
+            </Link>
+
+            {/* SS 2026 season block */}
+            <Link href="/collections" className="relative overflow-hidden group flex items-center justify-center bg-[#0C0A08]">
+              <div className="absolute inset-0 border border-white/[0.06]" />
+              <div className="absolute inset-0 opacity-30"
+                style={{ backgroundImage: 'radial-gradient(circle at 30% 70%, #2a2218, transparent 60%), radial-gradient(circle at 80% 20%, #1a150d, transparent 50%)' }} />
+              <div className="text-center transition-transform duration-500 group-hover:scale-105 relative z-10">
+                <span className="font-sans text-[7px] tracking-[0.3em] uppercase text-white/20 block mb-3">New Season</span>
+                <span className="font-serif text-3xl lg:text-4xl font-bold text-[#EDE9E2] block">SS 2026</span>
+                <span className="block w-4 h-px bg-white/15 mx-auto mt-4" />
+              </div>
+            </Link>
+          </div>
+
+          {/* Perforations bottom */}
+          <div className="flex items-center gap-[5px] mt-2 flex-shrink-0 overflow-hidden">
+            {Array.from({ length: 50 }).map((_, i) => (
+              <div key={i} className="w-2.5 h-[5px] rounded-sm bg-white/[0.08] flex-shrink-0" />
+            ))}
+          </div>
+          <p className="font-mono text-[7px] tracking-[0.35em] text-white/10 text-center mt-1.5 uppercase flex-shrink-0">
+            Anoce Magazine · Spring 2026 · 35mm
+          </p>
         </div>
-
-        {/* Film caption */}
-        <p className="font-mono text-[8px] tracking-[0.3em] text-white/20 text-center mt-2 uppercase">
-          Anoce Magazine · Spring 2026 · 35mm
-        </p>
       </motion.div>
-
-      {/* Mobile view all */}
-      <div className="flex md:hidden justify-center mt-8">
-        <Link
-          href="/collections"
-          className="flex items-center gap-4 font-sans text-[11px] tracking-[0.2em] uppercase text-[#2A2522] hover:text-[#9B9590] transition-colors duration-300 group"
-        >
-          <span className="w-8 h-px bg-current group-hover:w-12 transition-all duration-300" />
-          View All Collections
-          <span className="w-8 h-px bg-current group-hover:w-12 transition-all duration-300" />
-        </Link>
-      </div>
 
     </section>
   );

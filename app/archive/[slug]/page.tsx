@@ -104,12 +104,12 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
   }
 
   return (
-    <div className="flex flex-col min-h-screen justify-between bg-[#F5F2ED]">
+    <div className="h-screen w-full overflow-hidden bg-[#F5F2ED]">
       <StickyNavbar />
 
-      <main className="flex-grow">
+      <div className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container">
         {/* Hero */}
-        <section className="relative w-full" style={{ height: '65vh' }}>
+        <section className="snap-start relative w-full h-screen overflow-hidden">
           <Image
             src={collection.cover_image}
             alt={collection.title}
@@ -120,7 +120,7 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           
           <div className="absolute inset-0 flex items-end justify-center" style={{ paddingBottom: '60px' }}>
-            <div className="max-w-6xl mx-auto px-8 w-full">
+            <div className="max-w-[95rem] mx-auto px-6 md:px-10 w-full">
               <div className="flex justify-between items-end">
                 <div>
                   <span className="font-sans text-[10px] tracking-[4.95px] uppercase text-white/70 block mb-2">
@@ -142,84 +142,86 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
         </section>
 
         {/* Content */}
-        <div className="max-w-6xl mx-auto px-8 w-full">
-          <Breadcrumb
-            items={[
-              { label: 'Archive', href: '/archive' },
-              { label: `${collection.season} ${collection.year}`, href: '/archive' },
-              { label: collection.designer_name }
-            ]}
-          />
+        <section className="snap-start min-h-screen w-full bg-[#F5F2ED]">
+          <div className="max-w-[95rem] mx-auto px-6 md:px-10 w-full">
+            <Breadcrumb
+              items={[
+                { label: 'Archive', href: '/archive' },
+                { label: `${collection.season} ${collection.year}`, href: '/archive' },
+                { label: collection.designer_name }
+              ]}
+            />
 
-          {/* Info bar */}
-          <div className="py-10 border-b border-[rgba(0,0,0,0.08)]">
-            <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-12">
-              <div>
-                <p className="font-inter text-[17px] leading-[1.85] text-[#3A3530] line-clamp-2">
-                  {collection.description}
-                </p>
-                <Link href={`/designers/${collection.designer_slug}`} className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] mt-4 inline-block hover:text-[#2A2522] transition-colors">
-                  View Designer Profile →
-                </Link>
-              </div>
-              <div className="grid grid-cols-4 gap-4">
+            {/* Info bar */}
+            <div className="py-10 border-b border-[rgba(0,0,0,0.08)]">
+              <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-12">
                 <div>
-                  <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Year</span>
-                  <span className="font-serif text-3xl text-[#2A2522]">{collection.year}</span>
+                  <p className="font-inter text-[17px] leading-[1.85] text-[#3A3530] line-clamp-2">
+                    {collection.description}
+                  </p>
+                  <Link href={`/designers/${collection.designer_slug}`} className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] mt-4 inline-block hover:text-[#2A2522] transition-colors">
+                    View Designer Profile →
+                  </Link>
                 </div>
-                <div>
-                  <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Season</span>
-                  <span className="font-serif text-3xl text-[#2A2522]">{collection.season}</span>
-                </div>
-                <div>
-                  <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Looks</span>
-                  <span className="font-serif text-3xl text-[#2A2522]">{collection.looks?.length || 0}</span>
-                </div>
-                <div>
-                  <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Material</span>
-                  <span className="font-serif text-3xl text-[#2A2522]">Cashmere</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Lookbook */}
-          <section className="py-16">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {collection.looks?.map((look, index) => (
-                <motion.div
-                  key={look.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, amount: 0.2 }}
-                  transition={{ duration: 0.6, delay: index * 0.05 }}
-                  className="cursor-pointer group"
-                  onClick={() => openLightbox(index)}
-                >
-                  <div className="relative aspect-[2/3] overflow-hidden">
-                    <Image
-                      src={look.image}
-                      alt={`Look ${look.number}`}
-                      width={600}
-                      height={900}
-                      className="object-cover w-full transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <span className="font-sans text-[10px] tracking-[2px] uppercase text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                        Look {look.number}
-                      </span>
-                    </div>
+                <div className="grid grid-cols-4 gap-4">
+                  <div>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Year</span>
+                    <span className="font-serif text-3xl text-[#2A2522]">{collection.year}</span>
                   </div>
-                </motion.div>
-              ))}
+                  <div>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Season</span>
+                    <span className="font-serif text-3xl text-[#2A2522]">{collection.season}</span>
+                  </div>
+                  <div>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Looks</span>
+                    <span className="font-serif text-3xl text-[#2A2522]">{collection.looks?.length || 0}</span>
+                  </div>
+                  <div>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Material</span>
+                    <span className="font-serif text-3xl text-[#2A2522]">Cashmere</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </section>
-        </div>
+
+            {/* Lookbook */}
+            <section className="py-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {collection.looks?.map((look, index) => (
+                  <motion.div
+                    key={look.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: false, amount: 0.2 }}
+                    transition={{ duration: 0.6, delay: index * 0.05 }}
+                    className="cursor-pointer group"
+                    onClick={() => openLightbox(index)}
+                  >
+                    <div className="relative aspect-[2/3] overflow-hidden">
+                      <Image
+                        src={look.image}
+                        alt={`Look ${look.number}`}
+                        width={600}
+                        height={900}
+                        className="object-cover w-full transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <span className="font-sans text-[10px] tracking-[2px] uppercase text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          Look {look.number}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </section>
 
         {/* More from designer */}
         {otherCollections.length > 0 && (
-          <section className="py-16 bg-white">
-            <div className="max-w-6xl mx-auto px-8 w-full">
+          <section className="snap-start min-h-screen py-16 bg-white flex items-center">
+            <div className="max-w-[95rem] mx-auto px-6 md:px-10 w-full">
               <h2 className="font-display text-2xl text-[#2A2522] mb-10">More from {collection.designer_name}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {otherCollections.map((col) => (
@@ -229,7 +231,11 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
             </div>
           </section>
         )}
-      </main>
+
+        <div className="snap-start h-screen w-full">
+          <Footer />
+        </div>
+      </div>
 
       {/* Lightbox */}
       <AnimatePresence>
@@ -299,7 +305,6 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
         )}
       </AnimatePresence>
 
-      <Footer />
     </div>
   )
 }

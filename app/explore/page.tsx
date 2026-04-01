@@ -68,7 +68,7 @@ export default function ExplorePage() {
 
       <main className="flex-grow">
         {/* Search Hero */}
-        <section className="relative bg-[#0A0A0A] overflow-hidden" style={{ minHeight: '60vh' }}>
+        <section className="relative bg-[#0A0A0A] overflow-hidden pt-24 pb-12">
           <div className="absolute inset-0">
             <Image
               src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920&q=80"

@@ -24,7 +24,7 @@ export const HeroSection = () => {
         <div className="relative w-full md:w-[60%] h-[50vh] md:h-full bg-[#0A0A0A]">
           <div className="relative w-full h-full">
             <Image
-              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=1200&fit=crop&q=90"
+              src="https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/sign/videos/images/pexels-aagii-aagii-494659827-16010457.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kNTdjZGJjYi0wNzRmLTQyMGMtOGJmMS1iY2MyZTI2NzkyODciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ2aWRlb3MvaW1hZ2VzL3BleGVscy1hYWdpaS1hYWdpaS00OTQ2NTk4MjctMTYwMTA0NTcuanBnIiwiaWF0IjoxNzc1MDUxNDk0LCJleHAiOjE3Nzc2NDM0OTR9.LKF0BalPkfNtet7pmvN0jMDvNWv6azlFPg5S-py5AiQ"
               alt="Mongolian Cashmere"
               fill
               priority
@@ -70,7 +70,7 @@ export const HeroSection = () => {
               animate="visible"
               className="font-serif font-normal text-[48px] md:text-[66px] leading-[1.05] tracking-[-0.01em] mb-4"
             >
-              <span className="block text-[#B7AEA9]">Dadadu</span>
+              <span className="block text-[#B7AEA9]">Beauty</span>
               <span className="block text-[#B7AEA9]">
                 of <em className="text-[#393931] italic">Mongolian</em>
               </span>
@@ -82,7 +82,7 @@ export const HeroSection = () => {
               variants={childVariants}
               initial="hidden"
               animate="visible"
-              className="font-sans font-normal text-[15px] leading-[1.9] text-[#B7AEA9] max-w-[480px] text-center mb-12 mx-auto"
+              className="font-sans font-normal text-[15px] leading-[1.9] text-[#B7AEA9] leading-[1.05] tracking-[-0.01em] mb-12"
             >
               Woven from the finest inner fleece of Mongolian goats, each piece carries the silence
               of the steppe — a warmth that endures, a softness that lasts a lifetime.

@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="h-screen w-full overflow-hidden">
       <StickyNavbar />
-      <div className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+      <div className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container">
         <div className="snap-start h-screen w-full">
           <HeroSection />
         </div>
