@@ -242,16 +242,16 @@ const ArchiveCollectionCard = ({ item, featured = false }: ArchiveCollectionCard
 
   return (
     <Link href={`/archive/${item.collection.slug}`} className="group block h-full">
-      <article className="relative aspect-[3/4] h-full overflow-hidden rounded-[22px] border border-white/[0.08] bg-[#0F0D0B] shadow-[0_24px_50px_rgba(0,0,0,0.22)]">
+      <article className="glass-panel-dark relative aspect-[3/4] h-full overflow-hidden rounded-[30px] bg-[#0F0D0B]/88 p-2.5">
         <Image
           src={coverImage}
           alt={item.collection.title || 'Collection'}
           fill
-          className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+          className="object-cover rounded-[24px] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/38 to-black/8 transition-all duration-500 group-hover:from-black/96 group-hover:via-black/52" />
-        <div className="absolute inset-0 border border-white/[0.04] transition-colors duration-500 group-hover:border-white/[0.18]" />
-        <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
+        <div className="absolute inset-[10px] rounded-[24px] bg-gradient-to-t from-black/92 via-black/38 to-black/8 transition-all duration-500 group-hover:from-black/96 group-hover:via-black/52" />
+        <div className="absolute inset-[10px] rounded-[24px] border border-white/[0.04] transition-colors duration-500 group-hover:border-white/[0.18]" />
+        <div className="absolute inset-x-0 bottom-0 p-6 md:p-7">
           <div className="max-w-[20rem] space-y-3">
             <p
               className={`font-serif leading-[1.05] text-white/90 transition-all duration-500 group-hover:text-white ${

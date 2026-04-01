@@ -58,9 +58,9 @@ export function ArticleCard({ article, variant = 'grid' }: ArticleCardProps) {
         <motion.article
           whileHover={{ scale: 1.01 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-0"
+          className="glass-panel-light overflow-hidden rounded-[34px] grid grid-cols-1 gap-0 lg:grid-cols-[55%_45%]"
         >
-          <div className="relative h-[500px] overflow-hidden">
+          <div className="relative h-[500px] overflow-hidden rounded-[28px] m-2.5">
             <Image
               src={coverImage}
               alt={article.title}
@@ -69,7 +69,7 @@ export function ArticleCard({ article, variant = 'grid' }: ArticleCardProps) {
               sizes="(max-width: 1024px) 100vw, 55vw"
             />
           </div>
-          <div className="bg-[#F5F2ED] p-12 lg:p-20 flex flex-col justify-center items-center text-center">
+          <div className="p-12 lg:p-16 flex flex-col justify-center items-center text-center">
             <span className="font-sans text-xs tracking-[4.95px] uppercase text-[#9B9590] mb-6 block">
               {article.category}
             </span>
@@ -105,9 +105,9 @@ export function ArticleCard({ article, variant = 'grid' }: ArticleCardProps) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.6 }}
-        className="group cursor-pointer text-center"
+        className="glass-panel-light group cursor-pointer overflow-hidden rounded-[34px] text-center p-3"
       >
-        <div className="relative aspect-[3/4] overflow-hidden">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-[26px]">
           <motion.div
             whileHover={{ scale: 1.07 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -121,14 +121,14 @@ export function ArticleCard({ article, variant = 'grid' }: ArticleCardProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </motion.div>
-          <span className="absolute top-4 left-1/2 -translate-x-1/2 font-sans text-xs tracking-[3px] uppercase text-white/80 bg-black/40 px-3 py-1.5">
+          <span className="absolute top-4 left-1/2 -translate-x-1/2 font-sans text-xs tracking-[3px] uppercase text-white/80 bg-black/40 px-3 py-1.5 rounded-full">
             {article.category}
           </span>
         </div>
-        <h3 className="font-serif text-2xl text-[#2A2522] mt-6 leading-[1.2] group-hover:text-[#393931] transition-colors">
+        <h3 className="font-serif text-2xl text-[#2A2522] mt-5 leading-[1.2] group-hover:text-[#393931] transition-colors px-2">
           {article.title}
         </h3>
-        <div className="flex items-center justify-center gap-3 mt-3">
+        <div className="flex items-center justify-center gap-3 mt-3 pb-3">
           <span className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590]">
             {author}
           </span>

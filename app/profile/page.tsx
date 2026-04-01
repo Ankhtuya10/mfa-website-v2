@@ -279,10 +279,16 @@ export default function ProfilePage() {
   const userRole = profile?.role || 'viewer'
   const roleDisplay = userRole.charAt(0).toUpperCase() + userRole.slice(1)
   const joinedDate = user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''
+  const profileInitial = userName[0]?.toUpperCase() || 'A'
+  const statCards = [
+    { label: 'Saved', value: savedArticles.length },
+    { label: 'Looks', value: savedLooks.length },
+    { label: 'Following', value: followedDesigners.length },
+  ]
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen justify-between bg-[#F5F2ED]">
+      <div className="flex flex-col min-h-screen justify-between bg-[#0A0A0A]">
         <StickyNavbar />
         <div className="flex-1">
           <section className="bg-[#0A0A0A] py-20">
@@ -303,9 +309,9 @@ export default function ProfilePage() {
               </div>
             </div>
           </section>
-          <div className="sticky top-20 z-40 bg-white border-b border-[rgba(0,0,0,0.08)]">
+          <div className="sticky top-20 z-40 bg-transparent">
             <div className="max-w-6xl mx-auto px-8">
-              <div className="flex gap-10">
+              <div className="glass-panel-dark rounded-full px-6 py-4 flex gap-10">
                 {tabs.map((tab) => (
                   <div key={tab} className="w-20 h-4 bg-[#B7AEA9]/20 animate-pulse" />
                 ))}
@@ -315,7 +321,7 @@ export default function ProfilePage() {
           <div className="max-w-6xl mx-auto px-8 w-full py-16">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-[#EAEAEA] animate-pulse aspect-[3/4]" />
+                <div key={i} className="glass-panel-dark rounded-[34px] animate-pulse aspect-[3/4]" />
               ))}
             </div>
           </div>
@@ -327,11 +333,11 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="flex flex-col min-h-screen justify-between bg-[#F5F2ED]">
+      <div className="flex flex-col min-h-screen justify-between bg-[#0A0A0A]">
         <StickyNavbar />
         <div className="flex-1 flex flex-col items-center justify-center">
-          <h1 className="font-serif text-4xl text-[#2A2522] mb-4">Not logged in</h1>
-          <a href="/login" className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] hover:text-[#2A2522]">
+          <h1 className="font-serif text-4xl text-white mb-4">Not logged in</h1>
+          <a href="/login" className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] hover:text-white">
             Go to Login →
           </a>
         </div>
@@ -341,271 +347,248 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen justify-between bg-[#F5F2ED]">
+    <div className="h-screen w-full overflow-hidden bg-[#0A0A0A]">
       <StickyNavbar />
 
-      <main className="flex-grow">
-        <section className="bg-[#0A0A0A] py-20">
-          <div className="max-w-6xl mx-auto px-8 w-full">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-              <div className="flex items-center gap-6">
-                <div className="relative w-24 h-24 bg-[#B7AEA9] overflow-hidden flex items-center justify-center">
+      <main className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container pt-[72px] md:pt-[88px]">
+        <section className="snap-start relative h-screen w-full overflow-hidden bg-[#0A0A0A] px-6 pb-6 pt-[92px] md:px-10 md:pb-8 md:pt-[108px] lg:px-14">
+          <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-center">
+            <div className="glass-panel-dark flex w-full max-w-5xl flex-col items-center justify-center gap-8 rounded-[42px] px-8 py-10 text-center md:px-12 md:py-12 lg:px-16">
+              <div className="flex flex-col items-center gap-5">
+                <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[#B7AEA9] ring-4 ring-white/10 md:h-32 md:w-32">
                   {profile?.avatar_url ? (
                     <Image src={profile.avatar_url} alt={userName} fill className="object-cover" />
                   ) : (
-                    <span className="font-serif text-4xl text-white">
-                      {userName[0]?.toUpperCase()}
-                    </span>
+                    <span className="font-serif text-5xl text-white">{profileInitial}</span>
                   )}
                 </div>
-                <div>
-                  <h1 className="font-serif text-4xl text-white">{userName}</h1>
-                  <p className="font-sans text-[#B7AEA9] mt-1">{user.email}</p>
-                  <p className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] mt-2">
-                    {roleDisplay}
-                  </p>
+                <div className="max-w-2xl space-y-2">
+                  <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#9B9590]">{roleDisplay}</p>
+                  <h1 className="font-serif text-4xl leading-none text-white md:text-5xl [overflow-wrap:anywhere]">{userName}</h1>
+                  <p className="mx-auto max-w-xl font-sans text-base leading-relaxed text-white/62 [overflow-wrap:anywhere]">{user.email}</p>
                   {joinedDate && (
-                    <p className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] mt-1">
-                      Joined {joinedDate}
-                    </p>
+                    <p className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#9B9590]">Joined {joinedDate}</p>
                   )}
                 </div>
               </div>
-              
-              <div className="flex gap-16">
-                <div className="text-center">
-                  <span className="font-serif text-5xl text-white block">{savedArticles.length}</span>
-                  <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590]">Saved</span>
-                </div>
-                <div className="text-center">
-                  <span className="font-serif text-5xl text-white block">{savedLooks.length}</span>
-                  <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590]">Looks</span>
-                </div>
-                <div className="text-center">
-                  <span className="font-serif text-5xl text-white block">{followedDesigners.length}</span>
-                  <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590]">Following</span>
-                </div>
+
+              <div className="grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
+                {statCards.map((stat) => (
+                  <div key={stat.label} className="glass-panel-dark flex min-h-[148px] min-w-0 flex-col items-center justify-center rounded-[32px] px-6 py-6 text-center">
+                    <span className="font-serif text-5xl leading-none text-white md:text-6xl">{stat.value}</span>
+                    <span className="mt-3 font-sans text-[10px] tracking-[0.26em] uppercase text-[#9B9590]">{stat.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="glass-panel-dark flex w-full max-w-4xl flex-wrap items-center justify-center gap-3 rounded-full px-4 py-4 md:px-6">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`rounded-full px-5 py-2.5 font-sans text-[10px] tracking-[0.24em] uppercase transition-all ${
+                      activeTab === tab
+                        ? 'bg-white text-[#0A0A0A] shadow-[0_8px_24px_rgba(255,255,255,0.16)]'
+                        : 'border border-white/[0.08] bg-white/[0.03] text-[#B7AEA9] hover:border-white/[0.18] hover:bg-white/[0.07] hover:text-white'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        <div className="sticky top-20 z-40 bg-white border-b border-[rgba(0,0,0,0.08)]">
-          <div className="max-w-6xl mx-auto px-8">
-            <div className="flex gap-10">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`font-sans text-[11px] tracking-[2px] uppercase pb-4 transition-colors ${
-                    activeTab === tab
-                      ? 'border-b-2 border-[#2A2522] text-[#2A2522]'
-                      : 'text-[#B7AEA9] hover:text-[#2A2522]'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0A0A0A] px-6 pb-6 pt-[92px] md:px-10 md:pb-8 md:pt-[108px] lg:px-14">
+          <div className="mx-auto flex h-full w-full max-w-6xl flex-col">
+            <div className="glass-panel-dark relative flex-1 overflow-hidden rounded-[40px]">
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center px-6 pt-6 text-center md:pt-7">
+                <p className="mb-3 font-sans text-[10px] tracking-[0.3em] uppercase text-[#9B9590]">Profile Library</p>
+                <h2 className="font-serif text-3xl leading-none text-white md:text-4xl">{activeTab}</h2>
+              </div>
 
-        <div className="max-w-6xl mx-auto px-8 w-full py-16">
-          {activeTab === 'Saved Articles' && (
-            <div>
-              {savedArticles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                  {savedArticles.map((article) => (
-                    <ArticleCard key={article.id} article={article} variant="grid" />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-24">
-                  <div className="w-20 h-20 mx-auto mb-6 bg-[#E5E0DB] rounded-full flex items-center justify-center">
-                    <svg className="w-10 h-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-2xl text-[#2A2522] mb-2">No saved articles yet</h3>
-                  <p className="font-sans text-[#9B9590] mb-6">Bookmark articles as you read to find them here</p>
-                  <a href="/editorial" className="inline-block bg-[#0A0A0A] text-white px-8 py-3 font-sans text-[11px] tracking-[2px] uppercase hover:bg-[#2A2522] transition-colors">
-                    Browse Editorial
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
+              <div className="h-full overflow-y-auto px-6 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
+                {activeTab === 'Saved Articles' && (
+                  savedArticles.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                      {savedArticles.map((article) => (
+                        <ArticleCard key={article.id} article={article} variant="grid" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex h-full min-h-[480px] flex-col items-center justify-center text-center">
+                      <div className="glass-panel-dark mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+                        <svg className="h-10 w-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                      </div>
+                      <h3 className="font-serif text-2xl text-white">No saved articles yet</h3>
+                      <p className="mt-3 max-w-md font-sans text-white/58">Bookmark articles as you read to build your personal editorial shelf.</p>
+                      <a href="/editorial" className="glass-pill-dark mt-8 inline-block px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]">
+                        Browse Editorial
+                      </a>
+                    </div>
+                  )
+                )}
 
-          {activeTab === 'Saved Looks' && (
-            <div>
-              {savedLooks.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {savedLooks.map((look) => (
-                    <div key={look.id} className="relative aspect-[2/3] overflow-hidden group">
-                      <Image 
-                        src={look.image} 
-                        alt={look.title || 'Look'} 
-                        fill 
-                        className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent">
-                        <p className="font-sans text-[10px] tracking-[2px] uppercase text-white/70">
-                          {look.collections?.designer_name}
-                        </p>
-                        <p className="font-sans text-[11px] text-white">{look.collections?.title}</p>
+                {activeTab === 'Saved Looks' && (
+                  savedLooks.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                      {savedLooks.map((look) => (
+                        <div key={look.id} className="glass-panel-dark group relative aspect-[4/5] overflow-hidden rounded-[32px] p-2.5">
+                          <Image
+                            src={look.image}
+                            alt={look.title || 'Look'}
+                            fill
+                            className="rounded-[24px] object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-x-2.5 bottom-2.5 rounded-[24px] bg-gradient-to-t from-black/85 via-black/45 to-transparent px-5 pb-5 pt-12">
+                            <p className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/62 [overflow-wrap:anywhere]">
+                              {look.collections?.designer_name || 'Saved Look'}
+                            </p>
+                            <p className="mt-2 font-serif text-xl leading-tight text-white [overflow-wrap:anywhere]">
+                              {look.collections?.title || look.title || 'Untitled look'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex h-full min-h-[480px] flex-col items-center justify-center text-center">
+                      <div className="glass-panel-dark mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+                        <svg className="h-10 w-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <h3 className="font-serif text-2xl text-white">No saved looks yet</h3>
+                      <p className="mt-3 max-w-md font-sans text-white/58">Explore collections and save the looks you want to revisit later.</p>
+                      <a href="/archive" className="glass-pill-dark mt-8 inline-block px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]">
+                        Explore Archive
+                      </a>
+                    </div>
+                  )
+                )}
+
+                {activeTab === 'Following' && (
+                  followedDesigners.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                      {followedDesigners.map((designer) => (
+                        <DesignerCard key={designer.id} designer={designer} variant="grid" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex h-full min-h-[480px] flex-col items-center justify-center text-center">
+                      <div className="glass-panel-dark mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+                        <svg className="h-10 w-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </div>
+                      <h3 className="font-serif text-2xl text-white">Not following anyone yet</h3>
+                      <p className="mt-3 max-w-md font-sans text-white/58">Follow designers from their profiles to keep your favorites close.</p>
+                      <a href="/designers" className="glass-pill-dark mt-8 inline-block px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]">
+                        Discover Designers
+                      </a>
+                    </div>
+                  )
+                )}
+
+                {activeTab === 'Settings' && (
+                  <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+                    <div className="space-y-6">
+                      <div className="glass-panel-dark rounded-[34px] p-8 md:p-10">
+                        <h3 className="mb-8 text-center font-serif text-3xl text-white">Profile Settings</h3>
+                        <div className="space-y-6">
+                          <div>
+                            <label className="mb-2 block font-sans text-[10px] tracking-[0.24em] uppercase text-[#9B9590]">Full Name</label>
+                            <input
+                              type="text"
+                              value={nameValue}
+                              onChange={(e) => setNameValue(e.target.value)}
+                              className="w-full rounded-[20px] border border-white/[0.1] bg-white/[0.03] px-5 py-4 text-center font-sans text-[15px] text-white outline-none transition-colors focus:border-white/30"
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-2 block font-sans text-[10px] tracking-[0.24em] uppercase text-[#9B9590]">Email</label>
+                            <input
+                              type="email"
+                              value={user?.email || ''}
+                              disabled
+                              className="w-full cursor-not-allowed rounded-[20px] border border-white/[0.08] bg-white/[0.02] px-5 py-4 text-center font-sans text-[15px] text-white/46 outline-none"
+                            />
+                            <p className="mt-3 text-center font-sans text-xs leading-relaxed text-white/46">Contact support to change your email address.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-center xl:justify-start">
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={saving}
+                          className={`glass-pill-dark px-12 py-4 font-sans text-[11px] font-bold tracking-[0.28em] uppercase text-white transition-colors hover:bg-white/[0.08] ${
+                            saving ? 'cursor-not-allowed opacity-50' : ''
+                          } ${saveSuccess ? 'text-green-400' : ''}`}
+                        >
+                          {saving ? 'Saving...' : saveSuccess ? 'Saved ✓' : 'Save Changes'}
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-24">
-                  <div className="w-20 h-20 mx-auto mb-6 bg-[#E5E0DB] rounded-full flex items-center justify-center">
-                    <svg className="w-10 h-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-2xl text-[#2A2522] mb-2">No saved looks yet</h3>
-                  <p className="font-sans text-[#9B9590] mb-6">Explore collections and save looks you love</p>
-                  <a href="/archive" className="inline-block bg-[#0A0A0A] text-white px-8 py-3 font-sans text-[11px] tracking-[2px] uppercase hover:bg-[#2A2522] transition-colors">
-                    Explore Archive
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
 
-          {activeTab === 'Following' && (
-            <div>
-              {followedDesigners.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                  {followedDesigners.map((designer) => (
-                    <DesignerCard key={designer.id} designer={designer} variant="grid" />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-24">
-                  <div className="w-20 h-20 mx-auto mb-6 bg-[#E5E0DB] rounded-full flex items-center justify-center">
-                    <svg className="w-10 h-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-2xl text-[#2A2522] mb-2">Not following anyone yet</h3>
-                  <p className="font-sans text-[#9B9590] mb-6">Follow designers from their profile pages</p>
-                  <a href="/designers" className="inline-block bg-[#0A0A0A] text-white px-8 py-3 font-sans text-[11px] tracking-[2px] uppercase hover:bg-[#2A2522] transition-colors">
-                    Discover Designers
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
+                    <div className="space-y-6">
+                      <div className="glass-panel-dark rounded-[34px] p-8 md:p-10">
+                        <h3 className="mb-8 text-center font-serif text-3xl text-white">Notifications</h3>
+                        <div className="space-y-5">
+                          {[
+                            ['New Collection Drops', 'new_collections'],
+                            ['Editorial Picks', 'editorial_picks'],
+                            ['Breaking Fashion News', 'breaking_news'],
+                          ].map(([label, key]) => (
+                            <label key={key} className="flex items-center justify-between gap-4 rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-5 py-4">
+                              <span className="min-w-0 font-sans text-sm leading-relaxed text-white/78 [overflow-wrap:anywhere]">{label}</span>
+                              <div className="relative shrink-0">
+                                <input
+                                  type="checkbox"
+                                  checked={notifications[key as keyof typeof notifications]}
+                                  onChange={() => handleToggle(key)}
+                                  className="peer sr-only"
+                                />
+                                <div className="h-7 w-14 rounded-full bg-white/10 transition-colors peer-checked:bg-white/60" />
+                                <div className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-7" />
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
 
-          {activeTab === 'Settings' && (
-            <div className="max-w-xl">
-              <div className="bg-white p-10 mb-8">
-                <h3 className="font-serif text-2xl text-[#2A2522] mb-8">Profile Settings</h3>
-                <div className="space-y-6">
-                  <div>
-                    <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={nameValue}
-                      onChange={(e) => setNameValue(e.target.value)}
-                      className="w-full border-b border-[rgba(0,0,0,0.15)] bg-transparent py-3 font-inter text-[15px] text-[#2A2522] outline-none focus:border-[#2A2522] transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={user?.email || ''}
-                      disabled
-                      className="w-full border-b border-[rgba(0,0,0,0.08)] bg-[#F5F2ED] py-3 font-inter text-[15px] text-[#9B9590] outline-none cursor-not-allowed"
-                    />
-                    <p className="font-sans text-[10px] text-[#9B9590] mt-1">Contact support to change your email</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-10 mb-8">
-                <h3 className="font-serif text-2xl text-[#2A2522] mb-8">Notifications</h3>
-                <div className="space-y-5">
-                  <label className="flex items-center justify-between cursor-pointer group">
-                    <span className="font-inter text-[15px] text-[#3A3530] group-hover:text-[#2A2522] transition-colors">New Collection Drops</span>
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        checked={notifications.new_collections} 
-                        onChange={() => handleToggle('new_collections')}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-12 h-6 bg-[#E5E0DB] rounded-full peer peer-checked:bg-[#0A0A0A] transition-colors"></div>
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-6 transition-transform"></div>
+                      <div className="glass-panel-dark rounded-[34px] p-8 md:p-10">
+                        <h3 className="mb-6 text-center font-serif text-3xl text-white">Account</h3>
+                        <div className="flex flex-col items-center gap-4 text-center">
+                          <button
+                            onClick={handleChangePassword}
+                            className="glass-pill-dark px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]"
+                          >
+                            Change Password
+                          </button>
+                          <button
+                            onClick={handleDeleteAccount}
+                            className="font-sans text-[11px] tracking-[0.24em] uppercase text-red-400 transition-colors hover:text-red-300"
+                          >
+                            Delete Account
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </label>
-                  <label className="flex items-center justify-between cursor-pointer group">
-                    <span className="font-inter text-[15px] text-[#3A3530] group-hover:text-[#2A2522] transition-colors">Editorial Picks</span>
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        checked={notifications.editorial_picks} 
-                        onChange={() => handleToggle('editorial_picks')}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-12 h-6 bg-[#E5E0DB] rounded-full peer peer-checked:bg-[#0A0A0A] transition-colors"></div>
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-6 transition-transform"></div>
-                    </div>
-                  </label>
-                  <label className="flex items-center justify-between cursor-pointer group">
-                    <span className="font-inter text-[15px] text-[#3A3530] group-hover:text-[#2A2522] transition-colors">Breaking Fashion News</span>
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        checked={notifications.breaking_news} 
-                        onChange={() => handleToggle('breaking_news')}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-12 h-6 bg-[#E5E0DB] rounded-full peer peer-checked:bg-[#0A0A0A] transition-colors"></div>
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-6 transition-transform"></div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <div className="bg-white p-10">
-                <h3 className="font-serif text-2xl text-[#2A2522] mb-8">Account</h3>
-                <div className="space-y-4">
-                  <button 
-                    onClick={handleChangePassword}
-                    className="font-sans text-[11px] tracking-[2px] uppercase text-[#2A2522] hover:text-[#393931] transition-colors block"
-                  >
-                    Change Password
-                  </button>
-                  <button 
-                    onClick={handleDeleteAccount}
-                    className="font-sans text-[11px] tracking-[2px] uppercase text-red-500 block"
-                  >
-                    Delete Account
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-10 flex justify-end">
-                <button 
-                  onClick={handleSaveProfile}
-                  disabled={saving}
-                  className={`bg-[#0A0A0A] text-white px-12 py-4 font-sans font-bold text-[11px] tracking-[4px] uppercase hover:bg-[#2A2522] transition-colors ${
-                    saving ? 'opacity-50 cursor-not-allowed' : ''
-                  } ${saveSuccess ? 'text-green-500' : ''}`}
-                >
-                  {saving ? 'SAVING...' : saveSuccess ? 'SAVED ✓' : 'SAVE CHANGES'}
-                </button>
+                  </div>
+                )}
               </div>
             </div>
-          )}
+          </div>
+        </section>
+
+        <div className="snap-start h-screen w-full">
+          <Footer />
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }

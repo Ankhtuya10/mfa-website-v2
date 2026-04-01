@@ -5,6 +5,9 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+const NAVBAR_HIDE_DELAY_MS = 2200;
+const NAVBAR_TOP_TRIGGER_PX = 72;
+
 export const StickyNavbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [userInitial, setUserInitial] = useState('T');
@@ -12,28 +15,110 @@ export const StickyNavbar = () => {
   const [showNavbar, setShowNavbar] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
   useEffect(() => {
-    if (!isHomePage) {
-      setShowNavbar(true);
-      return;
-    }
-
-    const scrollContainer = document.querySelector('.snap-container');
-    if (!scrollContainer) return;
-
-    const handleScroll = () => {
-      const scrollTop = (scrollContainer as HTMLElement).scrollTop;
-      const windowHeight = window.innerHeight;
-      setShowNavbar(scrollTop >= windowHeight * 0.8);
+    const clearHideTimeout = () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
     };
 
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, [isHomePage]);
+    const getScrollContainer = () => {
+      return document.querySelector('.snap-container') as HTMLElement | null;
+    };
+
+    const getScrollTop = () => {
+      const scrollContainer = getScrollContainer();
+      if (scrollContainer) return scrollContainer.scrollTop;
+      return window.scrollY;
+    };
+
+    const canShowNavbar = () => {
+      if (!isHomePage) return true;
+      return getScrollTop() >= window.innerHeight * 0.8;
+    };
+
+    const revealNavbar = () => {
+      if (!canShowNavbar()) {
+        setShowNavbar(false);
+        clearHideTimeout();
+        return;
+      }
+
+      setShowNavbar(true);
+      clearHideTimeout();
+
+      hideTimeoutRef.current = setTimeout(() => {
+        if (!showDropdown) {
+          setShowNavbar(false);
+        }
+      }, NAVBAR_HIDE_DELAY_MS);
+    };
+
+    const syncNavbarVisibility = () => {
+      if (!canShowNavbar()) {
+        setShowNavbar(false);
+        clearHideTimeout();
+      }
+    };
+
+    const handleScroll = () => {
+      revealNavbar();
+    };
+
+    const handleWheel = () => {
+      revealNavbar();
+    };
+
+    const handleTouchMove = () => {
+      revealNavbar();
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', 'Space'].includes(event.code)) {
+        revealNavbar();
+      }
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      if (event.clientY <= NAVBAR_TOP_TRIGGER_PX) {
+        revealNavbar();
+      }
+    };
+
+    const scrollContainer = getScrollContainer();
+    const scrollTarget: HTMLElement | Window = scrollContainer ?? window;
+
+    scrollTarget.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    syncNavbarVisibility();
+
+    return () => {
+      clearHideTimeout();
+      scrollTarget.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isHomePage, pathname, showDropdown]);
+
+  useEffect(() => {
+    if (showDropdown) {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+      setShowNavbar(true);
+    }
+  }, [showDropdown]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -63,7 +148,6 @@ export const StickyNavbar = () => {
   }, []);
 
   return (
-    // Render nothing at all when on hero — no invisible layer blocking clicks
     <AnimatePresence>
       {showNavbar && (
         <motion.nav
@@ -85,15 +169,12 @@ export const StickyNavbar = () => {
           }}
         >
           <div className="h-[58px] px-5 lg:px-8 flex items-center justify-between w-full">
-
-            {/* Logo */}
             <Link href="/" className="pl-0">
               <span className="font-serif text-[22px] font-bold text-white tracking-tight hover:text-white/70 transition-colors duration-300">
                 Anoce
               </span>
             </Link>
 
-            {/* Nav */}
             <ul className="hidden lg:flex items-center gap-9 font-sans text-[10px] tracking-[0.22em] uppercase text-white/50">
               {[['Home', '/'], ['Collections', '/archive'], ['Editorial', '/editorial'], ['Explore', '/explore']].map(([label, href]) => (
                 <li key={label}>
@@ -105,7 +186,6 @@ export const StickyNavbar = () => {
               ))}
             </ul>
 
-            {/* Right */}
             <div className="flex items-center gap-6 pr-0">
               {isLoggedIn ? (
                 <div ref={dropdownRef} className="relative">

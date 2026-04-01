@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Footer, StickyNavbar } from '@/app/components'
 import { BookmarkButton } from '@/app/components/shared/BookmarkButton'
-import { articles as mockArticles, designers as mockDesigners, collections as mockCollections } from '@/lib/mockData'
+import { articles as mockArticles, designers as mockDesigners } from '@/lib/mockData'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, X, ArrowRight } from 'lucide-react'
 
@@ -21,6 +21,7 @@ interface Article {
   coverImage: string
   cover_image?: string
   coverImageVertical?: string
+  cover_image_vertical?: string
   designerSlug?: string
   designer_slug?: string
   tags: string[]
@@ -53,6 +54,44 @@ const categoryColors: Record<string, string> = {
   trends: '#8B7A68'
 }
 
+const articleFallbackImage = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=1600&fit=crop'
+
+const normalizeArticle = (article: Partial<Article> & { [key: string]: unknown }): Article => ({
+  id: String(article.id || ''),
+  slug: String(article.slug || ''),
+  title: String(article.title || ''),
+  subtitle: String(article.subtitle || ''),
+  category: String(article.category || 'features'),
+  author: String(article.author || ''),
+  publishedAt: String(article.publishedAt || article.published_at || ''),
+  published_at: typeof article.published_at === 'string' ? article.published_at : undefined,
+  coverImage: String(article.coverImage || article.cover_image || articleFallbackImage),
+  cover_image: typeof article.cover_image === 'string' ? article.cover_image : undefined,
+  coverImageVertical: typeof article.coverImageVertical === 'string'
+    ? article.coverImageVertical
+    : typeof article.cover_image_vertical === 'string'
+      ? article.cover_image_vertical
+      : undefined,
+  cover_image_vertical: typeof article.cover_image_vertical === 'string' ? article.cover_image_vertical : undefined,
+  designerSlug: typeof article.designerSlug === 'string'
+    ? article.designerSlug
+    : typeof article.designer_slug === 'string'
+      ? article.designer_slug
+      : undefined,
+  designer_slug: typeof article.designer_slug === 'string' ? article.designer_slug : undefined,
+  tags: Array.isArray(article.tags) ? article.tags.filter((tag): tag is string => typeof tag === 'string') : [],
+  readTime: typeof article.readTime === 'number'
+    ? article.readTime
+    : typeof article.read_time === 'number'
+      ? article.read_time
+      : 5,
+  read_time: typeof article.read_time === 'number' ? article.read_time : undefined,
+  body: String(article.body || ''),
+  credits: article.credits as Article['credits'],
+  relatedLooks: article.relatedLooks as Article['relatedLooks'],
+  status: String(article.status || 'published'),
+})
+
 export default function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const [article, setArticle] = useState<Article | null>(null)
@@ -67,40 +106,54 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
       try {
         const { createClient } = await import('@/lib/supabase/client')
         const supabase = createClient()
-        
+
         const [articleRes, relatedRes] = await Promise.all([
           supabase.from('articles').select('*').eq('slug', slug).eq('status', 'published').single(),
           supabase.from('articles').select('*').eq('status', 'published').neq('slug', slug).limit(3),
         ])
 
         if (articleRes.data) {
-          setArticle(articleRes.data as Article)
-          if (articleRes.data.designer_slug) {
-            const designerRes = await supabase.from('designers').select('*').eq('slug', articleRes.data.designer_slug).single()
+          const normalizedArticle = normalizeArticle(articleRes.data as Record<string, unknown>)
+          setArticle(normalizedArticle)
+
+          const resolvedDesignerSlug = normalizedArticle.designerSlug || normalizedArticle.designer_slug
+          if (resolvedDesignerSlug) {
+            const designerRes = await supabase.from('designers').select('*').eq('slug', resolvedDesignerSlug).single()
             if (designerRes.data) setDesigner(designerRes.data)
           }
         } else {
-          const fallback = mockArticles.find(a => a.slug === slug)
-          setArticle(fallback as Article || mockArticles[0] as Article)
-          const ds = mockDesigners.find(d => d.slug === fallback?.designerSlug)
+          const fallback = mockArticles.find((item) => item.slug === slug) || mockArticles[0]
+          setArticle(normalizeArticle(fallback as Partial<Article> & { [key: string]: unknown }))
+          const ds = mockDesigners.find((item) => item.slug === fallback?.designerSlug)
           setDesigner(ds)
         }
 
         if (relatedRes.data && relatedRes.data.length > 0) {
-          setRelatedArticles(relatedRes.data as Article[])
+          setRelatedArticles(relatedRes.data.map((item) => normalizeArticle(item as Record<string, unknown>)))
         } else {
-          setRelatedArticles(mockArticles.filter(a => a.slug !== slug).slice(0, 3) as Article[])
+          setRelatedArticles(
+            mockArticles
+              .filter((item) => item.slug !== slug)
+              .slice(0, 3)
+              .map((item) => normalizeArticle(item as Partial<Article> & { [key: string]: unknown }))
+          )
         }
       } catch {
-        const fallback = mockArticles.find(a => a.slug === slug) || mockArticles[0]
-        setArticle(fallback as Article)
-        setRelatedArticles(mockArticles.filter(a => a.slug !== slug).slice(0, 3) as Article[])
-        const ds = mockDesigners.find(d => d.slug === fallback?.designerSlug)
+        const fallback = mockArticles.find((item) => item.slug === slug) || mockArticles[0]
+        setArticle(normalizeArticle(fallback as Partial<Article> & { [key: string]: unknown }))
+        setRelatedArticles(
+          mockArticles
+            .filter((item) => item.slug !== slug)
+            .slice(0, 3)
+            .map((item) => normalizeArticle(item as Partial<Article> & { [key: string]: unknown }))
+        )
+        const ds = mockDesigners.find((item) => item.slug === fallback?.designerSlug)
         setDesigner(ds)
       } finally {
         setLoading(false)
       }
     }
+
     fetchData()
   }, [slug])
 
@@ -116,23 +169,16 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
   }
 
   const closeLightbox = () => setLightboxOpen(false)
-
-  const nextLook = () => {
-    setCurrentLookIndex((prev) => (prev + 1) % featuredLooks.length)
-  }
-
-  const prevLook = () => {
-    setCurrentLookIndex((prev) => (prev - 1 + featuredLooks.length) % featuredLooks.length)
-  }
+  const nextLook = () => setCurrentLookIndex((previous) => (previous + 1) % featuredLooks.length)
+  const prevLook = () => setCurrentLookIndex((previous) => (previous - 1 + featuredLooks.length) % featuredLooks.length)
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen justify-between bg-[#0A0A0A]">
+      <div className="h-screen w-full overflow-hidden bg-[#0A0A0A]">
         <StickyNavbar />
-        <main className="flex-grow flex items-center justify-center">
+        <main className="flex h-full items-center justify-center">
           <span className="font-sans text-sm tracking-[0.22em] uppercase text-[#B7AEA9]">Loading...</span>
         </main>
-        <Footer />
       </div>
     )
   }
@@ -145,41 +191,46 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
     )
   }
 
-  const formattedDate = new Date(article.publishedAt || article.published_at || '2026-03-15').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  const formattedDate = new Date(article.publishedAt || article.published_at || '2026-03-15').toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  const articleParagraphs = (article.body || '').split('\n\n').filter(Boolean)
+  const pullQuote = articleParagraphs[0]?.slice(0, 140) || 'Woven from the finest inner fleece of Mongolian goats, each piece carries the silence of the steppe.'
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0A0A0A]">
+    <div className="h-screen w-full overflow-hidden bg-[#0A0A0A]">
       <StickyNavbar />
 
-      <main>
-        {/* Hero - Full Bleed */}
-        <section className="relative w-full h-screen overflow-hidden">
+      <main className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container pt-[72px] md:pt-[88px]">
+        <section className="snap-start relative h-screen w-full overflow-hidden">
           <Image
-            src={article.coverImageVertical || article.coverImage || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1080&h=1920&fit=crop'}
+            src={article.coverImageVertical || article.coverImage || articleFallbackImage}
             alt={article.title}
             fill
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/30 to-transparent" />
-          
-          {/* Film grain overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/35 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/78 via-[#0A0A0A]/10 to-transparent" />
+
           <div className="pointer-events-none absolute inset-0 opacity-[0.025] mix-blend-overlay">
             <div className="h-full w-full animate-pulse bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=')]" />
           </div>
 
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-center pb-16 md:pb-24">
-            <div className="w-full max-w-[95rem] mx-auto px-6 md:px-10">
+            <div className="mx-auto w-full max-w-[95rem] px-6 md:px-10">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end"
+                transition={{ duration: 0.7, delay: 0.15 }}
+                className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12"
               >
                 <div className="lg:col-span-8">
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="mb-4 flex items-center gap-3">
                     <span
-                      className="font-sans text-[10px] tracking-[0.25em] uppercase px-3 py-1.5"
+                      className="px-3 py-1.5 font-sans text-[10px] tracking-[0.25em] uppercase"
                       style={{ backgroundColor: categoryColors[article.category] || '#2A2522', color: '#F5F2ED' }}
                     >
                       {article.category}
@@ -188,19 +239,19 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                       {article.readTime} min read
                     </span>
                   </div>
-                  
-                  <h1 className="font-serif text-white text-5xl md:text-6xl lg:text-7xl leading-[0.95] mb-6">
+
+                  <h1 className="mb-6 max-w-5xl font-serif text-5xl leading-[0.95] text-white md:text-6xl lg:text-7xl">
                     {article.title}
                   </h1>
-                  
-                  <p className="font-inter text-white/70 text-lg md:text-xl max-w-2xl leading-relaxed">
+
+                  <p className="max-w-2xl font-inter text-lg leading-relaxed text-white/72 md:text-xl">
                     {article.subtitle}
                   </p>
-                  
-                  <div className="flex items-center gap-4 mt-8">
-                    <div className="flex items-center gap-2 text-white/60 font-sans text-[11px] tracking-[0.18em] uppercase">
+
+                  <div className="mt-8 flex items-center gap-4">
+                    <div className="flex items-center gap-2 font-sans text-[11px] tracking-[0.18em] uppercase text-white/60">
                       <span>By {article.author}</span>
-                      <span className="w-1 h-1 rounded-full bg-white/40" />
+                      <span className="h-1 w-1 rounded-full bg-white/40" />
                       <span>{formattedDate}</span>
                     </div>
                   </div>
@@ -214,210 +265,209 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
           </div>
         </section>
 
-        {/* Credits Section */}
-        <section className="relative w-full bg-[#0A0A0A] py-12 border-b border-white/[0.06]">
-          <div className="max-w-[95rem] mx-auto px-6 md:px-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {[
-                { label: 'Photographer', value: article.credits?.photographer || 'Batbayar' },
-                { label: 'Stylist', value: article.credits?.stylist || 'Nomin' },
-                { label: 'Model', value: article.credits?.model || 'Anu' },
-                { label: 'Creative Director', value: article.credits?.creativeDirector || 'Bold' },
-                { label: 'Location', value: article.credits?.location || 'Ulaanbaatar' },
-                { label: 'Equipment', value: article.credits?.equipment || '35mm Film' },
-              ].map((credit, idx) => (
-                <div key={idx}>
-                  <p className="font-sans text-[9px] tracking-[0.25em] uppercase text-white/40 mb-1">
-                    {credit.label}
-                  </p>
-                  <p className="font-sans text-[11px] tracking-[0.08em] text-white/70">
-                    {credit.value}
-                  </p>
+        <section className="snap-start relative h-screen w-full overflow-hidden bg-[#0A0A0A]">
+          <div className="grid h-full grid-cols-1 lg:grid-cols-12">
+            <div className="relative min-h-[45vh] overflow-hidden lg:col-span-6 lg:min-h-0">
+              <Image
+                src={article.coverImage || article.coverImageVertical || articleFallbackImage}
+                alt={article.title}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/78 via-[#0A0A0A]/12 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 lg:p-10">
+                <div className="max-w-xl border-t border-white/20 pt-4">
+                  <p className="mb-2 font-sans text-[10px] tracking-[0.2em] uppercase text-white/50">Credits</p>
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-2 font-sans text-[11px] tracking-[0.08em] text-white/72">
+                    <span>Photo: {article.credits?.photographer || 'Batbayar'}</span>
+                    <span>Stylist: {article.credits?.stylist || 'Nomin'}</span>
+                    <span>Model: {article.credits?.model || 'Anu'}</span>
+                    <span>Creative Dir: {article.credits?.creativeDirector || 'Bold'}</span>
+                    <span>Location: {article.credits?.location || 'Ulaanbaatar'}</span>
+                    <span>Equipment: {article.credits?.equipment || '35mm Film'}</span>
+                  </div>
                 </div>
-              ))}
+              </div>
+            </div>
+
+            <div className="flex min-h-0 flex-col justify-center bg-[linear-gradient(180deg,#12100E_0%,#0A0A0A_100%)] px-6 py-10 md:px-10 md:py-12 lg:col-span-6 lg:px-14">
+              <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+                <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
+                  Narrative Entry
+                </span>
+                <h2 className="mb-8 font-serif text-3xl leading-[1.08] text-white md:text-4xl lg:text-5xl">
+                  {article.title}
+                </h2>
+                <p className="mb-10 font-inter text-lg leading-relaxed text-white/60 md:text-xl">
+                  {article.subtitle}
+                </p>
+                <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-4">
+                  {article.tags.slice(0, 4).map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-3 text-center font-sans text-[10px] tracking-[0.22em] uppercase text-white/70"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Article Body - Narrative */}
-        <section className="relative w-full bg-[#0A0A0A] py-20 md:py-28">
-          <div className="max-w-3xl mx-auto px-6 md:px-10">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.8 }}
-              className="prose prose-lg prose-invert"
-            >
-              <p className="font-inter text-white/70 text-xl md:text-2xl leading-relaxed mb-12 text-center font-light">
-                {article.subtitle}
-              </p>
-              
-              <div className="space-y-8">
-                {(article.body || '').split('\n\n').map((paragraph: string, idx: number) => (
-                  <p key={idx} className="font-inter text-white/60 text-base md:text-lg leading-[1.85]">
+        <section className="snap-start relative flex h-screen w-full items-center justify-center overflow-hidden border-t border-b border-white/[0.06] bg-[#0A0A0A] px-6 md:px-10">
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute left-1/2 top-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,160,136,0.16),transparent_65%)]" />
+          </div>
+          <div className="relative mx-auto max-w-4xl text-center">
+            <span className="font-serif text-7xl leading-none text-white/20 md:text-9xl">"</span>
+            <blockquote className="-mt-10 mb-8 font-serif text-2xl leading-[1.3] text-white md:text-3xl lg:text-4xl">
+              {pullQuote}...
+            </blockquote>
+            <cite className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#B7AEA9]/70 not-italic">
+              {article.author}
+            </cite>
+          </div>
+        </section>
+
+        <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0A0A0A] px-6 pb-10 pt-[108px] md:px-10 md:pb-12 md:pt-[132px]">
+          <div className="mx-auto flex h-full min-h-0 w-full max-w-[95rem] flex-col">
+            <div className="mb-8 text-center md:mb-10">
+              <span className="mb-4 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
+                The Story
+              </span>
+              <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
+                Editorial Text
+              </h2>
+            </div>
+
+            <div className="mx-auto w-full max-w-4xl flex-1 overflow-y-auto pr-1">
+              <div className="space-y-8 text-center md:text-left">
+                {articleParagraphs.map((paragraph, idx) => (
+                  <p key={idx} className="font-inter text-base leading-[1.9] text-white/64 md:text-lg">
                     {paragraph}
                   </p>
                 ))}
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* Pull Quote */}
-        <section className="relative w-full bg-[#0A0A0A] py-20 border-t border-b border-white/[0.06]">
-          <div className="max-w-4xl mx-auto px-6 md:px-10 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.8 }}
-            >
-              <span className="font-serif text-white/20 text-7xl md:text-9xl leading-none">"</span>
-              <blockquote className="font-serif text-white text-2xl md:text-3xl lg:text-4xl leading-[1.3] -mt-10 mb-8">
-                {article.body?.split('\n')[0]?.slice(0, 120) || "Woven from the finest inner fleece of Mongolian goats, each piece carries the silence of the steppe."}...
-              </blockquote>
-              <cite className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#B7AEA9]/70 not-italic">
-                — {article.author}
-              </cite>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Shop The Look - Carousel */}
-        <section className="relative w-full bg-[#0A0A0A] py-20 md:py-28 border-t border-white/[0.06]">
-          <div className="max-w-[95rem] mx-auto px-6 md:px-10">
-            <div className="flex items-end justify-between mb-12">
+        <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0A0A0A] px-6 pb-10 pt-[108px] md:px-10 md:pb-12 md:pt-[132px]">
+          <div className="mx-auto flex h-full min-h-0 w-full max-w-[95rem] flex-col">
+            <div className="mb-8 flex items-end justify-between md:mb-10">
               <div>
-                <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9] block mb-4">
+                <span className="mb-4 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
                   Shop The Look
                 </span>
-                <h2 className="font-serif text-white text-3xl md:text-4xl leading-[1.1]">
+                <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
                   Featured Pieces
                 </h2>
               </div>
             </div>
 
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
-              {featuredLooks.map((look, idx) => (
-                <motion.div
-                  key={look.lookId}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="flex-shrink-0 w-[280px] md:w-[320px]"
-                >
-                  <div 
-                    className="group cursor-pointer"
-                    onClick={() => openLightbox(idx)}
+            <div className="flex-1 overflow-hidden">
+              <div className="scrollbar-hide -mx-6 flex h-full gap-5 overflow-x-auto overflow-y-hidden px-6 pb-3 md:mx-0 md:px-0">
+                {featuredLooks.map((look, idx) => (
+                  <motion.div
+                    key={look.lookId}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.6, delay: idx * 0.08 }}
+                    className="flex h-full w-[260px] shrink-0 flex-col md:w-[300px]"
                   >
-                    <div className="relative aspect-[2/3] overflow-hidden mb-4">
-                      <Image
-                        src={look.image}
-                        alt={`Look ${look.lookNumber}`}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                      
-                      <div className="absolute top-4 left-4">
-                        <span className="font-sans text-[9px] tracking-[0.2em] uppercase px-2 py-1 bg-white/90 text-[#0A0A0A]">
+                    <div className="group flex h-full cursor-pointer flex-col" onClick={() => openLightbox(idx)}>
+                      <div className="relative mb-4 min-h-0 flex-1 overflow-hidden">
+                        <Image
+                          src={look.image}
+                          alt={`Look ${look.lookNumber}`}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
+                        <div className="absolute left-4 top-4">
+                          <span className="bg-white/90 px-2 py-1 font-sans text-[9px] tracking-[0.2em] uppercase text-[#0A0A0A]">
+                            Look {look.lookNumber}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-white/40">
+                          {look.collectionName}
+                        </p>
+                        <h3 className="font-serif text-lg leading-tight text-white transition-colors group-hover:text-white/80">
                           Look {look.lookNumber}
-                        </span>
+                        </h3>
                       </div>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-white/40">
-                        {look.collectionName}
-                      </p>
-                      <h3 className="font-serif text-white text-lg leading-tight group-hover:text-white/80 transition-colors">
-                        Look {look.lookNumber}
-                      </h3>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
+              </div>
             </div>
 
             <div className="mt-8 text-center">
-              <Link
-                href="/archive"
-                className="inline-flex items-center gap-2 group"
-              >
-                <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/60 group-hover:text-white transition-colors">
+              <Link href="/archive" className="inline-flex items-center gap-2 group">
+                <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/60 transition-colors group-hover:text-white">
                   View All in Archive
                 </span>
-                <ArrowRight className="w-4 h-4 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="h-4 w-4 text-white/40 transition-all group-hover:translate-x-1 group-hover:text-white" />
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Related Designer */}
         {designer && (
-          <section className="relative w-full bg-[#0F0D0B] py-20 border-t border-white/[0.06]">
-            <div className="max-w-[95rem] mx-auto px-6 md:px-10">
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.8 }}
-              >
-                <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9] block mb-6">
-                  Featured Designer
-                </span>
-                
-                <Link href={`/designers/${designer.slug}`} className="group block">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                    <div className="lg:col-span-4">
-                      <div className="relative aspect-[4/5] overflow-hidden">
-                        <Image
-                          src={designer.coverImage || designer.cover_image || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop'}
-                          alt={designer.name}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      </div>
+          <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0F0D0B]">
+            <div className="grid h-full grid-cols-1 lg:grid-cols-12">
+              <div className="relative min-h-[42vh] overflow-hidden lg:col-span-5 lg:min-h-0">
+                <Image
+                  src={designer.coverImage || designer.cover_image || articleFallbackImage}
+                  alt={designer.name}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0F0D0B]/70 via-transparent to-transparent" />
+              </div>
+
+              <div className="flex min-h-0 items-center justify-center px-6 py-10 md:px-10 md:py-12 lg:col-span-7 lg:px-14">
+                <div className="mx-auto max-w-2xl text-center lg:text-left">
+                  <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
+                    Featured Designer
+                  </span>
+                  <Link href={`/designers/${designer.slug}`} className="group block">
+                    <h2 className="mb-5 font-serif text-3xl leading-[1.08] text-white transition-colors group-hover:text-white/80 md:text-4xl lg:text-5xl">
+                      {designer.name}
+                    </h2>
+                    <p className="mb-6 font-inter text-lg leading-relaxed text-white/54">
+                      {designer.shortBio || designer.short_bio || designer.bio?.slice(0, 200)}
+                    </p>
+                    <div className="inline-flex items-center gap-2">
+                      <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/60 transition-colors group-hover:text-white">
+                        View Designer Profile
+                      </span>
+                      <ArrowRight className="h-4 w-4 text-white/40 transition-all group-hover:translate-x-1 group-hover:text-white" />
                     </div>
-                    
-                    <div className="lg:col-span-8">
-                      <h2 className="font-serif text-white text-3xl md:text-4xl lg:text-5xl leading-[1.1] mb-4 group-hover:text-white/80 transition-colors">
-                        {designer.name}
-                      </h2>
-                      
-                      <p className="font-inter text-white/50 text-lg leading-relaxed mb-6 max-w-2xl">
-                        {designer.shortBio || designer.short_bio || designer.bio?.slice(0, 200)}
-                      </p>
-                      
-                      <div className="flex items-center gap-2 group">
-                        <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/60 group-hover:text-white transition-colors">
-                          View Designer Profile
-                        </span>
-                        <ArrowRight className="w-4 h-4 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
+                  </Link>
+                </div>
+              </div>
             </div>
           </section>
         )}
 
-        {/* Read Next - Related Editorials */}
-        <section className="relative w-full bg-[#0A0A0A] py-20 md:py-28 border-t border-white/[0.06]">
-          <div className="max-w-[95rem] mx-auto px-6 md:px-10">
-            <div className="text-center mb-12">
-              <span className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9] block mb-4">
+        <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0A0A0A] px-6 pb-10 pt-[108px] md:px-10 md:pb-12 md:pt-[132px]">
+          <div className="mx-auto flex h-full min-h-0 w-full max-w-[95rem] flex-col">
+            <div className="mb-8 text-center md:mb-10">
+              <span className="mb-4 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
                 Continue Reading
               </span>
-              <h2 className="font-serif text-white text-3xl md:text-4xl leading-[1.1]">
+              <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
                 Read Next
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid flex-1 grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
               {relatedArticles.map((item, idx) => (
                 <motion.div
                   key={item.id}
@@ -425,21 +475,21 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  className="min-h-0"
                 >
-                  <Link href={`/editorial/${item.slug}`} className="group relative block aspect-[4/3] overflow-hidden">
+                  <Link href={`/editorial/${item.slug}`} className="group relative block h-full overflow-hidden">
                     <Image
-                      src={item.coverImage || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop'}
+                      src={item.coverImage || item.cover_image || articleFallbackImage}
                       alt={item.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/30 to-transparent" />
-                    
                     <div className="absolute inset-0 flex flex-col justify-end p-6">
-                      <span className="font-sans text-[9px] tracking-[0.25em] uppercase text-white/50 mb-2">
+                      <span className="mb-2 font-sans text-[9px] tracking-[0.25em] uppercase text-white/50">
                         {item.category}
                       </span>
-                      <h3 className="font-serif text-white text-xl leading-tight group-hover:underline decoration-white/30 underline-offset-4">
+                      <h3 className="font-serif text-xl leading-tight text-white underline-offset-4 decoration-white/30 group-hover:underline">
                         {item.title}
                       </h3>
                     </div>
@@ -449,75 +499,76 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
             </div>
           </div>
         </section>
+
+        <div className="snap-start h-screen w-full">
+          <Footer />
+        </div>
       </main>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxOpen && featuredLooks[currentLookIndex] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
           >
             <button
               onClick={closeLightbox}
-              className="absolute top-6 right-6 text-white p-3 hover:bg-white/10 transition-colors z-10"
+              className="absolute right-6 top-6 z-10 p-3 text-white transition-colors hover:bg-white/10"
             >
-              <X className="w-8 h-8" />
+              <X className="h-8 w-8" />
             </button>
 
             <button
               onClick={prevLook}
-              className="absolute left-6 text-white p-3 hover:bg-white/10 transition-colors"
+              className="absolute left-6 p-3 text-white transition-colors hover:bg-white/10"
             >
-              <ChevronLeft className="w-10 h-10" />
+              <ChevronLeft className="h-10 w-10" />
             </button>
 
             <button
               onClick={nextLook}
-              className="absolute right-6 text-white p-3 hover:bg-white/10 transition-colors"
+              className="absolute right-6 p-3 text-white transition-colors hover:bg-white/10"
             >
-              <ChevronRight className="w-10 h-10" />
+              <ChevronRight className="h-10 w-10" />
             </button>
 
-            <div className="flex max-w-6xl w-full mx-8 gap-8 items-center">
-              <div className="flex-1 relative">
+            <div className="mx-8 flex w-full max-w-6xl items-center gap-8">
+              <div className="relative flex-1">
                 <Image
                   src={featuredLooks[currentLookIndex].image}
                   alt={`Look ${featuredLooks[currentLookIndex].lookNumber}`}
                   width={800}
                   height={1200}
-                  className="object-contain max-h-[80vh] mx-auto"
+                  className="mx-auto max-h-[80vh] object-contain"
                 />
               </div>
 
-              <div className="w-72 bg-[#1a1a1a] p-6 text-white overflow-y-auto max-h-[80vh]">
+              <div className="max-h-[80vh] w-72 overflow-y-auto bg-[#1a1a1a] p-6 text-white">
                 <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#B7AEA9]">
                   Look {featuredLooks[currentLookIndex].lookNumber}
                 </span>
-                <h3 className="font-serif text-xl mt-2 mb-4">{featuredLooks[currentLookIndex].collectionName}</h3>
-                
-                <Link 
+                <h3 className="mt-2 mb-4 font-serif text-xl">{featuredLooks[currentLookIndex].collectionName}</h3>
+
+                <Link
                   href={`/archive/${featuredLooks[currentLookIndex].collectionSlug}`}
-                  className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors mt-4"
+                  className="mt-4 inline-flex items-center gap-2 text-white/60 transition-colors hover:text-white"
                 >
                   <span className="font-sans text-[10px] tracking-[2px] uppercase">
                     View Collection
                   </span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
 
                 <div className="mt-6">
-                  <BookmarkButton id={`${featuredLooks[currentLookIndex].lookId}`} type="look" />
+                  <BookmarkButton id={featuredLooks[currentLookIndex].lookId} type="look" />
                 </div>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <Footer />
     </div>
   )
 }

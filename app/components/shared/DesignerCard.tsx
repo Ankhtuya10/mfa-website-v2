@@ -37,9 +37,9 @@ export function DesignerCard({ designer, variant = 'grid' }: DesignerCardProps) 
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: false }}
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-6 group"
+          className="glass-panel-light rounded-[28px] flex items-center gap-6 group p-4"
         >
-          <div className="relative w-16 h-16 overflow-hidden">
+          <div className="relative w-16 h-16 overflow-hidden rounded-2xl">
             <Image
               src={profileImage}
               alt={designer.name}
@@ -71,9 +71,9 @@ export function DesignerCard({ designer, variant = 'grid' }: DesignerCardProps) 
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.6 }}
-        className="group cursor-pointer"
+        className="glass-panel-light group cursor-pointer overflow-hidden rounded-[34px] p-3"
       >
-        <div className="relative aspect-[4/5] overflow-hidden">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[26px]">
           <motion.div
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.6 }}
@@ -89,7 +89,7 @@ export function DesignerCard({ designer, variant = 'grid' }: DesignerCardProps) 
           </motion.div>
           
           {/* Tier badge */}
-          <span className="absolute top-4 left-4 font-sans text-[10px] tracking-[2px] uppercase bg-white/90 px-3 py-1.5">
+          <span className="absolute top-4 left-4 font-sans text-[10px] tracking-[2px] uppercase bg-white/90 px-3 py-1.5 rounded-full">
             {tierLabel}
           </span>
 
@@ -98,15 +98,15 @@ export function DesignerCard({ designer, variant = 'grid' }: DesignerCardProps) 
             initial={{ opacity: 0 }}
             whileHover={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-black/40 flex items-center justify-center"
+            className="absolute inset-0 bg-black/36 flex items-center justify-center"
           >
-            <span className="font-sans text-xs tracking-[3px] uppercase text-white border border-white px-4 py-2">
+            <span className="font-sans text-xs tracking-[3px] uppercase text-white border border-white px-4 py-2 rounded-full">
               View Profile
             </span>
           </motion.div>
         </div>
 
-        <div className="mt-4 text-center">
+        <div className="mt-4 pb-3 text-center">
           <h3 className="font-serif text-xl text-[#2A2522] group-hover:text-[#393931] transition-colors">
             {designer.name}
           </h3>

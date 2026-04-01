@@ -43,6 +43,22 @@ body {
 }
 
 @layer components {
+  .glass-panel-dark {
+    @apply border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-2xl;
+  }
+
+  .glass-panel-light {
+    @apply border border-black/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.84),rgba(255,255,255,0.58))] shadow-[0_24px_80px_rgba(15,10,6,0.10)] backdrop-blur-2xl;
+  }
+
+  .glass-pill-dark {
+    @apply rounded-full border border-white/[0.14] bg-white/[0.05] shadow-[0_10px_24px_rgba(0,0,0,0.16)] backdrop-blur-xl;
+  }
+
+  .glass-pill-light {
+    @apply rounded-full border border-black/[0.08] bg-white/[0.66] shadow-[0_10px_24px_rgba(15,10,6,0.08)] backdrop-blur-xl;
+  }
+
   .btn-primary {
     @apply px-8 py-3 bg-[#1f2937] text-white rounded font-sans font-medium tracking-wider uppercase text-sm transition-all duration-300 hover:opacity-90;
   }
@@ -51,4 +67,3 @@ body {
     @apply px-8 py-3 bg-transparent border-2 border-[#1f2937] text-[#1f2937] rounded font-sans font-medium tracking-wider uppercase text-sm transition-all duration-300 hover:bg-[#1f2937] hover:text-white;
   }
 }
-

@@ -37,34 +37,34 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
   const userRole = profile?.role || 'viewer'
 
   return (
-    <aside className="w-[200px] shrink-0 h-screen sticky top-0 flex flex-col bg-[#0E0E0D]">
+    <aside className="w-[210px] shrink-0 h-screen sticky top-0 flex flex-col bg-[#0C0C0B]">
 
       {/* Logo */}
-      <div className="px-5 pt-6 pb-5">
-        <div className="flex items-baseline gap-2">
-          <span className="font-serif text-[20px] text-white tracking-tight leading-none">Anoce</span>
-          <span className="text-[8px] tracking-[0.2em] uppercase text-white/20 font-sans">cms</span>
+      <div className="px-6 pt-7 pb-6 border-b border-white/[0.05]">
+        <div className="flex items-baseline gap-2.5">
+          <span className="font-serif text-[21px] text-white tracking-tight leading-none">Anoce</span>
+          <span className="text-[7.5px] tracking-[0.22em] uppercase text-white/20 font-sans mt-0.5">cms</span>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 space-y-[2px]">
+      <nav className="flex-1 px-3 py-4 space-y-0.5">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           return (
             <Link key={item.href} href={item.href}>
-              <div className={`flex items-center gap-3 px-3 py-[9px] rounded-[6px] transition-all duration-100 group
+              <div className={`flex items-center gap-3 px-3 py-[8px] rounded-[7px] transition-all duration-100 group
                 ${isActive
-                  ? 'bg-white text-[#0E0E0D]'
-                  : 'text-white/40 hover:text-white hover:bg-white/[0.06]'
+                  ? 'bg-white/[0.92] text-[#0C0C0B]'
+                  : 'text-white/35 hover:text-white/80 hover:bg-white/[0.05]'
                 }`}
               >
                 <item.icon
-                  className={`w-[15px] h-[15px] shrink-0 ${isActive ? 'text-[#0E0E0D]' : 'text-white/35 group-hover:text-white'}`}
-                  strokeWidth={1.6}
+                  className={`w-[14px] h-[14px] shrink-0 ${isActive ? 'text-[#0C0C0B]' : 'text-white/30 group-hover:text-white/70'}`}
+                  strokeWidth={isActive ? 2 : 1.6}
                 />
-                <span className={`text-[11.5px] tracking-[0.07em] uppercase font-medium font-sans leading-none
-                  ${isActive ? 'text-[#0E0E0D]' : ''}`}>
+                <span className={`text-[11px] tracking-[0.06em] uppercase font-medium font-sans leading-none
+                  ${isActive ? 'text-[#0C0C0B]' : ''}`}>
                   {item.label}
                 </span>
               </div>
@@ -73,24 +73,28 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
         })}
       </nav>
 
+      {/* Divider */}
+      <div className="mx-4 border-t border-white/[0.05] mb-3" />
+
       {/* Bottom */}
-      <div className="px-2 pb-5 space-y-1">
+      <div className="px-3 pb-5 space-y-0.5">
         <Link href="/"
-          className="flex items-center gap-2 px-3 py-[9px] rounded-[6px] text-white/25 hover:text-white/60 hover:bg-white/[0.04] transition-all"
+          className="flex items-center gap-2.5 px-3 py-[8px] rounded-[7px] text-white/20 hover:text-white/50 hover:bg-white/[0.04] transition-all"
         >
-          <ArrowUpRight className="w-[14px] h-[14px]" strokeWidth={1.6} />
-          <span className="text-[11px] tracking-[0.07em] uppercase font-sans">Back to site</span>
+          <ArrowUpRight className="w-[13px] h-[13px]" strokeWidth={1.6} />
+          <span className="text-[10.5px] tracking-[0.07em] uppercase font-sans">Back to site</span>
         </Link>
 
-        <div className="px-3 py-2 flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-[#C8BFB8] flex items-center justify-center shrink-0">
-            <span className="text-[9px] font-bold text-[#0E0E0D] leading-none font-sans">
+        {/* User */}
+        <div className="px-3 py-2.5 flex items-center gap-2.5">
+          <div className="w-[26px] h-[26px] rounded-full bg-[#D4C9C0] flex items-center justify-center shrink-0">
+            <span className="text-[9px] font-bold text-[#0C0C0B] leading-none font-sans">
               {userName[0]?.toUpperCase()}
             </span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[12px] text-white/70 font-medium font-sans leading-tight truncate">{userName}</p>
-            <p className="text-[9px] tracking-[0.12em] uppercase text-white/25 font-sans">{userRole}</p>
+            <p className="text-[11.5px] text-white/65 font-medium font-sans leading-tight truncate">{userName}</p>
+            <p className="text-[8.5px] tracking-[0.13em] uppercase text-white/22 font-sans mt-0.5">{userRole}</p>
           </div>
         </div>
 
@@ -102,10 +106,10 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
             localStorage.removeItem('anoce_user_name')
             window.location.replace('/')
           }}
-          className="flex items-center gap-2 px-3 py-[9px] rounded-[6px] text-white/20 hover:text-white/50 hover:bg-white/[0.04] transition-all w-full"
+          className="flex items-center gap-2.5 px-3 py-[8px] rounded-[7px] text-white/18 hover:text-white/45 hover:bg-white/[0.04] transition-all w-full"
         >
-          <LogOut className="w-[14px] h-[14px]" strokeWidth={1.6} />
-          <span className="text-[11px] tracking-[0.07em] uppercase font-sans">Sign out</span>
+          <LogOut className="w-[13px] h-[13px]" strokeWidth={1.6} />
+          <span className="text-[10.5px] tracking-[0.07em] uppercase font-sans">Sign out</span>
         </button>
       </div>
     </aside>

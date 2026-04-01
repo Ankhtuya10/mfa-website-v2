@@ -4,22 +4,21 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
-import { ChevronLeft, Upload, Loader2, Check, ArrowLeft } from 'lucide-react'
+import { ChevronLeft, Upload, Loader2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function EditArticlePage() {
   const router = useRouter()
   const params = useParams()
   const supabase = createClient()
-  
-  const [loading, setLoading] = useState(false)
+
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [coverImage, setCoverImage] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [article, setArticle] = useState<any>(null)
   const [loadingArticle, setLoadingArticle] = useState(true)
-  
+
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -60,9 +59,7 @@ export default function EditArticlePage() {
       setLoadingArticle(false)
     }
 
-    if (params.id) {
-      loadArticle()
-    }
+    if (params.id) loadArticle()
   }, [params.id])
 
   const slug = formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -72,11 +69,8 @@ export default function EditArticlePage() {
       alert('Please enter a title')
       return
     }
-
     setSaving(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
       const updateData: any = {
         title: formData.title,
         subtitle: formData.subtitle,
@@ -89,31 +83,21 @@ export default function EditArticlePage() {
         read_time: formData.read_time,
         updated_at: new Date().toISOString()
       }
+      if (publish) updateData.published_at = new Date().toISOString()
 
-      if (publish) {
-        updateData.published_at = new Date().toISOString()
-      }
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('articles')
         .update(updateData)
         .eq('id', params.id)
         .select()
         .single()
 
-      if (error) {
-        console.error('Supabase error:', error)
-        throw new Error(error.message)
-      }
+      if (error) throw new Error(error.message)
 
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
-      
-      if (publish) {
-        router.push('/admin/articles')
-      }
+      if (publish) router.push('/admin/articles')
     } catch (err: any) {
-      console.error('Error saving article:', err)
       alert(err.message || 'Failed to save article')
     } finally {
       setSaving(false)
@@ -123,31 +107,21 @@ export default function EditArticlePage() {
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-
     setUploading(true)
     try {
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
       const filePath = `articles/${fileName}`
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, file)
+      const { error: uploadError } = await supabase.storage.from('media').upload(filePath, file)
 
       if (uploadError) {
-        console.log('Storage bucket not found. Using placeholder.')
         setCoverImage('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop')
-        setUploading(false)
         return
       }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('media')
-        .getPublicUrl(filePath)
-
+      const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(filePath)
       setCoverImage(publicUrl)
-    } catch (err: any) {
-      console.error('Upload error:', err)
+    } catch {
       setCoverImage('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop')
     } finally {
       setUploading(false)
@@ -156,202 +130,221 @@ export default function EditArticlePage() {
 
   if (loadingArticle) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F5F2ED]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#9B9590]" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-6 h-6 animate-spin text-[#C0BCB5]" />
       </div>
     )
   }
 
-  if (!article) {
-    return null
-  }
+  if (!article) return null
+
+  const isPublished = formData.status === 'published'
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="w-full"
+      transition={{ duration: 0.4 }}
+      className="w-full -mx-10 -mt-8"
     >
       {/* Sticky top bar */}
-      <header className="sticky top-0 z-40 bg-white border-b border-[rgba(0,0,0,0.08)] px-0 py-4 flex items-center justify-between w-full">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/articles" className="text-[#9B9590] hover:text-[#2A2522] transition-colors">
-            <ChevronLeft className="w-5 h-5" />
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#E8E4DD] px-8 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-3.5">
+          <Link
+            href="/admin/articles"
+            className="p-1.5 rounded-md text-[#B0ACA4] hover:text-[#1A1A18] hover:bg-[#F0EDE8] transition-all"
+          >
+            <ChevronLeft className="w-4.5 h-4.5" strokeWidth={1.8} />
           </Link>
-          <h1 className="font-sans text-[11px] tracking-[2px] uppercase text-[#2A2522]">Edit Article</h1>
+          <div className="w-px h-4 bg-[#E8E4DD]" />
+          <span className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94]">Edit Article</span>
         </div>
-        <div className="flex items-center gap-4">
-          <button 
+        <div className="flex items-center gap-3">
+          <button
             onClick={() => handleSave(false)}
             disabled={saving}
-            className="font-sans text-[11px] tracking-[2px] uppercase text-[#9B9590] hover:text-[#2A2522] transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 font-sans text-[10.5px] tracking-[0.09em] uppercase text-[#9E9B94] hover:text-[#1A1A18] transition-colors disabled:opacity-40 px-3 py-2 rounded-lg hover:bg-[#F0EDE8]"
           >
-            {saved ? <span className="flex items-center gap-2"><Check className="w-4 h-4" /> Saved</span> : 'Save'}
+            {saved
+              ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> <span className="text-emerald-600">Saved</span></>
+              : 'Save draft'}
           </button>
-          <button 
+          <button
             onClick={() => handleSave(true)}
             disabled={saving}
-            className="bg-[#393931] text-white px-6 py-2 font-sans font-bold text-[11px] tracking-[4px] uppercase hover:bg-[#2A2522] transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="flex items-center gap-2 bg-[#0E0E0D] text-white font-sans text-[10.5px] tracking-[0.1em] uppercase font-medium px-5 py-2.5 rounded-lg hover:bg-[#2a2a28] transition-colors disabled:opacity-50"
           >
-            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {formData.status === 'published' ? 'Update' : 'Publish'}
+            {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            {isPublished ? 'Update' : 'Publish'}
           </button>
         </div>
       </header>
 
-      {/* Two panel main */}
-      <div className="flex min-h-screen">
-        {/* Left - Editor */}
-        <div className="flex-1 overflow-y-auto px-10 py-10">
+      {/* Two-panel layout */}
+      <div className="flex min-h-screen bg-[#F6F3EE]">
+
+        {/* Editor */}
+        <div className="flex-1 overflow-y-auto px-12 py-10 max-w-3xl">
           <input
             type="text"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="Article title..."
-            className="w-full font-serif text-4xl text-[#2A2522] bg-transparent outline-none placeholder:text-[#B7AEA9] mb-2"
+            placeholder="Article title…"
+            className="w-full font-serif text-[38px] text-[#1A1A18] bg-transparent outline-none placeholder:text-[#C8C4BC] leading-tight mb-2"
           />
-          <p className="font-sans text-[11px] text-[#9B9590] mb-8">
+          <p className="font-sans text-[10.5px] text-[#B0ACA4] mb-7 tracking-[0.04em]">
             anoce.mn/editorial/{slug || 'your-slug'}
           </p>
-          <div className="w-full h-px bg-[rgba(0,0,0,0.08)] mb-8" />
-          
+
+          <div className="w-full h-px bg-[#E8E4DD] mb-7" />
+
           <input
             type="text"
             value={formData.subtitle}
             onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-            placeholder="Subtitle..."
-            className="w-full font-serif text-xl text-[#7A7470] bg-transparent outline-none placeholder:text-[#B7AEA9] mb-6"
+            placeholder="Subtitle…"
+            className="w-full font-serif text-[20px] italic text-[#7A776F] bg-transparent outline-none placeholder:text-[#C8C4BC] mb-7 leading-snug"
           />
 
           <textarea
             value={formData.body}
             onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-            placeholder="Start writing your story..."
-            className="w-full min-h-[500px] font-inter text-[16px] leading-[1.8] text-[#3A3530] bg-transparent outline-none resize-none placeholder:text-[#B7AEA9]"
+            placeholder="Start writing your story…"
+            className="w-full min-h-[520px] font-sans text-[15px] leading-[1.85] text-[#3A3530] bg-transparent outline-none resize-none placeholder:text-[#C8C4BC]"
           />
         </div>
 
-        {/* Right - Sidebar */}
-        <div className="w-72 bg-white border-l border-[rgba(0,0,0,0.08)] sticky top-[73px] h-[calc(100vh-73px)] overflow-y-auto px-6 py-8">
-          {/* Publish section */}
-          <div className="mb-8">
-            <h3 className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] mb-4">Status</h3>
-            <div className="space-y-3">
-              <select 
+        {/* Sidebar */}
+        <div className="w-[268px] shrink-0 bg-white border-l border-[#E8E4DD] sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto">
+          <div className="px-6 py-6 space-y-7">
+
+            {/* Status */}
+            <section>
+              <label className="block font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">Status</label>
+              <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full border border-[rgba(0,0,0,0.15)] px-3 py-2 font-sans text-[12px] bg-transparent outline-none"
+                className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors appearance-none"
               >
                 <option value="draft">Draft</option>
-                <option value="review">Review</option>
+                <option value="review">In Review</option>
                 <option value="published">Published</option>
               </select>
-              <button 
+              <button
                 onClick={() => handleSave(true)}
                 disabled={saving}
-                className="w-full bg-[#393931] text-white py-3 font-sans font-bold text-[11px] tracking-[4px] uppercase disabled:opacity-50"
+                className="w-full mt-3 bg-[#0E0E0D] text-white py-2.5 rounded-lg font-sans text-[10.5px] tracking-[0.1em] uppercase font-medium hover:bg-[#2a2a28] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : formData.status === 'published' ? 'Update' : 'Publish'}
+                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isPublished ? 'Update' : 'Publish'}
               </button>
-              {formData.status === 'published' && (
-                <Link 
+              {isPublished && (
+                <Link
                   href={`/editorial/${article.slug}`}
                   target="_blank"
-                  className="w-full border border-[rgba(0,0,0,0.15)] py-3 font-sans text-[11px] tracking-[2px] uppercase text-center block hover:bg-[#F5F2ED]"
+                  className="w-full mt-2 border border-[#E8E4DD] rounded-lg py-2.5 font-sans text-[10.5px] tracking-[0.08em] uppercase text-[#6B6860] text-center block hover:bg-[#F5F2ED] transition-colors"
                 >
-                  View Live →
+                  View live →
                 </Link>
               )}
-            </div>
-          </div>
+            </section>
 
-          {/* Taxonomy */}
-          <div className="mb-8">
-            <h3 className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] mb-4">Taxonomy</h3>
-            <div className="space-y-3">
-              <select 
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full border border-[rgba(0,0,0,0.15)] px-3 py-2 font-sans text-[12px] bg-transparent outline-none"
-              >
-                <option value="features">Features</option>
-                <option value="interviews">Interviews</option>
-                <option value="news">News</option>
-                <option value="trends">Trends</option>
-              </select>
-              <input
-                type="text"
-                value={formData.tags}
-                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                placeholder="Tags (comma separated)"
-                className="w-full border border-[rgba(0,0,0,0.15)] px-3 py-2 font-sans text-[12px] bg-transparent outline-none placeholder:text-[#B7AEA9]"
-              />
-              <select 
-                value={formData.designer_slug}
-                onChange={(e) => setFormData({ ...formData, designer_slug: e.target.value })}
-                className="w-full border border-[rgba(0,0,0,0.15)] px-3 py-2 font-sans text-[12px] bg-transparent outline-none"
-              >
-                <option value="">Select Designer (optional)</option>
-                <option value="gobi">Gobi</option>
-                <option value="goyol">Goyol</option>
-                <option value="michel-amazonka">Michel&Amazonka</option>
-              </select>
-              <input
-                type="number"
-                value={formData.read_time}
-                onChange={(e) => setFormData({ ...formData, read_time: parseInt(e.target.value) || 5 })}
-                placeholder="Read time (min)"
-                min={1}
-                className="w-full border border-[rgba(0,0,0,0.15)] px-3 py-2 font-sans text-[12px] bg-transparent outline-none"
-              />
-            </div>
-          </div>
+            <div className="border-t border-[#F0EDE8]" />
 
-          {/* Cover Image */}
-          <div className="mb-8">
-            <h3 className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] mb-4">Cover Image</h3>
-            {coverImage ? (
-              <div className="relative aspect-video bg-gray-100">
-                <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
-                <button 
-                  onClick={() => setCoverImage(null)}
-                  className="absolute top-2 right-2 bg-white px-2 py-1 text-xs"
+            {/* Taxonomy */}
+            <section>
+              <label className="block font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">Taxonomy</label>
+              <div className="space-y-2.5">
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors appearance-none"
                 >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <label className="border-2 border-dashed border-[rgba(0,0,0,0.15)] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#2A2522] transition-colors">
-                {uploading ? (
-                  <Loader2 className="w-6 h-6 text-[#9B9590] animate-spin" />
-                ) : (
-                  <>
-                    <Upload className="w-6 h-6 text-[#9B9590] mb-2" />
-                    <span className="font-sans text-[11px] text-[#9B9590]">Click to upload</span>
-                  </>
-                )}
-                <input 
-                  type="file" 
-                  accept="image/*,video/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="hidden"
+                  <option value="features">Features</option>
+                  <option value="interviews">Interviews</option>
+                  <option value="news">News</option>
+                  <option value="trends">Trends</option>
+                </select>
+                <input
+                  type="text"
+                  value={formData.tags}
+                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  placeholder="Tags (comma separated)"
+                  className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors placeholder:text-[#C8C4BC]"
                 />
-              </label>
-            )}
-          </div>
+                <select
+                  value={formData.designer_slug}
+                  onChange={(e) => setFormData({ ...formData, designer_slug: e.target.value })}
+                  className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors appearance-none"
+                >
+                  <option value="">Designer (optional)</option>
+                  <option value="gobi">Gobi</option>
+                  <option value="goyol">Goyol</option>
+                  <option value="michel-amazonka">Michel & Amazonka</option>
+                </select>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={formData.read_time}
+                    onChange={(e) => setFormData({ ...formData, read_time: parseInt(e.target.value) || 5 })}
+                    min={1}
+                    className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors pr-10"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 font-sans text-[11px] text-[#C0BCB5]">min</span>
+                </div>
+              </div>
+            </section>
 
-          {/* SEO Preview */}
-          <div>
-            <h3 className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] mb-4">SEO Preview</h3>
-            <div className="bg-[#F5F2ED] p-4">
-              <p className="font-sans text-[11px] text-[#9B9590] mb-1">anoce.mn/editorial/...</p>
-              <p className="font-sans text-[14px] text-[#1a0dab] leading-tight mb-1">{formData.title || 'Article Title'}</p>
-              <p className="font-sans text-[11px] text-[#545454] line-clamp-2">
-                {formData.subtitle || 'Preview of your article meta description will appear here...'}
-              </p>
-            </div>
+            <div className="border-t border-[#F0EDE8]" />
+
+            {/* Cover image */}
+            <section>
+              <label className="block font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">Cover Image</label>
+              {coverImage ? (
+                <div className="relative rounded-lg overflow-hidden aspect-video bg-[#F0EDE8]">
+                  <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => setCoverImage(null)}
+                    className="absolute top-2 right-2 bg-black/60 text-white font-sans text-[9.5px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-md hover:bg-black/80 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-[#E8E4DD] rounded-lg py-8 cursor-pointer hover:border-[#C8C4BC] hover:bg-[#FAF8F5] transition-all">
+                  {uploading ? (
+                    <Loader2 className="w-5 h-5 text-[#C0BCB5] animate-spin" />
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-[#C0BCB5]" strokeWidth={1.6} />
+                      <span className="font-sans text-[11px] text-[#B0ACA4]">Click to upload</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </section>
+
+            <div className="border-t border-[#F0EDE8]" />
+
+            {/* SEO preview */}
+            <section>
+              <label className="block font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">SEO Preview</label>
+              <div className="bg-[#F5F2ED] rounded-lg p-4">
+                <p className="font-sans text-[10px] text-[#B0ACA4] mb-1 truncate">anoce.mn/editorial/{slug || '…'}</p>
+                <p className="font-sans text-[13px] text-blue-700 leading-snug mb-1 line-clamp-1">
+                  {formData.title || 'Article Title'}
+                </p>
+                <p className="font-sans text-[11px] text-[#5A5A5A] line-clamp-2 leading-relaxed">
+                  {formData.subtitle || 'Your article subtitle will appear here as the meta description…'}
+                </p>
+              </div>
+            </section>
           </div>
         </div>
       </div>

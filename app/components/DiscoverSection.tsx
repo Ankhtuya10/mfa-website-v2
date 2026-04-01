@@ -33,16 +33,16 @@ export const DiscoverSection = () => {
       </video>
 
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/38" />
 
       {/* Content */}
-      <div className="w-full max-w-3xl text-center px-8 py-32 relative z-10">
+      <div className="w-full max-w-4xl text-center px-8 py-32 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 60, scale: 0.97 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           viewport={{ once: false, amount: 0.3 }}
-          className="flex flex-col items-center"
+          className="flex flex-col items-center px-8 py-12 md:px-12"
         >
           {/* Top rule */}
           <motion.span
@@ -61,7 +61,7 @@ export const DiscoverSection = () => {
           {/* Heading */}
           <motion.h2
             style={{ y }}
-            className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight"
+            className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight [text-shadow:0_8px_30px_rgba(0,0,0,0.25)]"
           >
             Discover Modern Elegance
           </motion.h2>
@@ -69,7 +69,7 @@ export const DiscoverSection = () => {
           {/* Body */}
           <motion.p
             style={{ y, opacity }}
-            className="font-sans text-base md:text-lg text-white/80 mb-14 font-normal leading-relaxed max-w-2xl mx-auto"
+            className="font-sans text-base md:text-lg text-white/82 mb-14 font-normal leading-relaxed max-w-2xl mx-auto [text-shadow:0_6px_20px_rgba(0,0,0,0.22)]"
           >
             Our curated selection celebrates contemporary design rooted in the heritage of the
             Mongolian steppe. Each piece tells a story of innovation meeting tradition — timeless
@@ -86,14 +86,14 @@ export const DiscoverSection = () => {
           >
             <Link
               href="/collections"
-              className="font-sans text-[11px] tracking-[0.15em] uppercase text-white border-b border-white/60 pb-px hover:text-white/70 hover:border-white/40 transition-all duration-300"
+              className="rounded-full border border-white/25 bg-black/22 px-6 py-3 font-sans text-[11px] tracking-[0.15em] uppercase text-white hover:bg-black/30 hover:text-white/80 transition-all duration-300"
             >
               Explore Collection
             </Link>
             <span className="text-white/40 text-xs">·</span>
             <Link
               href="/editorial"
-              className="font-sans text-[11px] tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors duration-300"
+              className="rounded-full border border-white/18 bg-black/18 px-6 py-3 font-sans text-[11px] tracking-[0.15em] uppercase text-white/68 hover:bg-black/26 hover:text-white transition-colors duration-300"
             >
               Read the Story
             </Link>

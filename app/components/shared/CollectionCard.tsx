@@ -36,9 +36,9 @@ export function CollectionCard({ collection, showDesigner = false }: CollectionC
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.6 }}
-        className="group cursor-pointer text-center"
+        className="glass-panel-light group cursor-pointer overflow-hidden rounded-[34px] text-center p-3"
       >
-        <div className="relative aspect-[4/5] overflow-hidden">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[26px]">
           <motion.div
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -58,20 +58,20 @@ export function CollectionCard({ collection, showDesigner = false }: CollectionC
             initial={{ y: '100%' }}
             whileHover={{ y: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center"
+            className="absolute inset-0 bg-black/72 flex flex-col items-center justify-center"
           >
             <div className="mb-6">
               <span className="font-sans text-xs tracking-[3px] uppercase text-white/70">
                 {season} {year} · {looksCount} looks
               </span>
             </div>
-            <span className="font-sans font-bold text-sm tracking-[4px] uppercase text-white px-8 py-4 border border-white/50 hover:bg-white hover:text-black transition-all">
+            <span className="font-sans font-bold text-sm tracking-[4px] uppercase text-white px-8 py-4 border border-white/50 rounded-full hover:bg-white hover:text-black transition-all">
               View Collection
             </span>
           </motion.div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-5 pb-3 px-2">
           {showDesigner && (
             <span className="font-sans text-xs tracking-[3px] uppercase text-[#9B9590] block mb-2">
               {designerName}

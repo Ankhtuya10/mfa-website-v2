@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -11,6 +10,18 @@ interface Article {
   status: string | null
   published_at: string | null
   slug: string | null
+}
+
+const STATUS_DOT: Record<string, string> = {
+  published: 'bg-emerald-400',
+  review:    'bg-amber-400',
+  draft:     'bg-stone-300',
+}
+
+const STATUS_BAR: Record<string, string> = {
+  published: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  review:    'bg-amber-50 text-amber-700 border border-amber-200',
+  draft:     'bg-stone-100 text-stone-500 border border-stone-200',
 }
 
 export default function CalendarPage() {
@@ -53,13 +64,13 @@ export default function CalendarPage() {
   })
 
   const today = new Date()
-  const isToday = (day: number) => 
-    day === today.getDate() && 
-    currentDate.getMonth() === today.getMonth() && 
+  const isToday = (day: number) =>
+    day === today.getDate() &&
+    currentDate.getMonth() === today.getMonth() &&
     currentDate.getFullYear() === today.getFullYear()
 
   const thisWeekStart = new Date(today)
-  thisWeekStart.setDate(today.getDate() - today.getDay() + 1)
+  thisWeekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7))
   const thisWeekEnd = new Date(thisWeekStart)
   thisWeekEnd.setDate(thisWeekStart.getDate() + 6)
 
@@ -69,108 +80,122 @@ export default function CalendarPage() {
     return date >= thisWeekStart && date <= thisWeekEnd
   })
 
-  const statusColors: Record<string, { bg: string; dot: string }> = {
-    published: { bg: 'bg-[#F0FDF4] text-[#16A34A]', dot: 'bg-[#16A34A]' },
-    review: { bg: 'bg-[#FFFBEB] text-[#D97706]', dot: 'bg-[#D97706]' },
-    draft: { bg: 'bg-[#F9FAFB] text-[#6B7280]', dot: 'bg-[#6B7280]' },
-  }
+  const totalCells = Math.ceil((adjustedFirstDay + daysInMonth) / 7) * 7
 
   if (loading) {
     return (
-      <div className="w-full">
-      <header className="flex items-center justify-between mb-8 w-full max-w-full">
-          <h1 className="font-serif text-2xl text-[#111111]">Calendar</h1>
-        </header>
-        <div className="bg-white border border-[rgba(0,0,0,0.08)] h-[500px] animate-pulse w-full" />
+      <div className="flex flex-col gap-7">
+        <div className="flex items-end justify-between pt-1">
+          <h1 className="font-serif text-[32px] text-[#1A1A18] leading-none tracking-tight">Calendar</h1>
+        </div>
+        <div className="bg-white rounded-xl border border-[#E8E4DD] h-[500px] animate-pulse" />
       </div>
     )
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: '100%', paddingRight: '3rem', boxSizing: 'border-box' }}>
-      <header className="flex items-center justify-between mb-8 w-full">
-        <div className="flex items-center gap-4">
-          <button onClick={prevMonth} className="p-2 hover:bg-[#F5F2ED] transition-colors">
-            <ChevronLeft className="w-5 h-5 text-[#9B9590]" />
+    <div className="flex flex-col gap-7">
+
+      {/* Header */}
+      <div className="flex items-end justify-between pt-1">
+        <div className="flex items-center gap-3">
+          <button onClick={prevMonth} className="p-1.5 rounded-lg text-[#B0ACA4] hover:text-[#1A1A18] hover:bg-[#ECEAE5] transition-all">
+            <ChevronLeft className="w-4 h-4" strokeWidth={1.8} />
           </button>
-          <h1 className="font-serif text-2xl text-[#111111] w-48">{monthName}</h1>
-          <button onClick={nextMonth} className="p-2 hover:bg-[#F5F2ED] transition-colors">
-            <ChevronRight className="w-5 h-5 text-[#9B9590]" />
+          <h1 className="font-serif text-[32px] text-[#1A1A18] leading-none tracking-tight w-56">{monthName}</h1>
+          <button onClick={nextMonth} className="p-1.5 rounded-lg text-[#B0ACA4] hover:text-[#1A1A18] hover:bg-[#ECEAE5] transition-all">
+            <ChevronRight className="w-4 h-4" strokeWidth={1.8} />
           </button>
-          <button 
+          <button
             onClick={() => setCurrentDate(new Date())}
-            className="ml-4 px-4 py-2 font-sans text-[11px] tracking-[2px] uppercase text-[#9B9590] hover:text-[#111111] transition-colors"
+            className="ml-2 px-3 py-1.5 font-sans text-[10px] tracking-[0.1em] uppercase text-[#9E9B94] hover:text-[#1A1A18] hover:bg-[#ECEAE5] rounded-lg transition-all"
           >
             Today
           </button>
         </div>
-        <button className="bg-[#111111] text-white font-sans font-bold text-[10px] tracking-[2.5px] uppercase px-5 py-2.5 hover:bg-[#333] transition-colors flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Schedule Article
+        <button className="flex items-center gap-2 bg-[#0E0E0D] text-white font-sans text-[10.5px] tracking-[0.12em] uppercase font-medium px-5 py-2.5 rounded-lg hover:bg-[#2a2a28] transition-colors">
+          <Plus className="w-3.5 h-3.5" strokeWidth={2} /> Schedule
         </button>
-      </header>
+      </div>
 
-      <div className="flex w-full" style={{ maxWidth: 'calc(100% - 3rem)' }}>
-        <div className="flex-1">
-          <div className="bg-white border border-[rgba(0,0,0,0.08)] w-full">
-            <div className="grid grid-cols-7 border-b border-[rgba(0,0,0,0.08)] w-full">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-                <div key={day} className="p-4 text-center font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590]">
-                  {day}
-                </div>
-              ))}
-            </div>
+      {/* Calendar + sidebar */}
+      <div className="flex gap-5">
 
-            <div className="grid grid-cols-7 w-full">
-              {Array.from({ length: 35 }, (_, i) => {
-                const day = i - adjustedFirstDay + 1
-                const isValid = day > 0 && day <= daysInMonth
-                const dayArticles = articlesByDay[day] || []
-                
-                return (
-                  <div
-                    key={i}
-                    className={`min-h-[100px] p-2 border-b border-r border-[rgba(0,0,0,0.06)] w-full ${
-                      !isValid ? 'bg-[#FAFAFA]' : ''
-                    } ${isToday(day) ? 'ring-1 ring-[#B7AEA9] bg-[#F5F2ED]' : ''}`}
-                  >
-                    {isValid && (
-                      <>
-                        <span className="font-sans text-[12px] text-[#111111] font-medium">{day}</span>
-                        {dayArticles.map((article, j) => (
+        {/* Calendar grid */}
+        <div className="flex-1 bg-white rounded-xl border border-[#E8E4DD] overflow-hidden">
+          {/* Day headers */}
+          <div className="grid grid-cols-7 border-b border-[#EDEBE6]">
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+              <div key={day} className="py-3 text-center font-sans text-[9.5px] tracking-[0.12em] uppercase text-[#B0ACA4] font-medium">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Day cells */}
+          <div className="grid grid-cols-7">
+            {Array.from({ length: totalCells }, (_, i) => {
+              const day = i - adjustedFirstDay + 1
+              const isValid = day > 0 && day <= daysInMonth
+              const dayArticles = isValid ? (articlesByDay[day] || []) : []
+              const todayCell = isValid && isToday(day)
+
+              return (
+                <div
+                  key={i}
+                  className={`min-h-[96px] p-2.5 border-b border-r border-[#F0EDE8] transition-colors
+                    ${!isValid ? 'bg-[#FAFAF8]' : 'hover:bg-[#FAF8F5]'}
+                    ${todayCell ? 'bg-[#F5F2ED]' : ''}
+                  `}
+                >
+                  {isValid && (
+                    <>
+                      <div className={`inline-flex items-center justify-center w-6 h-6 rounded-full mb-1 font-sans text-[11.5px] font-medium
+                        ${todayCell ? 'bg-[#0E0E0D] text-white' : 'text-[#1A1A18]'}
+                      `}>
+                        {day}
+                      </div>
+                      <div className="space-y-1">
+                        {dayArticles.slice(0, 2).map((article, j) => (
                           <div
                             key={j}
-                            className={`mt-1 px-2 py-1 font-sans text-[10px] truncate cursor-pointer hover:opacity-80 ${
-                              statusColors[article.status || 'draft'].bg
-                            }`}
+                            className={`px-1.5 py-0.5 rounded-md font-sans text-[9.5px] truncate cursor-pointer hover:opacity-80 transition-opacity ${STATUS_BAR[article.status || 'draft']}`}
                           >
                             {article.title}
                           </div>
                         ))}
-                      </>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+                        {dayArticles.length > 2 && (
+                          <p className="font-sans text-[9px] text-[#B0ACA4] pl-1">
+                            +{dayArticles.length - 2} more
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
 
-        <div className="w-64 bg-white border-l border-[rgba(0,0,0,0.08)] p-6">
-          <h2 className="font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] mb-4">This Week</h2>
-          <div className="space-y-4">
+        {/* This week sidebar */}
+        <div className="w-[220px] shrink-0 bg-white rounded-xl border border-[#E8E4DD] overflow-hidden self-start">
+          <div className="px-5 py-4 border-b border-[#EDEBE6]">
+            <h2 className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#9E9B94] font-medium">This Week</h2>
+          </div>
+          <div className="px-5 py-3 divide-y divide-[#F0EDE8]">
             {thisWeekArticles.length === 0 ? (
-              <p className="font-inter text-[12px] text-[#9B9590]">No articles scheduled this week</p>
+              <p className="font-sans text-[12px] text-[#C0BCB5] py-4 text-center">No articles this week</p>
             ) : (
               thisWeekArticles.map((article, i) => (
-                <div key={i} className="flex items-start gap-3 py-2 border-b border-[rgba(0,0,0,0.06)]">
-                  <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                    statusColors[article.status || 'draft'].dot
-                  }`} />
+                <div key={i} className="flex items-start gap-2.5 py-3">
+                  <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${STATUS_DOT[article.status || 'draft']}`} />
                   <div>
-                    <p className="font-inter text-[12px] text-[#111111]">{article.title}</p>
-                    <p className="font-inter text-[11px] text-[#9B9590] mt-1">
-                      {article.published_at ? new Date(article.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                    <p className="font-sans text-[12px] text-[#1A1A18] leading-snug line-clamp-2">{article.title}</p>
+                    <p className="font-sans text-[10.5px] text-[#B0ACA4] mt-0.5">
+                      {article.published_at
+                        ? new Date(article.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        : ''}
                     </p>
                   </div>
                 </div>

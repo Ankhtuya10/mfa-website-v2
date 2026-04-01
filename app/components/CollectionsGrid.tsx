@@ -58,7 +58,7 @@ export const CollectionsGrid = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.3 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-end justify-between px-6 md:px-10 pt-8 pb-4 flex-shrink-0"
+        className="flex items-end justify-between px-8 md:px-12 pt-8 pb-4 flex-shrink-0"
       >
         <div>
           <span className="font-sans text-[9px] tracking-[0.35em] uppercase text-[#A09890] block mb-2">
@@ -83,9 +83,9 @@ export const CollectionsGrid = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.1 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="flex-1 flex flex-col px-6 md:px-10 pb-6 min-h-0"
+        className="flex-1 flex flex-col px-8 md:px-12 pb-8 min-h-0"
       >
-        <div className="bg-[#161412] p-2 md:p-2.5 flex flex-col h-full">
+        <div className="glass-panel-dark rounded-[38px] bg-[#161412]/90 p-3 md:p-4 flex flex-col h-full">
 
           {/* Perforations top */}
           <div className="flex items-center gap-[5px] mb-2 flex-shrink-0 overflow-hidden">
