@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const tabs = ['Saved Articles', 'Saved Looks', 'Following', 'Settings']
+const NOTIFICATIONS_STORAGE_KEY = 'anoce_profile_notifications'
 
 interface Profile {
   id: string
@@ -16,7 +17,7 @@ interface Profile {
   email: string | null
   avatar_url: string | null
   role: string | null
-  notifications: {
+  notifications?: {
     new_collections: boolean
     editorial_picks: boolean
     breaking_news: boolean
@@ -74,6 +75,7 @@ export default function ProfilePage() {
   const [nameValue, setNameValue] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [canPersistNotifications, setCanPersistNotifications] = useState(true)
   const [notifications, setNotifications] = useState({
     new_collections: true,
     editorial_picks: true,
@@ -88,11 +90,7 @@ export default function ProfilePage() {
         if (authError) {
           console.error('[Profile] Auth error:', authError)
         }
-        
-        if (authError) {
-          console.error('[Profile] Auth error:', authError)
-        }
-        
+
         if (!user) {
           router.push('/login')
           return
@@ -124,7 +122,26 @@ export default function ProfilePage() {
 
         setProfile(profile)
         if (profile?.name) setNameValue(profile.name)
-        if (profile?.notifications) setNotifications(profile.notifications)
+        const localNotifications = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY)
+        if (localNotifications) {
+          try {
+            setNotifications(JSON.parse(localNotifications))
+          } catch {
+            localStorage.removeItem(NOTIFICATIONS_STORAGE_KEY)
+          }
+        } else if (profile?.notifications) {
+          setNotifications(profile.notifications)
+        }
+
+        const { error: notificationsProbeError } = await supabase
+          .from('profiles')
+          .select('notifications')
+          .eq('id', user.id)
+          .single()
+
+        if (notificationsProbeError) {
+          setCanPersistNotifications(false)
+        }
 
         const { data: bookmarks, error: bookmarksError } = await supabase
           .from('bookmarks')
@@ -236,14 +253,19 @@ export default function ProfilePage() {
     if (!user) return
     const updated = { ...notifications, [key]: !notifications[key as keyof typeof notifications] }
     setNotifications(updated)
-    
+
+    localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(updated))
+
+    if (!canPersistNotifications) return
+
     const { error } = await supabase
       .from('profiles')
       .update({ notifications: updated })
       .eq('id', user.id)
-    
+
     if (error) {
       console.error('[Profile] Error updating notifications:', error)
+      setCanPersistNotifications(false)
     }
   }
 

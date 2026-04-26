@@ -93,28 +93,33 @@ export default function NewArticlePage() {
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
       const filePath = `articles/${fileName}`
+      const uploadBuckets = ['media', 'covers']
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, file)
+      let publicUrl: string | null = null
+      let lastErrorMessage = 'Unknown upload error'
 
-      if (uploadError) {
-        console.log('Storage bucket not found. Using placeholder.')
-        // For now, use a sample image as placeholder since bucket doesn't exist
-        setCoverImage('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop')
-        setUploading(false)
-        return
+      for (const bucket of uploadBuckets) {
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(filePath, file)
+
+        if (!uploadError) {
+          publicUrl = supabase.storage.from(bucket).getPublicUrl(filePath).data.publicUrl
+          break
+        }
+
+        lastErrorMessage = uploadError.message
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('media')
-        .getPublicUrl(filePath)
+      if (!publicUrl) {
+        alert(`Image upload failed: ${lastErrorMessage}`)
+        return
+      }
 
       setCoverImage(publicUrl)
     } catch (err: any) {
       console.error('Upload error:', err)
-      // Fallback to placeholder
-      setCoverImage('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop')
+      alert('Image upload failed. Please try again.')
     } finally {
       setUploading(false)
     }

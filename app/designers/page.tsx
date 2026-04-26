@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { StickyNavbar, Footer } from '@/app/components'
 import { DesignerCard } from '@/app/components/shared/DesignerCard'
-import { designers as mockDesigners } from '@/lib/mockData'
 
 const tiers = ['All', 'High-End', 'Contemporary', 'Emerging']
 
@@ -24,13 +23,10 @@ export default function DesignersPage() {
           .select('*')
           .order('name')
         
-        if (error || !data || data.length === 0) {
-          setDesigners(mockDesigners)
-        } else {
-          setDesigners(data)
-        }
+        if (error) throw error
+        setDesigners(data || [])
       } catch {
-        setDesigners(mockDesigners)
+        setDesigners([])
       } finally {
         setLoading(false)
       }

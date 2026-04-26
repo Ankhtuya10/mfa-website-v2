@@ -297,7 +297,7 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
                 </p>
 
                 <div className="mt-6">
-                  <BookmarkButton id={`${slug}-${currentLookIndex}`} type="look" />
+                  <BookmarkButton id={collection.looks[currentLookIndex].id} type="look" />
                 </div>
               </div>
             </div>

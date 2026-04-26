@@ -1,25 +1,106 @@
 'use client'
 
-import { use } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { articles } from '@/lib/mockData'
 import { ExternalLink } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+
+type ReviewArticle = {
+  id: string
+  slug: string
+  title: string
+  subtitle: string | null
+  category: string
+  author_name: string | null
+  read_time: number | null
+  body: string | null
+  cover_image: string | null
+  created_at: string
+  updated_at: string | null
+  published_at: string | null
+  status: string
+}
+
+const reviewFallbackImage =
+  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=700&fit=crop'
 
 export default function ArticleReviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const article = articles.find(a => a.id === id)
+  const [article, setArticle] = useState<ReviewArticle | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+
+    async function loadArticle() {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('articles')
+          .select('id, slug, title, subtitle, category, author_name, read_time, body, cover_image, created_at, updated_at, published_at, status')
+          .eq('id', id)
+          .single()
+
+        if (error) throw error
+        if (!active) return
+        setArticle(data as ReviewArticle)
+      } catch {
+        if (!active) return
+        setArticle(null)
+      } finally {
+        if (!active) return
+        setLoading(false)
+      }
+    }
+
+    loadArticle()
+
+    return () => {
+      active = false
+    }
+  }, [id])
+
+  const timeline = useMemo(() => {
+    if (!article) return []
+
+    const items = [
+      { label: 'Draft Created', date: article.created_at, actor: article.author_name || 'Unknown', done: true },
+      {
+        label: 'Submitted for Review',
+        date: article.status === 'review' || article.status === 'published' ? article.updated_at || article.created_at : null,
+        actor: article.author_name || 'Unknown',
+        done: article.status === 'review' || article.status === 'published',
+      },
+      {
+        label: 'Under Review',
+        date: article.status === 'review' || article.status === 'published' ? article.updated_at || article.created_at : null,
+        actor: 'Editorial Team',
+        done: article.status === 'review' || article.status === 'published',
+      },
+      {
+        label: 'Published',
+        date: article.published_at,
+        actor: 'Editorial Team',
+        done: article.status === 'published',
+      },
+    ]
+
+    return items.map((item) => ({
+      ...item,
+      dateLabel: item.date
+        ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : null,
+    }))
+  }, [article])
+
+  if (loading) {
+    return <div className="p-8 font-sans text-sm text-[#9B9590]">Loading review...</div>
+  }
 
   if (!article) {
     return <div>Article not found</div>
   }
-
-  const timeline = [
-    { label: 'Draft Created', date: 'Mar 10, 2026', actor: 'Tsetseg', done: true },
-    { label: 'Submitted for Review', date: 'Mar 15, 2026', actor: 'Tsetseg', done: true },
-    { label: 'Under Review', date: 'Mar 18, 2026', actor: 'Narantsetseg', done: true },
-    { label: 'Approved', date: null, actor: null, done: false },
-  ]
 
   return (
     <div className="flex min-h-screen">
@@ -32,7 +113,7 @@ export default function ArticleReviewPage({ params }: { params: Promise<{ id: st
         <div className="max-w-2xl mx-auto px-6 py-12">
           {/* Hero */}
           <div className="relative h-[50vh] mb-12 overflow-hidden">
-            <Image src={article.coverImage} alt="" fill className="object-cover" />
+            <Image src={article.cover_image || reviewFallbackImage} alt="" fill className="object-cover" />
           </div>
 
           <span className="font-sans text-[10px] tracking-[4.95px] uppercase text-[#B7AEA9] block mb-4">
@@ -42,13 +123,13 @@ export default function ArticleReviewPage({ params }: { params: Promise<{ id: st
           <p className="font-serif italic text-xl text-[#7A7470] mb-8">{article.subtitle}</p>
           
           <div className="flex items-center gap-4 mb-12 text-[#9B9590]">
-            <span className="font-sans text-[11px] tracking-[2px] uppercase">{article.author}</span>
+            <span className="font-sans text-[11px] tracking-[2px] uppercase">{article.author_name || 'Unknown'}</span>
             <span>·</span>
-            <span className="font-sans text-[11px] tracking-[2px] uppercase">{article.readTime} min read</span>
+            <span className="font-sans text-[11px] tracking-[2px] uppercase">{article.read_time || 5} min read</span>
           </div>
 
           <div className="space-y-6">
-            {article.body.split('\n\n').slice(0, 3).map((p, i) => (
+            {(article.body || '').split('\n\n').slice(0, 3).map((p, i) => (
               <p key={i} className="font-inter text-[17px] leading-[1.85] text-[#3A3530]">{p}</p>
             ))}
           </div>
@@ -59,7 +140,9 @@ export default function ArticleReviewPage({ params }: { params: Promise<{ id: st
       <div className="w-[400px] bg-white border-l border-[rgba(0,0,0,0.08)] overflow-y-auto">
         <div className="p-8">
           <h2 className="font-serif text-xl text-[#2A2522] mb-1 truncate">{article.title}</h2>
-          <p className="font-sans text-[11px] text-[#9B9590]">by {article.author} · Submitted Mar 15</p>
+          <p className="font-sans text-[11px] text-[#9B9590]">
+            by {article.author_name || 'Unknown'} · Submitted {new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </p>
 
           {/* Timeline */}
           <div className="mt-8 space-y-6">
@@ -76,9 +159,9 @@ export default function ArticleReviewPage({ params }: { params: Promise<{ id: st
                   <p className={`font-sans text-[12px] ${step.done ? 'text-[#2A2522]' : 'text-[#9B9590]'}`}>
                     {step.label}
                   </p>
-                  {step.date && (
+                  {step.dateLabel && (
                     <p className="font-sans text-[10px] text-[#9B9590] mt-1">
-                      {step.date} · {step.actor}
+                      {step.dateLabel} · {step.actor}
                     </p>
                   )}
                 </div>

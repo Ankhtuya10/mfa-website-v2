@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 interface Profile {
   id: string
@@ -23,13 +24,32 @@ const roleStyles: Record<string, string> = {
 }
 
 export function UsersTable({ initialUsers, currentUserId }: UsersTableProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const [users, setUsers] = useState<Profile[]>(initialUsers)
   const [showInvite, setShowInvite] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState('viewer')
   const [inviting, setInviting] = useState(false)
+  const [inviteError, setInviteError] = useState('')
+
+  useEffect(() => {
+    if (searchParams.get('invite') === '1') {
+      setShowInvite(true)
+    }
+  }, [searchParams])
+
+  const closeInviteModal = () => {
+    setShowInvite(false)
+    setInviteError('')
+    if (searchParams.get('invite') === '1') {
+      router.replace(pathname, { scroll: false })
+    }
+  }
 
   async function updateRole(userId: string, newRole: string) {
+    if (userId === currentUserId) return
     const supabase = createClient()
     await supabase.from('profiles').update({ role: newRole }).eq('id', userId)
     setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u))
@@ -38,25 +58,27 @@ export function UsersTable({ initialUsers, currentUserId }: UsersTableProps) {
   async function handleInvite() {
     if (!inviteEmail) return
     setInviting(true)
+    setInviteError('')
     try {
-      const supabase = createClient()
-      const adminClient = (await import('@/lib/supabase/admin')).createAdminClient()
-      await adminClient.auth.admin.inviteUserByEmail(inviteEmail)
-      
-      const newUser: Profile = {
-        id: '',
-        name: inviteEmail.split('@')[0],
-        role: inviteRole,
-        created_at: new Date().toISOString(),
-        email: inviteEmail,
+      const response = await fetch('/api/admin/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
+      })
+
+      const payload = await response.json()
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Failed to send invite')
       }
-      setUsers([newUser, ...users])
-      setShowInvite(false)
+
+      const newUser: Profile = payload.user
+      setUsers(prev => [newUser, ...prev.filter(u => u.id !== newUser.id)])
+      closeInviteModal()
       setInviteEmail('')
       setInviteRole('viewer')
     } catch (err) {
       console.error('Invite failed:', err)
-      alert('Failed to send invite')
+      setInviteError(err instanceof Error ? err.message : 'Failed to send invite')
     } finally {
       setInviting(false)
     }
@@ -115,7 +137,9 @@ export function UsersTable({ initialUsers, currentUserId }: UsersTableProps) {
                     <select
                       value={user.role || 'viewer'}
                       onChange={(e) => updateRole(user.id, e.target.value)}
-                      className="font-sans text-[10px] tracking-[1px] uppercase border border-[rgba(0,0,0,0.1)] bg-white px-2 py-1 outline-none cursor-pointer"
+                      disabled={user.id === currentUserId}
+                      className="font-sans text-[10px] tracking-[1px] uppercase border border-[rgba(0,0,0,0.1)] bg-white px-2 py-1 outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                      title={user.id === currentUserId ? 'You cannot change your own role here' : undefined}
                     >
                       <option value="viewer">Viewer</option>
                       <option value="editor">Editor</option>
@@ -130,7 +154,7 @@ export function UsersTable({ initialUsers, currentUserId }: UsersTableProps) {
       </div>
 
       {showInvite && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowInvite(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={closeInviteModal}>
           <div className="bg-white max-w-sm p-8" onClick={e => e.stopPropagation()}>
             <h3 className="font-serif text-xl text-[#111111] mb-6">Invite a team member</h3>
             <input
@@ -149,6 +173,9 @@ export function UsersTable({ initialUsers, currentUserId }: UsersTableProps) {
               <option value="editor">Editor</option>
               <option value="admin">Admin</option>
             </select>
+            {inviteError && (
+              <p className="mb-4 font-sans text-[11px] text-red-600">{inviteError}</p>
+            )}
             <button
               onClick={handleInvite}
               disabled={inviting || !inviteEmail}

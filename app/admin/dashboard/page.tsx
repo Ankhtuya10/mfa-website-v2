@@ -12,12 +12,28 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string 
 export default async function DashboardPage() {
   const supabase = await createClient()
 
+  const formatRelativeTime = (dateValue: string) => {
+    const now = Date.now()
+    const then = new Date(dateValue).getTime()
+    const diffHours = Math.max(1, Math.floor((now - then) / (1000 * 60 * 60)))
+
+    if (diffHours < 24) return `${diffHours}h ago`
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffDays < 7) return `${diffDays}d ago`
+    const diffWeeks = Math.floor(diffDays / 7)
+    if (diffWeeks < 5) return `${diffWeeks}w ago`
+    const diffMonths = Math.floor(diffDays / 30)
+    return `${diffMonths}mo ago`
+  }
+
   const [
     { count: publishedCount },
     { count: reviewCount },
     { count: designerCount },
     { count: collectionCount },
     { data: recentArticles },
+    { data: recentDesigners },
+    { data: recentCollections },
   ] = await Promise.all([
     supabase.from('articles').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabase.from('articles').select('*', { count: 'exact', head: true }).eq('status', 'review'),
@@ -27,7 +43,43 @@ export default async function DashboardPage() {
       .select('id, slug, title, category, status, author_name, published_at, created_at')
       .order('created_at', { ascending: false })
       .limit(8),
+    supabase.from('designers').select('id, name, created_at').order('created_at', { ascending: false }).limit(4),
+    supabase.from('collections').select('id, title, created_at').order('created_at', { ascending: false }).limit(4),
   ])
+
+  const recentActivity = [
+    ...(recentArticles || []).map((article) => ({
+      action:
+        article.status === 'published'
+          ? 'Article published'
+          : article.status === 'review'
+          ? 'Submitted for review'
+          : 'Article drafted',
+      item: article.title || 'Untitled article',
+      time: article.published_at || article.created_at,
+      type:
+        article.status === 'published'
+          ? 'published'
+          : article.status === 'review'
+          ? 'review'
+          : 'article',
+    })),
+    ...(recentDesigners || []).map((designer) => ({
+      action: 'Designer added',
+      item: designer.name || 'Unnamed designer',
+      time: designer.created_at,
+      type: 'designer',
+    })),
+    ...(recentCollections || []).map((collection) => ({
+      action: 'Collection added',
+      item: collection.title || 'Untitled collection',
+      time: collection.created_at,
+      type: 'collection',
+    })),
+  ]
+    .filter((item) => item.time)
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+    .slice(0, 4)
 
   const dateStr = new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
@@ -222,12 +274,7 @@ export default async function DashboardPage() {
               <h2 className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94] font-medium">Recent Activity</h2>
             </div>
             <div className="px-5 py-3 divide-y divide-[#F0EDE8]">
-              {[
-                { action: 'Article published', item: 'Spring Collection 2026', time: '2h ago', type: 'published' },
-                { action: 'Designer added', item: 'Goyol Studio', time: '1d ago', type: 'designer' },
-                { action: 'Collection updated', item: 'FW2025 Heritage', time: '2d ago', type: 'collection' },
-                { action: 'Submitted for review', item: 'Mongolian Cashmere', time: '3d ago', type: 'review' },
-              ].map((activity, i) => (
+              {recentActivity.map((activity, i) => (
                 <div key={i} className="flex items-start gap-3 py-3">
                   <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
                     activity.type === 'published' ? 'bg-emerald-400' :
@@ -238,9 +285,12 @@ export default async function DashboardPage() {
                     <p className="font-sans text-[12px] text-[#1A1A18] leading-snug">{activity.action}</p>
                     <p className="font-sans text-[11px] text-[#A09D96] mt-0.5 truncate">{activity.item}</p>
                   </div>
-                  <span className="font-sans text-[10.5px] text-[#C0BCB5] shrink-0 pt-0.5">{activity.time}</span>
+                  <span className="font-sans text-[10.5px] text-[#C0BCB5] shrink-0 pt-0.5">{formatRelativeTime(activity.time)}</span>
                 </div>
               ))}
+              {recentActivity.length === 0 && (
+                <p className="py-3 font-sans text-[12px] text-[#A09D96]">No recent activity yet.</p>
+              )}
             </div>
           </div>
         </div>

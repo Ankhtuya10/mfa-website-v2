@@ -95,9 +95,13 @@ export function CollectionsTable({ initialCollections, lookCounts }: Collections
                   </td>
                   <td className="py-4 px-5">
                     <div className="flex gap-2">
-                      <button className="text-[#9B9590] hover:text-[#111111] transition-colors p-1">
+                      <Link
+                        href={`/admin/collections/${col.id}/edit`}
+                        className="text-[#9B9590] hover:text-[#111111] transition-colors p-1"
+                        title="Edit collection"
+                      >
                         <Pencil className="w-4 h-4" />
-                      </button>
+                      </Link>
                       <Link href={`/archive/${col.slug}`} target="_blank" className="text-[#9B9590] hover:text-[#111111] transition-colors p-1">
                         <Eye className="w-4 h-4" />
                       </Link>

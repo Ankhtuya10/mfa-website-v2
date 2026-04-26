@@ -6,11 +6,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { StickyNavbar, Footer } from '@/app/components'
 import { EmptyState } from '@/app/components/shared/EmptyState'
-import { collections as mockCollections } from '@/lib/mockData'
 
 const canonicalSeasons = ['SS', 'FW', 'Pre-Fall', 'Resort'] as const
-const baselineCategories = ['Outerwear', 'Knitwear', 'Accessories', 'Footwear']
-const baselineMaterials = ['Cashmere', 'Silk', 'Technical Nylon', 'Distressed Denim']
 const archiveFallbackImage =
   'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/sign/videos/images/pexels-aagii-aagii-494659827-16010457.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kNTdjZGJjYi0wNzRmLTQyMGMtOGJmMS1iY2MyZTI2NzkyODciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ2aWRlb3MvaW1hZ2VzL3BleGVscy1hYWdpaS1hYWdpaS00OTQ2NTk4MjctMTYwMTA0NTcuanBnIiwiaWF0IjoxNzc1MDUxNDk0LCJleHAiOjE3Nzc2NDM0OTR9.LKF0BalPkfNtet7pmvN0jMDvNWv6azlFPg5S-py5AiQ'
 const featureBreakInterval = 5
@@ -294,16 +291,13 @@ export default function ArchivePage() {
 
         const { data, error } = await supabase
           .from('collections')
-          .select('*, looks(count)')
+          .select('*, looks(materials, tags)')
           .order('year', { ascending: false })
 
-        if (error || !data || data.length === 0) {
-          setCollections(mockCollections)
-        } else {
-          setCollections(data)
-        }
+        if (error) throw error
+        setCollections(data || [])
       } catch {
-        setCollections(mockCollections)
+        setCollections([])
       } finally {
         setLoading(false)
       }
@@ -314,7 +308,7 @@ export default function ArchivePage() {
 
   const archiveCollections = useMemo(() => {
     const bySlug = new Map<string, any>()
-    for (const collection of [...collections, ...mockCollections]) {
+    for (const collection of collections) {
       const key = String(collection.slug || collection.id)
       if (!bySlug.has(key)) {
         bySlug.set(key, collection)
@@ -359,12 +353,12 @@ export default function ArchivePage() {
 
   const categoryOptions = useMemo(() => {
     const foundCategories = Array.from(new Set(collectionMeta.flatMap((item) => item.categories)))
-    return Array.from(new Set([...baselineCategories, ...foundCategories]))
+    return foundCategories.sort((a, b) => a.localeCompare(b))
   }, [collectionMeta])
 
   const materialOptions = useMemo(() => {
     const foundMaterials = Array.from(new Set(collectionMeta.flatMap((item) => item.materials)))
-    return Array.from(new Set([...baselineMaterials, ...foundMaterials]))
+    return foundMaterials.sort((a, b) => a.localeCompare(b))
   }, [collectionMeta])
 
   const filteredYearOptions = useMemo(() => {

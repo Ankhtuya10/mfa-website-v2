@@ -1,8 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { UsersTable } from './UsersTable'
+import Link from 'next/link'
 
 export default async function UsersPage() {
   const supabase = await createClient()
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser()
 
   const { data: profiles } = await supabase
     .from('profiles')
@@ -29,12 +33,15 @@ export default async function UsersPage() {
     <div className="w-full">
       <header className="flex justify-between items-center mb-8 w-full">
         <h1 className="font-serif text-2xl text-[#111111]">Team</h1>
-        <button className="bg-[#111111] text-white font-sans font-bold text-[10px] tracking-[2.5px] uppercase px-5 py-2.5 hover:bg-[#333] transition-colors">
+        <Link
+          href="/admin/users?invite=1"
+          className="bg-[#111111] text-white font-sans font-bold text-[10px] tracking-[2.5px] uppercase px-5 py-2.5 hover:bg-[#333] transition-colors"
+        >
           Invite Member
-        </button>
+        </Link>
       </header>
 
-      <UsersTable initialUsers={usersWithEmail} currentUserId={null} />
+      <UsersTable initialUsers={usersWithEmail} currentUserId={currentUser?.id || null} />
     </div>
   )
 }

@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { StickyNavbar, Footer } from '@/app/components'
 import { ChevronRight, Play, Pause, ArrowRight } from 'lucide-react'
-import { articles as mockArticles } from '@/lib/mockData'
 
 interface EditorialArticle {
   id: string
@@ -55,19 +54,21 @@ const categoryColors: Record<string, string> = {
   trends: '#8B7A68'
 }
 
-const featuredPieces = [
-  { id: 1, image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=900&fit=crop', title: 'Geometric Coat', designer: 'Gobi', price: '$2,400', collection: 'FW 2025' },
-  { id: 2, image: 'https://images.unsplash.com/photo-1539533057392-a63e26c766c1?w=600&h=800&fit=crop', title: 'Architectural Blazer', designer: 'Goyol', price: '$1,850', collection: 'FW 2025' },
-  { id: 3, image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=900&fit=crop', title: 'Embroidery Hoodie', designer: 'Michel&Amazonka', price: '$680', collection: 'SS 2025' },
-  { id: 4, image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&h=900&fit=crop', title: 'Cashmere Knit', designer: 'Gobi', price: '$1,200', collection: 'SS 2025' },
-  { id: 5, image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&h=900&fit=crop', title: 'Volume Puffer', designer: '93 Kidult', price: '$920', collection: 'FW 2025' },
-]
+type FeaturedPiece = {
+  id: string
+  image: string
+  title: string
+  designer: string
+  collection: string
+  href: string
+}
 
-const readNextStories = [
-  { title: 'The Geometry of the Steppe', category: 'Features', image: 'https://images.unsplash.com/photo-1539533057392-a63e26c766c1?w=800&h=600&fit=crop' },
-  { title: 'Street Code: Ulaanbaatar', category: 'Interviews', image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&h=600&fit=crop' },
-  { title: 'Mongolia Fashion Week 2025', category: 'News', image: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&h=600&fit=crop' },
-]
+type ReadNextStory = {
+  title: string
+  category: string
+  image: string
+  slug: string
+}
 
 const editorialHeroFallbackImage =
   'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/sign/videos/images/pexels-ron-lach-7778890.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kNTdjZGJjYi0wNzRmLTQyMGMtOGJmMS1iY2MyZTI2NzkyODciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ2aWRlb3MvaW1hZ2VzL3BleGVscy1yb24tbGFjaC03Nzc4ODkwLmpwZyIsImlhdCI6MTc3NTA2MzIwMiwiZXhwIjoxNzc3NjU1MjAyfQ.jk7lYLHUQXygEVLRhhtNTaJpGD0pB5MiSQOuGdpn59U'
@@ -118,6 +119,8 @@ const normalizeEditorialArticle = (article: Partial<EditorialArticle> & {
 
 export default function EditorialPage() {
   const [articles, setArticles] = useState<EditorialArticle[]>([])
+  const [featuredPieces, setFeaturedPieces] = useState<FeaturedPiece[]>([])
+  const [readNextStories, setReadNextStories] = useState<ReadNextStory[]>([])
   const [storageImages, setStorageImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0)
@@ -128,7 +131,7 @@ export default function EditorialPage() {
       try {
         const { createClient } = await import('@/lib/supabase/client')
         const supabase = createClient()
-        const [{ data: articleData, error: articleError }, { data: imageData, error: imageError }] = await Promise.all([
+        const [{ data: articleData, error: articleError }, { data: imageData, error: imageError }, { data: looksData }] = await Promise.all([
           supabase
             .from('articles')
             .select('*')
@@ -142,6 +145,11 @@ export default function EditorialPage() {
               offset: 0,
               sortBy: { column: 'name', order: 'asc' },
             }),
+          supabase
+            .from('looks')
+            .select('id, number, image, collections(title, slug, designer_name, season, year)')
+            .order('created_at', { ascending: false })
+            .limit(12),
         ])
 
         if (!imageError && imageData) {
@@ -158,13 +166,38 @@ export default function EditorialPage() {
           setStorageImages(urls)
         }
 
-        if (articleError || !articleData || articleData.length === 0) {
-          setArticles(mockArticles.filter((article) => article.status === 'published').map((article) => normalizeEditorialArticle(article as Partial<EditorialArticle> & { [key: string]: unknown })))
-        } else {
-          setArticles(articleData.map((article) => normalizeEditorialArticle(article as Record<string, unknown>)))
-        }
+        if (articleError) throw articleError
+
+        const normalizedArticles = (articleData || []).map((article) => normalizeEditorialArticle(article as Record<string, unknown>))
+        setArticles(normalizedArticles)
+        setReadNextStories(
+          normalizedArticles.slice(0, 3).map((article) => ({
+            title: article.title,
+            category: article.category,
+            image: article.coverImage || editorialHeroFallbackImage,
+            slug: article.slug,
+          }))
+        )
+
+        const mappedLooks = (looksData || []).map((look: any) => {
+          const collection = Array.isArray(look.collections) ? look.collections[0] : look.collections
+          const seasonLabel = [collection?.season, collection?.year].filter(Boolean).join(' ')
+
+          return {
+            id: String(look.id),
+            image: String(look.image || editorialHeroFallbackImage),
+            title: `Look ${look.number || ''}`.trim(),
+            designer: String(collection?.designer_name || 'Designer'),
+            collection: seasonLabel || String(collection?.title || 'Collection'),
+            href: collection?.slug ? `/archive/${collection.slug}` : '/archive',
+          } satisfies FeaturedPiece
+        })
+
+        setFeaturedPieces(mappedLooks)
       } catch {
-        setArticles(mockArticles.filter((article) => article.status === 'published').map((article) => normalizeEditorialArticle(article as Partial<EditorialArticle> & { [key: string]: unknown })))
+        setArticles([])
+        setFeaturedPieces([])
+        setReadNextStories([])
       } finally {
         setLoading(false)
       }
@@ -492,7 +525,7 @@ export default function EditorialPage() {
                     transition={{ duration: 0.6, delay: idx * 0.1 }}
                     className="flex h-full w-[240px] shrink-0 flex-col md:w-[280px] xl:w-[300px]"
                   >
-                    <Link href="/archive" className="group flex h-full flex-col">
+                    <Link href={item.href} className="group flex h-full flex-col">
                       <div className="relative mb-4 min-h-0 flex-1 overflow-hidden">
                         <Image
                           src={item.image}
@@ -514,9 +547,7 @@ export default function EditorialPage() {
                         <h3 className="font-serif text-lg leading-tight text-white transition-colors group-hover:text-white/80">
                           {item.title}
                         </h3>
-                        <p className="font-sans text-[11px] tracking-[0.1em] text-white/60">
-                          {item.designer} — {item.price}
-                        </p>
+                        <p className="font-sans text-[11px] tracking-[0.1em] text-white/60">{item.designer}</p>
                       </div>
                     </Link>
                   </motion.div>
@@ -632,7 +663,7 @@ export default function EditorialPage() {
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
                   className="min-h-0"
                 >
-                  <Link href="/editorial" className="group relative block h-full overflow-hidden">
+                  <Link href={`/editorial/${item.slug}`} className="group relative block h-full overflow-hidden">
                     <Image
                       src={item.image}
                       alt={item.title}

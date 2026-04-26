@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Clock3, Search, Sparkles } from 'lucide-react'
 import { StickyNavbar, Footer } from '@/app/components'
-import { articles, collections, designers } from '@/lib/mockData'
+import { fetchSearchIndex } from '@/app/components/search/searchEngine'
 
 type SearchCategory = 'articles' | 'collections' | 'designers' | 'brands'
 type SeasonFilter = 'all' | 'current' | 'archive'
@@ -78,86 +78,8 @@ const expandQueryTerms = (query: string) => {
   return Array.from(expanded)
 }
 
-const buildSearchIndex = (): SearchResultItem[] => {
-  const articleItems: SearchResultItem[] = articles.map((article) => ({
-    id: `article-${article.id}`,
-    slug: article.slug,
-    title: article.title,
-    subtitle: article.subtitle,
-    image: article.coverImage,
-    href: `/editorial/${article.slug}`,
-    category: 'articles',
-    meta: `${article.author} · ${article.readTime} min read`,
-    searchText: [article.title, article.subtitle, article.body, article.author, ...(article.tags || [])].join(' '),
-    tags: article.tags || [],
-  }))
-
-  const collectionItems: SearchResultItem[] = collections.map((collection) => {
-    const materialTags = collection.looks.flatMap((look) => look.materials)
-    const lookTags = collection.looks.flatMap((look) => look.tags)
-    const seasonLabel = `${collection.season}${collection.year}`
-
-    return {
-      id: `collection-${collection.id}`,
-      slug: collection.slug,
-      title: collection.title,
-      subtitle: collection.description,
-      image: collection.coverImage,
-      href: `/archive/${collection.slug}`,
-      category: 'collections',
-      meta: `${collection.designerName} · ${collection.season} ${collection.year}`,
-      searchText: [
-        collection.title,
-        collection.description,
-        collection.designerName,
-        collection.season,
-        `${collection.season}${collection.year}`,
-        `${collection.year}`,
-        ...materialTags,
-        ...lookTags,
-      ].join(' '),
-      tags: [...lookTags, ...materialTags],
-      seasonLabel,
-    }
-  })
-
-  const designerItems: SearchResultItem[] = designers.map((designer) => ({
-    id: `designer-${designer.id}`,
-    slug: designer.slug,
-    title: designer.name,
-    subtitle: designer.shortBio,
-    image: designer.coverImage,
-    href: `/designers/${designer.slug}`,
-    category: 'designers',
-    meta: `${designer.brand} · ${designer.tier}`,
-    searchText: [
-      designer.name,
-      designer.brand,
-      designer.bio,
-      designer.shortBio,
-      designer.nationality,
-      `${designer.founded}`,
-    ].join(' '),
-    tags: [designer.tier, designer.nationality, designer.brand],
-  }))
-
-  const brandItems: SearchResultItem[] = designers.map((designer) => ({
-    id: `brand-${designer.id}`,
-    slug: designer.slug,
-    title: designer.brand,
-    subtitle: designer.shortBio,
-    image: designer.coverImage,
-    href: `/designers/${designer.slug}`,
-    category: 'brands',
-    meta: `${designer.name} · Founded ${designer.founded}`,
-    searchText: [designer.brand, designer.name, designer.bio, designer.shortBio, designer.nationality].join(' '),
-    tags: [designer.tier, designer.nationality],
-  }))
-
-  return [...articleItems, ...collectionItems, ...designerItems, ...brandItems]
-}
-
-const SEARCH_INDEX = buildSearchIndex()
+const exploreSpotlightFallback =
+  'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920&q=80'
 
 const scoreResult = (item: SearchResultItem, query: string) => {
   const normalizedQuery = normalizeText(query)
@@ -241,6 +163,7 @@ function ResultCard({ item, query }: { item: SearchResultItem; query: string }) 
 }
 
 export default function ExplorePage() {
+  const [searchIndex, setSearchIndex] = useState<SearchResultItem[]>([])
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<'all' | SearchCategory>('all')
   const [seasonFilter, setSeasonFilter] = useState<SeasonFilter>('all')
@@ -252,6 +175,27 @@ export default function ExplorePage() {
 
   useEffect(() => {
     inputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadSearchIndex() {
+      try {
+        const index = await fetchSearchIndex()
+        if (!active) return
+        setSearchIndex(index)
+      } catch {
+        if (!active) return
+        setSearchIndex([])
+      }
+    }
+
+    loadSearchIndex()
+
+    return () => {
+      active = false
+    }
   }, [])
 
   useEffect(() => {
@@ -275,7 +219,7 @@ export default function ExplorePage() {
   }, [])
 
   useEffect(() => {
-    const spotlightItems = SEARCH_INDEX.filter((item) => item.category === 'collections' || item.category === 'articles')
+    const spotlightItems = searchIndex.filter((item) => item.category === 'collections' || item.category === 'articles')
     if (spotlightItems.length === 0) return
 
     const interval = setInterval(() => {
@@ -283,7 +227,7 @@ export default function ExplorePage() {
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [searchIndex])
 
   useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2 || typeof window === 'undefined') return
@@ -295,8 +239,8 @@ export default function ExplorePage() {
   }, [debouncedQuery])
 
   const spotlightItems = useMemo(
-    () => SEARCH_INDEX.filter((item) => item.category === 'collections' || item.category === 'articles'),
-    []
+    () => searchIndex.filter((item) => item.category === 'collections' || item.category === 'articles'),
+    [searchIndex]
   )
 
   const spotlightItem = spotlightItems[spotlightIndex % Math.max(spotlightItems.length, 1)]
@@ -304,7 +248,7 @@ export default function ExplorePage() {
   const rankedResults = useMemo(() => {
     if (deferredQuery.length < 2) return []
 
-    const filteredBySeason = SEARCH_INDEX.filter((item) => {
+    const filteredBySeason = searchIndex.filter((item) => {
       if (seasonFilter === 'all') return true
       if (item.category !== 'collections') return true
       if (!item.seasonLabel) return true
@@ -318,7 +262,7 @@ export default function ExplorePage() {
       .filter((entry) => entry.score > 0)
       .sort((left, right) => right.score - left.score)
       .map((entry) => entry.item)
-  }, [deferredQuery, seasonFilter])
+  }, [deferredQuery, seasonFilter, searchIndex])
 
   const groupedResults = useMemo(() => {
     return {
@@ -340,7 +284,9 @@ export default function ExplorePage() {
   const activeResults = activeCategory === 'all' ? rankedResults : groupedResults[activeCategory]
   const showLiveResults = deferredQuery.length >= 2
   const noResults = showLiveResults && totalResults === 0
-  const suggestedFallback = SEARCH_INDEX.filter((item) => item.category === 'articles' || item.category === 'collections').slice(0, 3)
+  const suggestedFallback = searchIndex
+    .filter((item) => item.category === 'articles' || item.category === 'collections')
+    .slice(0, 3)
 
   return (
     <div className="h-screen w-full overflow-hidden bg-[#0A0A0A]">
@@ -434,7 +380,7 @@ export default function ExplorePage() {
                     className="overflow-hidden rounded-[36px] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.11),rgba(255,255,255,0.035))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.26)] backdrop-blur-2xl md:p-6"
                   >
                     <div className="relative aspect-[1.08/1] overflow-hidden rounded-[28px]">
-                      <Image src={spotlightItem?.image || collections[0].coverImage} alt={spotlightItem?.title || 'Spotlight'} fill className="object-cover" />
+                      <Image src={spotlightItem?.image || exploreSpotlightFallback} alt={spotlightItem?.title || 'Spotlight'} fill className="object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
                     </div>
                     <div className="min-w-0 px-1 pt-5">

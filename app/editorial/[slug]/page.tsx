@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Footer, StickyNavbar } from '@/app/components'
 import { BookmarkButton } from '@/app/components/shared/BookmarkButton'
-import { articles as mockArticles, designers as mockDesigners } from '@/lib/mockData'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, X, ArrowRight } from 'lucide-react'
 
@@ -45,6 +44,14 @@ interface Article {
     collectionName: string
   }>
   status: string
+}
+
+type FeaturedLook = {
+  lookId: string
+  lookNumber: number
+  image: string
+  collectionSlug: string
+  collectionName: string
 }
 
 const categoryColors: Record<string, string> = {
@@ -97,6 +104,7 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
   const [article, setArticle] = useState<Article | null>(null)
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([])
   const [designer, setDesigner] = useState<any>(null)
+  const [featuredLooks, setFeaturedLooks] = useState<FeaturedLook[]>([])
   const [loading, setLoading] = useState(true)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentLookIndex, setCurrentLookIndex] = useState(0)
@@ -120,35 +128,47 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
           if (resolvedDesignerSlug) {
             const designerRes = await supabase.from('designers').select('*').eq('slug', resolvedDesignerSlug).single()
             if (designerRes.data) setDesigner(designerRes.data)
+
+            const { data: designerCollections } = await supabase
+              .from('collections')
+              .select('slug, title, looks(id, number, image)')
+              .eq('designer_slug', resolvedDesignerSlug)
+              .order('year', { ascending: false })
+              .limit(4)
+
+            const looks = (designerCollections || [])
+              .flatMap((collection: any) =>
+                (Array.isArray(collection.looks) ? collection.looks : []).map((look: any) => ({
+                  lookId: String(look.id),
+                  lookNumber: Number(look.number) || 0,
+                  image: String(look.image || articleFallbackImage),
+                  collectionSlug: String(collection.slug || ''),
+                  collectionName: String(collection.title || 'Collection'),
+                }))
+              )
+              .filter((look) => look.lookId && look.collectionSlug)
+              .slice(0, 8)
+
+            setFeaturedLooks(looks)
+          } else {
+            setFeaturedLooks([])
           }
         } else {
-          const fallback = mockArticles.find((item) => item.slug === slug) || mockArticles[0]
-          setArticle(normalizeArticle(fallback as Partial<Article> & { [key: string]: unknown }))
-          const ds = mockDesigners.find((item) => item.slug === fallback?.designerSlug)
-          setDesigner(ds)
+          setArticle(null)
+          setDesigner(null)
+          setFeaturedLooks([])
         }
 
         if (relatedRes.data && relatedRes.data.length > 0) {
           setRelatedArticles(relatedRes.data.map((item) => normalizeArticle(item as Record<string, unknown>)))
         } else {
-          setRelatedArticles(
-            mockArticles
-              .filter((item) => item.slug !== slug)
-              .slice(0, 3)
-              .map((item) => normalizeArticle(item as Partial<Article> & { [key: string]: unknown }))
-          )
+          setRelatedArticles([])
         }
       } catch {
-        const fallback = mockArticles.find((item) => item.slug === slug) || mockArticles[0]
-        setArticle(normalizeArticle(fallback as Partial<Article> & { [key: string]: unknown }))
-        setRelatedArticles(
-          mockArticles
-            .filter((item) => item.slug !== slug)
-            .slice(0, 3)
-            .map((item) => normalizeArticle(item as Partial<Article> & { [key: string]: unknown }))
-        )
-        const ds = mockDesigners.find((item) => item.slug === fallback?.designerSlug)
-        setDesigner(ds)
+        setArticle(null)
+        setRelatedArticles([])
+        setDesigner(null)
+        setFeaturedLooks([])
       } finally {
         setLoading(false)
       }
@@ -156,12 +176,6 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
 
     fetchData()
   }, [slug])
-
-  const featuredLooks = article?.relatedLooks || [
-    { lookId: 'l1', lookNumber: 1, image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=900&fit=crop', collectionSlug: 'gobi-fw2025', collectionName: 'Gobi FW 2025' },
-    { lookId: 'l2', lookNumber: 2, image: 'https://images.unsplash.com/photo-1539533057392-a63e26c766c1?w=600&h=900&fit=crop', collectionSlug: 'goyol-fw2025', collectionName: 'Goyol FW 2025' },
-    { lookId: 'l3', lookNumber: 3, image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=900&fit=crop', collectionSlug: 'michel-amazonka-ss2025', collectionName: 'Michel&Amazonka SS 2025' },
-  ]
 
   const openLightbox = (index: number) => {
     setCurrentLookIndex(index)

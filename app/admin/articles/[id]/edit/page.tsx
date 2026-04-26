@@ -113,16 +113,27 @@ export default function EditArticlePage() {
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
       const filePath = `articles/${fileName}`
 
-      const { error: uploadError } = await supabase.storage.from('media').upload(filePath, file)
+      const uploadBuckets = ['media', 'covers']
+      let publicUrl: string | null = null
+      let lastErrorMessage = 'Unknown upload error'
 
-      if (uploadError) {
-        setCoverImage('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop')
+      for (const bucket of uploadBuckets) {
+        const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file)
+        if (!uploadError) {
+          publicUrl = supabase.storage.from(bucket).getPublicUrl(filePath).data.publicUrl
+          break
+        }
+        lastErrorMessage = uploadError.message
+      }
+
+      if (!publicUrl) {
+        alert(`Image upload failed: ${lastErrorMessage}`)
         return
       }
-      const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(filePath)
       setCoverImage(publicUrl)
-    } catch {
-      setCoverImage('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop')
+    } catch (err) {
+      console.error('Upload error:', err)
+      alert('Image upload failed. Please try again.')
     } finally {
       setUploading(false)
     }

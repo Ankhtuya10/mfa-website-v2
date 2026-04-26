@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 interface BookmarkButtonProps {
   id: string
@@ -10,19 +11,121 @@ interface BookmarkButtonProps {
 }
 
 export function BookmarkButton({ id, type }: BookmarkButtonProps) {
+  const supabase = createClient()
   const [isSaved, setIsSaved] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    const saved = localStorage.getItem(`anoce_saved_${type}_${id}`)
-    setIsSaved(saved === 'true')
+    let active = true
+
+    async function loadSavedState() {
+      const storageKey = `anoce_saved_${type}_${id}`
+      const localSaved = localStorage.getItem(storageKey) === 'true'
+      if (active) setIsSaved(localSaved)
+
+      const { data: authData } = await supabase.auth.getUser()
+      const user = authData.user
+      if (!active) return
+
+      if (!user) {
+        setUserId(null)
+        return
+      }
+
+      setUserId(user.id)
+
+      const { data: existingBookmark } = await supabase
+        .from('bookmarks')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('content_type', type)
+        .eq('content_id', id)
+        .maybeSingle()
+
+      if (!active) return
+
+      if (existingBookmark) {
+        setIsSaved(true)
+        localStorage.setItem(storageKey, 'true')
+        return
+      }
+
+      if (localSaved) {
+        const { error: insertError } = await supabase
+          .from('bookmarks')
+          .upsert(
+            {
+              user_id: user.id,
+              content_id: id,
+              content_type: type,
+            },
+            { onConflict: 'user_id,content_id,content_type' }
+          )
+
+        if (!insertError) {
+          setIsSaved(true)
+          localStorage.setItem(storageKey, 'true')
+          return
+        }
+      }
+
+      setIsSaved(false)
+      localStorage.removeItem(storageKey)
+    }
+
+    loadSavedState()
+
+    return () => {
+      active = false
+    }
   }, [id, type])
 
-  const toggle = () => {
+  const toggle = async () => {
     const newState = !isSaved
+    const storageKey = `anoce_saved_${type}_${id}`
+
     setIsSaved(newState)
-    localStorage.setItem(`anoce_saved_${type}_${id}`, String(newState))
-    
+    if (newState) {
+      localStorage.setItem(storageKey, 'true')
+    } else {
+      localStorage.removeItem(storageKey)
+    }
+
+    if (userId) {
+      if (newState) {
+        const { error } = await supabase
+          .from('bookmarks')
+          .upsert(
+            {
+              user_id: userId,
+              content_id: id,
+              content_type: type,
+            },
+            { onConflict: 'user_id,content_id,content_type' }
+          )
+
+        if (error) {
+          setIsSaved(false)
+          localStorage.removeItem(storageKey)
+          return
+        }
+      } else {
+        const { error } = await supabase
+          .from('bookmarks')
+          .delete()
+          .eq('user_id', userId)
+          .eq('content_type', type)
+          .eq('content_id', id)
+
+        if (error) {
+          setIsSaved(true)
+          localStorage.setItem(storageKey, 'true')
+          return
+        }
+      }
+    }
+
     if (newState) {
       setShowFeedback(true)
       setTimeout(() => setShowFeedback(false), 500)
@@ -32,6 +135,7 @@ export function BookmarkButton({ id, type }: BookmarkButtonProps) {
   return (
     <button
       onClick={toggle}
+      aria-label={isSaved ? 'Remove bookmark' : 'Save bookmark'}
       className="relative p-2 hover:bg-black/5 transition-colors"
     >
       <motion.div
