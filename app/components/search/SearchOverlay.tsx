@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef } from 'react'
+import type { ReactNode } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -35,19 +36,53 @@ const highlightMatch = (text: string, query: string) => {
   )
 }
 
+function FilterPill({
+  active,
+  children,
+  onClick,
+}: {
+  active: boolean
+  children: ReactNode
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-3.5 py-2 font-sans text-[11px] leading-none tracking-[0.12em] uppercase transition-all duration-300 ${
+        active
+          ? 'border-transparent bg-[#E4D8C5] text-[#11100E] shadow-[0_10px_28px_rgba(228,216,197,0.12)]'
+          : 'border-white/10 bg-white/[0.045] text-white/52 hover:border-white/24 hover:bg-white/[0.075] hover:text-white/82'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
 function SearchResultCard({ item, query, onClose }: { item: SearchResultItem; query: string; onClose: () => void }) {
   return (
-    <Link href={item.href} onClick={onClose} className="block">
-      <article className="overflow-hidden rounded-[22px] border border-white/[0.13] bg-white/[0.06] transition-all duration-300 hover:border-white/[0.24] hover:bg-white/[0.09]">
-        <div className="relative aspect-[16/11] overflow-hidden">
-          <Image src={item.image} alt={item.title} fill className="object-cover transition-transform duration-700 hover:scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <p className="mb-1 font-sans text-[10px] tracking-[0.13em] uppercase text-white/46">{item.meta}</p>
-            <h3 className="font-serif text-[22px] leading-[1.18] text-white [overflow-wrap:anywhere]">{highlightMatch(item.title, query)}</h3>
-          </div>
+    <Link href={item.href} onClick={onClose} className="group block h-full min-w-0">
+      <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] transition-all duration-300 hover:-translate-y-1 hover:border-white/22 hover:bg-white/[0.075]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-black">
+          <Image
+            src={item.image}
+            alt={item.title}
+            fill
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-black/10" />
         </div>
-        <p className="line-clamp-2 p-4 pt-3 font-sans text-[14px] leading-[1.38] text-white/58">{highlightMatch(item.subtitle, query)}</p>
+
+        <div className="flex min-h-0 flex-1 flex-col p-4">
+          <p className="mb-2 truncate font-sans text-[9px] tracking-[0.2em] uppercase text-white/38">{item.meta}</p>
+          <h3 className="line-clamp-2 font-serif text-lg leading-[1.12] text-[#F5EFE7] md:text-xl">
+            {highlightMatch(item.title, query)}
+          </h3>
+          <p className="mt-3 line-clamp-2 font-sans text-[13px] leading-[1.45] text-white/50">
+            {highlightMatch(item.subtitle, query)}
+          </p>
+        </div>
       </article>
     </Link>
   )
@@ -99,6 +134,13 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     [activeCategory, groupedResults]
   )
 
+  const topMatches = useMemo(
+    () => groupedEntries.flatMap(({ items }) => items).slice(0, 6),
+    [groupedEntries]
+  )
+
+  const featuredResults = useMemo(() => suggestedFallback.slice(0, 3), [suggestedFallback])
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -111,131 +153,138 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           aria-modal="true"
           aria-label="Global search"
         >
-          <button aria-label="Close search" onClick={onClose} className="absolute inset-0 bg-black/45 backdrop-blur-md" />
+          <button
+            aria-label="Close search"
+            onClick={onClose}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(212,201,184,0.12),rgba(0,0,0,0.62)_42%,rgba(0,0,0,0.78)_100%)] backdrop-blur-2xl"
+          />
 
-          <div className="relative h-full w-full">
-            <div className="absolute left-1/2 top-1/2 h-[min(90vh,860px)] w-[min(1120px,calc(100vw-3rem))] -translate-x-1/2 -translate-y-1/2 md:w-[min(1120px,calc(100vw-6rem))]">
-              <motion.div
-                initial={{ opacity: 0, y: 18, scale: 0.99 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.99 }}
-                transition={{ duration: 0.3 }}
-                className="relative flex h-full w-full flex-col overflow-hidden rounded-[30px] border border-white/[0.14] bg-[rgba(14,13,12,0.82)]"
-              >
-              <motion.div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-1/3 left-[-35%] h-[160%] w-[35%] rotate-[16deg] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] blur-2xl"
-                animate={{ x: ['0%', '250%'] }}
-                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-              />
+          <div className="pointer-events-none relative flex h-full w-full items-start justify-center px-3 py-5 md:px-8 md:pt-[7vh]">
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.99 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-auto relative flex h-[calc(100vh-2.5rem)] max-h-[760px] w-full max-w-[72rem] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#0A0A0A]/72 shadow-[0_36px_140px_rgba(0,0,0,0.7)] backdrop-blur-2xl md:h-[78vh] md:rounded-[32px]"
+            >
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_0%,rgba(212,201,184,0.12),transparent_34%),linear-gradient(135deg,rgba(255,255,255,0.06),transparent_28%,rgba(255,255,255,0.025))]" />
 
-              <div className="border-b border-white/[0.09]">
-                <div className="mx-auto w-full max-w-[1020px] px-8 pb-6 pt-8 md:px-12">
-                  <div className="mb-5 flex min-w-0 items-center gap-4">
-                    <Search className="h-5 w-5 shrink-0 text-white/45" />
-                    <input
-                      ref={inputRef}
-                      value={query}
-                      onChange={(event) => setQuery(event.target.value)}
-                      placeholder="Search cashmere, FW2025, emerald wool, Gobi..."
-                      className="min-w-0 flex-1 bg-transparent font-serif text-xl leading-tight text-white/92 outline-none placeholder:text-white/38 md:text-[2rem] xl:text-[2.3rem]"
-                    />
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.18] bg-white/[0.06] text-white/55 transition-all hover:bg-white/[0.1] hover:text-white"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
+              <div className="relative z-10 border-b border-white/10 px-4 py-4 md:px-7 md:py-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <Search className="h-5 w-5 shrink-0 text-white/42" />
+                  <input
+                    ref={inputRef}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search cashmere, FW2025, emerald wool, Gobi..."
+                    className="h-11 min-w-0 flex-1 truncate bg-transparent font-serif text-xl leading-none text-white/92 outline-none placeholder:text-white/36 md:h-12 md:text-2xl"
+                  />
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/14 bg-white/[0.055] text-white/58 transition-all hover:bg-white/[0.1] hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
 
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="mr-1 shrink-0 font-sans text-[10px] leading-none tracking-[0.2em] uppercase text-white/36">Season</span>
+                <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="mr-1 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Season</span>
                     {[
                       { label: 'All', value: 'all' },
                       { label: 'Current', value: 'current' },
                       { label: 'Archive', value: 'archive' },
                     ].map((option) => (
-                      <button
+                      <FilterPill
                         key={option.value}
-                        type="button"
+                        active={seasonFilter === option.value}
                         onClick={() => setSeasonFilter(option.value as SeasonFilter)}
-                        className={`shrink-0 rounded-full border px-[13px] py-[6px] font-sans text-[10px] leading-none tracking-[0.14em] uppercase transition-all ${
-                          seasonFilter === option.value
-                            ? 'border-transparent bg-white/[0.95] text-[#0A0A0A]'
-                            : 'border-white/[0.13] bg-white/[0.04] text-white/56 hover:text-white/80'
-                        }`}
                       >
                         {option.label}
-                      </button>
+                      </FilterPill>
                     ))}
-                    <span className="mx-2 h-3 w-px shrink-0 bg-white/[0.12]" />
+                  </div>
+
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="mr-1 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Type</span>
                     {categories.map((category) => (
-                      <button
+                      <FilterPill
                         key={category}
-                        type="button"
+                        active={activeCategory === category}
                         onClick={() => setActiveCategory(category)}
-                        className={`shrink-0 rounded-full border px-[13px] py-[6px] font-sans text-[10px] leading-none tracking-[0.14em] uppercase transition-all ${
-                          activeCategory === category
-                            ? 'border-transparent bg-white/[0.95] text-[#0A0A0A]'
-                            : 'border-white/[0.13] bg-white/[0.04] text-white/56 hover:text-white/80'
-                        }`}
                       >
                         {category}
-                      </button>
+                      </FilterPill>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="flex min-h-0 flex-1 overflow-y-auto">
-                <div className="mx-auto flex w-full max-w-[1020px] flex-col gap-8 px-8 pb-10 pt-8 md:px-12">
-                  <div>
-                    <p className="mb-3 font-sans text-[10px] leading-none tracking-[0.2em] uppercase text-white/36">Recent</p>
-                    {recentSearches.length > 0 ? (
-                      <div className="flex flex-wrap gap-2.5">
-                        {recentSearches.map((item) => (
+              <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 py-5 md:px-7 md:py-6">
+                <div className="grid gap-6 lg:grid-cols-12">
+                  <aside className="space-y-6 lg:col-span-4">
+                    <section className="rounded-[24px] border border-white/10 bg-white/[0.035] p-4">
+                      <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Recent</p>
+                      {recentSearches.length > 0 ? (
+                        <div className="space-y-2">
+                          {recentSearches.slice(0, 5).map((item) => (
+                            <button
+                              key={item}
+                              type="button"
+                              onClick={() => setQuery(item)}
+                              className="flex w-full min-w-0 items-center gap-2 rounded-full px-3 py-2 text-left font-sans text-[13px] leading-none text-white/58 transition-all hover:bg-white/[0.07] hover:text-white/86"
+                            >
+                              <Clock3 className="h-[13px] w-[13px] shrink-0 text-white/38" />
+                              <span className="truncate">{item}</span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="font-sans text-[13px] leading-relaxed text-white/42">
+                          Your recent searches will appear here.
+                        </p>
+                      )}
+                    </section>
+
+                    <section className="rounded-[24px] border border-white/10 bg-white/[0.025] p-4">
+                      <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Trending</p>
+                      <div className="flex flex-wrap gap-2">
+                        {TRENDING_TAGS.map((tag) => (
                           <button
-                            key={item}
+                            key={tag}
                             type="button"
-                            onClick={() => setQuery(item)}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.11] bg-white/[0.04] px-3 py-1.5 font-sans text-[12px] leading-none text-white/60 transition-all hover:text-white/84"
+                            onClick={() => setQuery(tag)}
+                            className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 font-sans text-[10px] leading-none tracking-[0.14em] uppercase text-[#D4C9B8]/72 transition-all hover:border-white/22 hover:bg-white/[0.07] hover:text-white"
                           >
-                            <Clock3 className="h-[12px] w-[12px]" />
-                            {item}
+                            #{tag}
                           </button>
                         ))}
                       </div>
-                    ) : (
-                      <p className="font-sans text-[13px] text-white/45">Your recent searches will appear here.</p>
-                    )}
-                  </div>
+                    </section>
+                  </aside>
 
-                  <div>
-                    <p className="mb-3 font-sans text-[10px] leading-none tracking-[0.2em] uppercase text-white/36">Trending</p>
-                    <div className="flex flex-wrap gap-2.5">
-                      {TRENDING_TAGS.map((tag) => (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => setQuery(tag)}
-                          className="rounded-full border border-white/[0.11] bg-white/[0.04] px-3 py-1.5 font-sans text-[10px] leading-none tracking-[0.18em] uppercase text-[#c8b89a] transition-all hover:text-white"
-                        >
-                          #{tag}
-                        </button>
-                      ))}
+                  <main className="min-w-0 lg:col-span-8">
+                    <div className="mb-4 flex items-end justify-between gap-4">
+                      <div>
+                        <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">
+                          {showLiveResults ? 'Top matches' : 'Featured'}
+                        </p>
+                        {showLiveResults && (
+                          <p className="mt-1 font-sans text-[13px] text-white/44">{totalResults} results in archive</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <p className="mb-4 font-sans text-[10px] leading-none tracking-[0.2em] uppercase text-white/36">
-                      {showLiveResults ? `${totalResults} Results` : 'Featured'}
-                    </p>
 
                     {!showLiveResults && (
-                      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                        {suggestedFallback.map((item, index) => (
-                          <motion.div key={item.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: index * 0.06 }}>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {featuredResults.map((item, index) => (
+                          <motion.div
+                            key={item.id}
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.35, delay: index * 0.05 }}
+                          >
                             <SearchResultCard item={item} query="" onClose={onClose} />
                           </motion.div>
                         ))}
@@ -243,36 +292,33 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     )}
 
                     {showLiveResults && !noResults && (
-                      <div className="space-y-8">
-                        {groupedEntries.map(({ category, items }) => {
-                          if (items.length === 0) return null
-                          return (
-                            <section key={category}>
-                              <p className="mb-3 font-sans text-[10px] leading-none tracking-[0.2em] uppercase text-white/40">{category}</p>
-                              <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                                {items.map((item, index) => (
-                                  <motion.div key={item.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: index * 0.06 }}>
-                                    <SearchResultCard item={item} query={deferredQuery} onClose={onClose} />
-                                  </motion.div>
-                                ))}
-                              </div>
-                            </section>
-                          )
-                        })}
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {topMatches.map((item, index) => (
+                          <motion.div
+                            key={item.id}
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.35, delay: index * 0.04 }}
+                          >
+                            <SearchResultCard item={item} query={deferredQuery} onClose={onClose} />
+                          </motion.div>
+                        ))}
                       </div>
                     )}
 
                     {noResults && (
-                      <div className="rounded-2xl border border-white/[0.11] bg-white/[0.03] p-7 text-center">
-                        <h3 className="font-serif text-3xl text-white">No results for "{deferredQuery}"</h3>
-                        <p className="mt-2 font-sans text-base text-white/56">Try related materials, season terms, or brand names.</p>
-                        <div className="mt-5 flex flex-wrap justify-center gap-2.5">
+                      <div className="rounded-[24px] border border-white/10 bg-white/[0.035] p-6 text-center md:p-8">
+                        <h3 className="font-serif text-2xl leading-tight text-white">No results for "{deferredQuery}"</h3>
+                        <p className="mt-2 font-sans text-[14px] leading-relaxed text-white/50">
+                          Try a material, season, designer, or collection name.
+                        </p>
+                        <div className="mt-5 flex flex-wrap justify-center gap-2">
                           {['cashmere', 'fw2025', 'winter', 'emerald', 'wool'].map((suggestion) => (
                             <button
                               key={suggestion}
                               type="button"
                               onClick={() => setQuery(suggestion)}
-                              className="rounded-full border border-white/[0.11] bg-white/[0.04] px-3 py-1.5 font-sans text-[10px] tracking-[0.18em] uppercase text-[#c8b89a] transition-all hover:text-white"
+                              className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 font-sans text-[10px] tracking-[0.14em] uppercase text-[#D4C9B8]/74 transition-all hover:border-white/22 hover:text-white"
                             >
                               {suggestion}
                             </button>
@@ -280,11 +326,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </main>
                 </div>
               </div>
             </motion.div>
-            </div>
           </div>
         </motion.div>
       )}

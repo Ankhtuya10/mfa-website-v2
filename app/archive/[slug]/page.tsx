@@ -121,19 +121,19 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
           
           <div className="absolute inset-0 flex items-end justify-center" style={{ paddingBottom: '60px' }}>
             <div className="max-w-[95rem] mx-auto px-6 md:px-10 w-full">
-              <div className="flex justify-between items-end">
-                <div>
+              <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                <div className="max-w-4xl">
                   <span className="font-sans text-[10px] tracking-[4.95px] uppercase text-white/70 block mb-2">
                     {collection.season} {collection.year}
                   </span>
-                  <h1 className="font-serif text-white text-5xl leading-[1.05]">
+                  <h1 className="font-serif text-white text-5xl leading-[1.05] [overflow-wrap:anywhere] md:text-6xl">
                     {collection.title}
                   </h1>
                   <Link href={`/designers/${collection.designer_slug}`} className="font-sans text-[13px] tracking-[3px] uppercase text-white/60 mt-2 block hover:text-white/80 transition-colors">
                     {collection.designer_name}
                   </Link>
                 </div>
-                <span className="font-sans text-[11px] tracking-[2px] uppercase text-white/60">
+                <span className="shrink-0 font-sans text-[11px] tracking-[2px] uppercase text-white/60">
                   {collection.looks?.length || 0} Looks
                 </span>
               </div>
@@ -163,22 +163,22 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
                     View Designer Profile →
                   </Link>
                 </div>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Year</span>
-                    <span className="font-serif text-3xl text-[#2A2522]">{collection.year}</span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">{collection.year}</span>
                   </div>
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Season</span>
-                    <span className="font-serif text-3xl text-[#2A2522]">{collection.season}</span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">{collection.season}</span>
                   </div>
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Looks</span>
-                    <span className="font-serif text-3xl text-[#2A2522]">{collection.looks?.length || 0}</span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">{collection.looks?.length || 0}</span>
                   </div>
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Material</span>
-                    <span className="font-serif text-3xl text-[#2A2522]">Cashmere</span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">Cashmere</span>
                   </div>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
                 
                 <div className="flex flex-wrap gap-2 mb-6">
                   {collection.looks[currentLookIndex].materials.map((mat, i) => (
-                    <span key={i} className="px-3 py-1 bg-white/10 font-sans text-[10px] tracking-[2px] uppercase">
+                    <span key={i} className="px-3 py-1 bg-white/10 font-sans text-[10px] tracking-[1.5px] uppercase [overflow-wrap:anywhere]">
                       {mat}
                     </span>
                   ))}

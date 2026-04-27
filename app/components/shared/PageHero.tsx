@@ -72,12 +72,12 @@ export function PageHero({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className={`relative z-10 w-full max-w-5xl mx-auto px-8 lg:px-24 ${align === 'left' ? 'text-left' : 'text-center'}`}
+        className={`relative z-10 mx-auto w-full max-w-5xl px-6 md:px-8 lg:px-16 ${align === 'left' ? 'text-left' : 'text-center'}`}
       >
         {eyebrow && (
           <motion.span
             variants={itemVariants}
-            className={`font-sans text-sm tracking-[4.95px] uppercase ${dark ? 'text-[#B7AEA9]' : 'text-[#9B9590]'} block mb-8`}
+            className={`font-sans text-xs tracking-[0.32em] uppercase ${dark ? 'text-[#B7AEA9]' : 'text-[#9B9590]'} block mb-8`}
           >
             {eyebrow}
           </motion.span>
@@ -85,7 +85,7 @@ export function PageHero({
 
         <motion.h1
           variants={itemVariants}
-          className={`font-serif font-normal ${dark ? 'text-white' : 'text-[#2A2522]'} text-5xl md:text-6xl lg:text-7xl leading-[1.1] tracking-[-0.01em] mb-6`}
+          className={`font-serif font-normal ${dark ? 'text-white' : 'text-[#2A2522]'} mb-6 text-5xl leading-[1.1] tracking-[-0.01em] [overflow-wrap:anywhere] [text-wrap:balance] md:text-6xl lg:text-7xl`}
         >
           {title.split('\n').map((line, i) => (
             <span key={i} className="block">{line}</span>
@@ -95,7 +95,7 @@ export function PageHero({
         {subtitle && (
           <motion.p
             variants={itemVariants}
-            className={`font-sans ${dark ? 'text-[#B7AEA9]' : 'text-[#7A7470]'} text-lg md:text-xl max-w-2xl ${align === 'center' ? 'mx-auto' : ''}`}
+            className={`font-sans ${dark ? 'text-[#B7AEA9]' : 'text-[#7A7470]'} max-w-2xl text-lg leading-relaxed md:text-xl ${align === 'center' ? 'mx-auto' : ''}`}
           >
             {subtitle}
           </motion.p>

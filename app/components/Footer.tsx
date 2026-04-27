@@ -45,7 +45,7 @@ const defaultSocialLinks: SocialLink[] = [
   },
   {
     icon: <Mail className="h-full w-full" />,
-    href: "mailto:hello@anoce.com",
+    href: "mailto:hello@anoce.mn",
     label: "Email",
   },
 ];
@@ -54,6 +54,7 @@ const defaultNavLinks: FooterLink[] = [
   { label: "Archive", href: "/archive" },
   { label: "Editorial", href: "/editorial" },
   { label: "Designers", href: "/designers" },
+  { label: "Journal", href: "/journal" },
   { label: "About", href: "/about" },
   { label: "Press", href: "/press" },
   { label: "Careers", href: "/careers" },
@@ -144,9 +145,9 @@ export const Footer = ({
             </div>
           </div>
 
-          <div className="absolute right-0 bottom-2 left-0 z-30 flex flex-col items-center justify-center gap-2 border-t border-[#DBD5CC] pt-2 text-center">
+          <div className="absolute bottom-2 left-0 right-0 z-30 flex flex-col items-center justify-center gap-2 border-t border-[#DBD5CC] pt-2 text-center">
             <p className="text-center font-sans text-base text-[#8A8178]">
-              ©{currentYear} {brandName}. All rights reserved.
+              &copy;{currentYear} {brandName}. All rights reserved.
             </p>
             {creatorName && creatorUrl && (
               <nav className="flex gap-4">

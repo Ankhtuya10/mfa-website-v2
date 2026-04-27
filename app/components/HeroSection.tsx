@@ -6,12 +6,14 @@ import { useEffect, useRef, useState } from 'react';
 export const HeroSection = () => {
   const bgImageUrl =
     'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennie-complex-3840x2160-23175.jpg';
-  const mediaVideoUrl = 'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/jennie.mp4';
+  const mediaVideoUrl =
+    'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennieklunklun.mp4';
 
   const ref = useRef<HTMLDivElement | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [viewport, setViewport] = useState({ width: 1440, height: 900 });
+  const [isHeroHovered, setIsHeroHovered] = useState(false);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -47,13 +49,17 @@ export const HeroSection = () => {
     };
   }, []);
 
-  const initialMediaWidth = isMobile ? 320 : 360;
-  const initialMediaHeight = isMobile ? 420 : 520;
+  const initialMediaWidth = isMobile ? 270 : 315;
+  const initialMediaHeight = isMobile ? 360 : 450;
   const mediaWidth = initialMediaWidth + scrollProgress * (viewport.width - initialMediaWidth);
   const mediaHeight = initialMediaHeight + scrollProgress * (viewport.height - initialMediaHeight);
-  const mediaRadius = Math.max(0, 24 - scrollProgress * 28);
-  const textTranslate = scrollProgress * (isMobile ? 24 : 16);
+  const mediaRadius = Math.max(0, 14 - scrollProgress * 18);
   const textOpacity = Math.max(0, 1 - Math.max(0, (scrollProgress - 0.58) / 0.28));
+  const mediaOverlayOpacity = Math.max(
+    0.18,
+    (isHeroHovered ? 0.22 : 0.3) - scrollProgress * 0.12
+  );
+  const titleLetterSpacing = isHeroHovered ? '0.32em' : '0.28em';
 
   return (
     <div ref={ref} className="relative h-screen w-full overflow-hidden bg-[#0A0A0A]">
@@ -61,121 +67,121 @@ export const HeroSection = () => {
         <motion.div
           className="absolute inset-0 z-0"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.82 - scrollProgress * 0.65 }}
+          animate={{ opacity: 0.84 - scrollProgress * 0.66 }}
           transition={{ duration: 0.15 }}
         >
-          <div
+          {/* Very slow background zoom gives the still image a cinematic breath. */}
+          <motion.div
             className="h-full w-full bg-cover bg-center bg-no-repeat"
+            animate={{ scale: [1, 1.035, 1] }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
             style={{ backgroundImage: `url(${bgImageUrl})` }}
           />
-          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-0 bg-black/48" />
+          {/* Soft vignette keeps the frame dark, mysterious, and editorial. */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.42)_58%,rgba(0,0,0,0.78)_100%)]" />
         </motion.div>
 
         <div className="relative z-10 flex h-full w-full items-center justify-center px-6 md:px-10">
+          {/* Low-opacity glow integrates the center media into the background. */}
           <div
-            className="absolute top-1/2 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+            className="pointer-events-none absolute top-1/2 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 blur-3xl"
+            style={{
+              width: `${mediaWidth * 1.65}px`,
+              height: `${mediaHeight * 1.2}px`,
+              maxWidth: '120vw',
+              maxHeight: '110vh',
+              background:
+                'radial-gradient(circle, rgba(212, 201, 184, 0.14) 0%, rgba(176, 142, 104, 0.07) 38%, rgba(10, 10, 10, 0) 70%)',
+              opacity: 0.36 - scrollProgress * 0.16,
+            }}
+          />
+
+          <div
+            className="absolute top-1/2 left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2"
             style={{
               width: `${mediaWidth}px`,
               height: `${mediaHeight}px`,
               maxWidth: '100vw',
               maxHeight: '100vh',
-              borderRadius: `${mediaRadius}px`,
-              boxShadow: '0px 0px 56px rgba(0, 0, 0, 0.42)',
             }}
           >
-            <video
-              src={mediaVideoUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              className="h-full w-full object-cover object-center"
-            />
+            {/* Slow float and darker blending keep the media subtle, not pasted on. */}
             <motion.div
-              className="absolute inset-0 bg-black/40"
-              initial={{ opacity: 0.7 }}
-              animate={{ opacity: 0.5 - scrollProgress * 0.25 }}
-              transition={{ duration: 0.2 }}
-            />
+              className="h-full w-full overflow-hidden"
+              animate={{
+                y: [0, isMobile ? -5 : -8, 0],
+                scale: [1, 1.01, 1],
+              }}
+              transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
+              onMouseEnter={() => setIsHeroHovered(true)}
+              onMouseLeave={() => setIsHeroHovered(false)}
+              style={{
+                borderRadius: `${mediaRadius}px`,
+                boxShadow: isHeroHovered
+                  ? '0px 0px 46px rgba(212, 201, 184, 0.12), 0px 22px 72px rgba(0, 0, 0, 0.46)'
+                  : '0px 0px 34px rgba(0, 0, 0, 0.34)',
+                filter: isHeroHovered
+                  ? 'brightness(1.06) contrast(1.04) saturate(1)'
+                  : 'brightness(0.96) contrast(1.04) saturate(0.96)',
+                opacity: 1,
+                transition:
+                  'filter 700ms ease, opacity 700ms ease, box-shadow 700ms ease, border-radius 180ms ease',
+              }}
+            >
+              <video
+                src={mediaVideoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                poster={bgImageUrl}
+                className="h-full w-full object-cover object-center"
+              />
+              <motion.div
+                className="absolute inset-0 bg-black/40"
+                initial={{ opacity: 0.72 }}
+                animate={{ opacity: mediaOverlayOpacity }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.div>
           </div>
 
           <motion.div
-            className="relative z-10 mx-auto flex w-full max-w-[860px] flex-col items-center text-center text-[#F4EEE8]"
+            className="relative z-10 mx-auto flex w-full items-center justify-center text-center"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: textOpacity, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            onMouseEnter={() => setIsHeroHovered(true)}
+            onMouseLeave={() => setIsHeroHovered(false)}
           >
-            <div className="w-full max-w-[980px] px-3 md:px-6">
-              <p
-                className="mb-2 font-sans text-[10px] font-semibold tracking-[4.2px] uppercase text-[#ECE2D7]/95 md:text-[11px]"
-                style={{ transform: `translateX(-${textTranslate}vw)` }}
-              >
-                Spring Collection · 2026
-              </p>
-              <h1
-                className="mb-5 font-serif text-[44px] leading-[0.96] tracking-tight md:text-[88px]"
-                style={{ transform: `translateX(${textTranslate}vw)` }}
-              >
-                <span
-                  className="block bg-gradient-to-b from-[#FCF6F0] via-[#F0E4D7] to-[#E2D4C6] bg-clip-text text-transparent"
-                  style={{
-                    textShadow: '0 8px 32px rgba(255, 255, 255, 0.18)',
-                    WebkitTextStroke: '0.6px rgba(255,255,255,0.35)',
-                  }}
-                >
-                  Beauty of
-                </span>
-                <span
-                  className="block italic bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent"
-                  style={{
-                    textShadow: '0 10px 40px rgba(255, 255, 255, 0.22)',
-                    WebkitTextStroke: '0.7px rgba(255,255,255,0.28)',
-                  }}
-                >
-                  Mongolian Cashmere
-                </span>
-              </h1>
-              <p
-                className="mb-8 max-w-[760px] font-sans text-[14px] leading-[1.5] tracking-[0.01em] text-[#F4EBE4]/90 md:text-[15px]"
-                style={{ transform: `translateX(-${textTranslate}vw)` }}
-              >
-                Woven from the finest inner fleece of Mongolian goats, each piece carries the silence
-                of the steppe, a warmth that endures, and a softness that lasts a lifetime.
-              </p>
-              <div
-                className="flex flex-row flex-wrap items-center justify-center gap-4 md:gap-6"
-                style={{ transform: `translateX(${textTranslate}vw)` }}
-              >
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="rounded-full bg-[#F4EEE8] px-8 py-3 font-sans text-[11px] font-semibold uppercase tracking-[3.5px] text-[#2A2521] shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition-all duration-300 hover:bg-white"
-                >
-                  View Collection
-                </motion.button>
-                <motion.button
-                  whileHover={{ opacity: 0.8, x: 5 }}
-                  className="border-b border-[#F4EEE8]/40 pb-1 font-sans text-[11px] font-semibold uppercase tracking-[3.5px] text-[#F4EEE8]/90 transition-all duration-300 hover:border-[#F4EEE8] hover:text-[#F4EEE8]"
-                >
-                  Read Story
-                </motion.button>
-              </div>
-            </div>
+            {/* The wordmark stays above the media so ANOCE remains the hero focus. */}
+            <motion.h1
+              className="anoce-wordmark text-[58px] sm:text-[78px] md:text-[112px] lg:text-[136px]"
+              animate={{
+                scale: 1 - scrollProgress * 0.05,
+                opacity: textOpacity,
+              }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{
+                color: isHeroHovered ? '#E8DCCB' : '#D4C9B8',
+                letterSpacing: titleLetterSpacing,
+                paddingLeft: titleLetterSpacing,
+                textShadow: isHeroHovered
+                  ? '0 14px 42px rgba(212, 201, 184, 0.16), 0 28px 84px rgba(0, 0, 0, 0.82)'
+                  : '0 18px 64px rgba(0, 0, 0, 0.86)',
+                transition:
+                  'color 700ms ease, letter-spacing 700ms ease, padding-left 700ms ease, text-shadow 700ms ease',
+              }}
+            >
+              ANOCE
+            </motion.h1>
           </motion.div>
-
-          <div className="absolute right-6 bottom-7 z-10 flex flex-row items-center gap-4 md:right-8">
-            <span className="font-sans text-[10px] tracking-[3px] uppercase text-[#E9DED4]/72">
-              Ulaanbaatar, Mongolia
-            </span>
-            <div className="h-1 w-1 rounded-full bg-[#E9DED4]/65" />
-            <span className="font-sans text-[10px] tracking-[3px] uppercase text-[#E9DED4]/72">
-              Est. 1998
-            </span>
-          </div>
         </div>
       </section>
 
+      {/* Restored minimal scroll cue from the original hero composition. */}
       <motion.div
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
@@ -186,6 +192,9 @@ export const HeroSection = () => {
         </span>
         <div className="h-[42px] w-px bg-gradient-to-b from-[#F4EEE8]/76 to-[#F4EEE8]/20" />
       </motion.div>
+
+      {/* Pure-CSS grain adds subtle texture while staying non-interactive. */}
+      <div className="hero-grain absolute inset-0 z-30" aria-hidden="true" />
     </div>
   );
 };

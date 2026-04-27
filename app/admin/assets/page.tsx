@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { Upload, X, Copy, Check } from 'lucide-react'
@@ -8,10 +8,14 @@ import { createClient } from '@/lib/supabase/client'
 
 interface Asset {
   name: string
+  path: string
   url: string
   size?: number
   created_at?: string | null
 }
+
+const MEDIA_BUCKET = 'media'
+const ASSET_FOLDERS = ['', 'assets', 'articles', 'collections']
 
 export default function AssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([])
@@ -20,24 +24,41 @@ export default function AssetsPage() {
   const [copied, setCopied] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
-  useState(() => {
+  useEffect(() => {
     async function fetchAssets() {
       try {
-        const { data, error } = await supabase.storage.from('covers').list('', { limit: 50 })
-        
-        if (error || !data || data.length === 0) {
-          setAssets([])
-        } else {
-          const assetsWithUrls = data.map(file => ({
-            name: file.name,
-            url: supabase.storage.from('covers').getPublicUrl(file.name).data.publicUrl,
-            size: file.metadata?.size,
-            created_at: file.created_at,
-          }))
-          setAssets(assetsWithUrls)
-        }
+        const folderResults = await Promise.all(
+          ASSET_FOLDERS.map(async (folder) => {
+            const { data, error } = await supabase.storage
+              .from(MEDIA_BUCKET)
+              .list(folder, {
+                limit: 100,
+                sortBy: { column: 'created_at', order: 'desc' },
+              })
+
+            if (error || !data) return []
+
+            return data
+              .filter((file) => (
+                file.name !== '.emptyFolderPlaceholder' &&
+                /\.(avif|gif|jpe?g|png|webp)$/i.test(file.name)
+              ))
+              .map((file) => {
+                const path = folder ? `${folder}/${file.name}` : file.name
+                return {
+                  name: file.name,
+                  path,
+                  url: supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl,
+                  size: file.metadata?.size,
+                  created_at: file.created_at,
+                }
+              })
+          })
+        )
+
+        setAssets(folderResults.flat())
       } catch (err) {
         console.error('Error fetching assets:', err)
         setAssets([])
@@ -46,7 +67,7 @@ export default function AssetsPage() {
       }
     }
     fetchAssets()
-  })
+  }, [supabase])
 
   const copyUrl = () => {
     if (selectedAsset) {
@@ -63,19 +84,23 @@ export default function AssetsPage() {
     setUploading(true)
     try {
       const filename = `${Date.now()}-${file.name}`
-      await supabase.storage.from('covers').upload(filename, file)
+      const filePath = `assets/${filename}`
+      const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(filePath, file)
+      if (error) throw error
       
       const newAsset: Asset = {
         name: filename,
-        url: supabase.storage.from('covers').getPublicUrl(filename).data.publicUrl,
+        path: filePath,
+        url: supabase.storage.from(MEDIA_BUCKET).getPublicUrl(filePath).data.publicUrl,
         size: file.size,
         created_at: new Date().toISOString(),
       }
-      setAssets([newAsset, ...assets])
+      setAssets((previousAssets) => [newAsset, ...previousAssets])
     } catch (err) {
       console.error('Upload error:', err)
     } finally {
       setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
   }
 
@@ -137,7 +162,7 @@ export default function AssetsPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {assets.map((asset) => (
                 <motion.div
-                  key={asset.name}
+                  key={asset.path}
                   whileHover={{ scale: 1.02 }}
                   onClick={() => setSelectedAsset(asset)}
                   className="relative aspect-square cursor-pointer group overflow-hidden bg-[#EAEAEA]"
@@ -165,7 +190,8 @@ export default function AssetsPage() {
                   <Image src={selectedAsset.url} alt={selectedAsset.name} fill className="object-cover" />
                 </div>
                 
-                <h3 className="font-inter text-[13px] text-[#111111] mb-4 truncate">{selectedAsset.name}</h3>
+                <h3 className="font-inter text-[13px] text-[#111111] mb-1 truncate">{selectedAsset.name}</h3>
+                <p className="font-inter text-[11px] text-[#9B9590] mb-4 truncate">{selectedAsset.path}</p>
                 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">

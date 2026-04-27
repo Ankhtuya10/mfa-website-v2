@@ -41,7 +41,7 @@ export function ArticleCard({ article, variant = 'grid' }: ArticleCardProps) {
           <span className="font-sans text-xs tracking-[3px] uppercase text-[#B7AEA9]">
             {article.category}
           </span>
-          <h3 className="font-serif text-2xl text-[#2A2522] mt-3 leading-tight">
+          <h3 className="mt-3 font-serif text-2xl leading-tight text-[#2A2522] [overflow-wrap:anywhere]">
             {article.title}
           </h3>
           <span className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590] mt-3 block">
@@ -70,16 +70,16 @@ export function ArticleCard({ article, variant = 'grid' }: ArticleCardProps) {
             />
           </div>
           <div className="p-12 lg:p-16 flex flex-col justify-center items-center text-center">
-            <span className="font-sans text-xs tracking-[4.95px] uppercase text-[#9B9590] mb-6 block">
+            <span className="mb-6 block font-sans text-xs tracking-[0.32em] uppercase text-[#9B9590]">
               {article.category}
             </span>
-            <h2 className="font-serif text-3xl lg:text-4xl xl:text-5xl text-[#2A2522] leading-tight mb-6">
+            <h2 className="mb-6 font-serif text-3xl leading-tight text-[#2A2522] [overflow-wrap:anywhere] lg:text-4xl xl:text-5xl">
               {article.title}
             </h2>
             <p className="font-sans text-base lg:text-lg text-[#7A7470] mb-8 leading-relaxed max-w-md">
               {article.subtitle}
             </p>
-            <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="mb-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
               <span className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590]">
                 {author}
               </span>
@@ -125,10 +125,10 @@ export function ArticleCard({ article, variant = 'grid' }: ArticleCardProps) {
             {article.category}
           </span>
         </div>
-        <h3 className="font-serif text-2xl text-[#2A2522] mt-5 leading-[1.2] group-hover:text-[#393931] transition-colors px-2">
+        <h3 className="mt-5 px-2 font-serif text-2xl leading-[1.2] text-[#2A2522] transition-colors [overflow-wrap:anywhere] group-hover:text-[#393931]">
           {article.title}
         </h3>
-        <div className="flex items-center justify-center gap-3 mt-3 pb-3">
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 pb-3">
           <span className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590]">
             {author}
           </span>

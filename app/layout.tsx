@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond, Jost, Playfair_Display } from "next/font/google";
+import { AnoceChatWidget } from "./components/AnoceChatWidget";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -41,6 +42,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${cormorant.variable} ${jost.variable} ${playfair.variable} ${inter.variable}`}>
         {children}
+        <AnoceChatWidget />
       </body>
     </html>
   );

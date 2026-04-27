@@ -1,10 +1,10 @@
 'use client'
 
 import { use, useState, useEffect } from 'react'
-import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Footer, StickyNavbar } from '@/app/components'
 import { BookmarkButton } from '@/app/components/shared/BookmarkButton'
+import { SafeImage } from '@/app/components/shared/SafeImage'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, X, ArrowRight } from 'lucide-react'
 
@@ -219,8 +219,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
 
       <main className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container pt-[72px] md:pt-[88px]">
         <section className="snap-start relative h-screen w-full overflow-hidden">
-          <Image
+          <SafeImage
             src={article.coverImageVertical || article.coverImage || articleFallbackImage}
+            fallbackSrc={articleFallbackImage}
             alt={article.title}
             fill
             className="object-cover"
@@ -233,16 +234,16 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
             <div className="h-full w-full animate-pulse bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=')]" />
           </div>
 
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-center pb-16 md:pb-24">
-            <div className="mx-auto w-full max-w-[95rem] px-6 md:px-10">
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-center pb-20 sm:pb-24 lg:pb-28">
+            <div className="mx-auto w-full max-w-[92rem] px-5 sm:px-8 lg:px-10">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.15 }}
-                className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12"
+                className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12 lg:gap-12"
               >
                 <div className="lg:col-span-8">
-                  <div className="mb-4 flex items-center gap-3">
+                  <div className="mb-5 flex flex-wrap items-center gap-3">
                     <span
                       className="px-3 py-1.5 font-sans text-[10px] tracking-[0.25em] uppercase"
                       style={{ backgroundColor: categoryColors[article.category] || '#2A2522', color: '#F5F2ED' }}
@@ -254,16 +255,16 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                     </span>
                   </div>
 
-                  <h1 className="mb-6 max-w-5xl font-serif text-5xl leading-[0.95] text-white md:text-6xl lg:text-7xl">
+                  <h1 className="mb-6 max-w-5xl font-serif text-4xl leading-[0.96] text-white sm:text-5xl md:text-6xl lg:text-7xl">
                     {article.title}
                   </h1>
 
-                  <p className="max-w-2xl font-inter text-lg leading-relaxed text-white/72 md:text-xl">
+                  <p className="max-w-2xl font-inter text-base leading-7 text-white/74 md:text-xl md:leading-8">
                     {article.subtitle}
                   </p>
 
                   <div className="mt-8 flex items-center gap-4">
-                    <div className="flex items-center gap-2 font-sans text-[11px] tracking-[0.18em] uppercase text-white/60">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-[11px] uppercase tracking-[0.18em] text-white/60">
                       <span>By {article.author}</span>
                       <span className="h-1 w-1 rounded-full bg-white/40" />
                       <span>{formattedDate}</span>
@@ -282,8 +283,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
         <section className="snap-start relative h-screen w-full overflow-hidden bg-[#0A0A0A]">
           <div className="grid h-full grid-cols-1 lg:grid-cols-12">
             <div className="relative min-h-[45vh] overflow-hidden lg:col-span-6 lg:min-h-0">
-              <Image
+              <SafeImage
                 src={article.coverImage || article.coverImageVertical || articleFallbackImage}
+                fallbackSrc={articleFallbackImage}
                 alt={article.title}
                 fill
                 className="object-cover"
@@ -309,10 +311,10 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                 <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
                   Narrative Entry
                 </span>
-                <h2 className="mb-8 font-serif text-3xl leading-[1.08] text-white md:text-4xl lg:text-5xl">
+                <h2 className="mb-7 font-serif text-3xl leading-[1.08] text-white md:text-4xl lg:text-5xl">
                   {article.title}
                 </h2>
-                <p className="mb-10 font-inter text-lg leading-relaxed text-white/60 md:text-xl">
+                <p className="mb-9 font-inter text-base leading-7 text-white/64 md:text-lg md:leading-8">
                   {article.subtitle}
                 </p>
                 <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-4">
@@ -330,13 +332,10 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
           </div>
         </section>
 
-        <section className="snap-start relative flex h-screen w-full items-center justify-center overflow-hidden border-t border-b border-white/[0.06] bg-[#0A0A0A] px-6 md:px-10">
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute left-1/2 top-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,160,136,0.16),transparent_65%)]" />
-          </div>
-          <div className="relative mx-auto max-w-4xl text-center">
+        <section className="snap-start relative flex h-screen w-full items-center justify-center overflow-hidden border-t border-b border-white/[0.06] bg-[linear-gradient(180deg,#0A0A0A_0%,#12100E_54%,#0A0A0A_100%)] px-6 md:px-10">
+          <div className="relative mx-auto max-w-4xl border-y border-white/10 py-12 text-center">
             <span className="font-serif text-7xl leading-none text-white/20 md:text-9xl">"</span>
-            <blockquote className="-mt-10 mb-8 font-serif text-2xl leading-[1.3] text-white md:text-3xl lg:text-4xl">
+            <blockquote className="-mt-10 mb-8 font-serif text-2xl leading-[1.34] text-white md:text-3xl lg:text-4xl">
               {pullQuote}...
             </blockquote>
             <cite className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#B7AEA9]/70 not-italic">
@@ -359,7 +358,7 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
             <div className="mx-auto w-full max-w-4xl flex-1 overflow-y-auto pr-1">
               <div className="space-y-8 text-center md:text-left">
                 {articleParagraphs.map((paragraph, idx) => (
-                  <p key={idx} className="font-inter text-base leading-[1.9] text-white/64 md:text-lg">
+                  <p key={idx} className="font-inter text-base leading-[1.9] text-white/68 md:text-lg">
                     {paragraph}
                   </p>
                 ))}
@@ -393,9 +392,10 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                     className="flex h-full w-[260px] shrink-0 flex-col md:w-[300px]"
                   >
                     <div className="group flex h-full cursor-pointer flex-col" onClick={() => openLightbox(idx)}>
-                      <div className="relative mb-4 min-h-0 flex-1 overflow-hidden">
-                        <Image
+                      <div className="relative mb-4 min-h-0 flex-1 overflow-hidden rounded-lg">
+                        <SafeImage
                           src={look.image}
+                          fallbackSrc={articleFallbackImage}
                           alt={`Look ${look.lookNumber}`}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -436,8 +436,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
           <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0F0D0B]">
             <div className="grid h-full grid-cols-1 lg:grid-cols-12">
               <div className="relative min-h-[42vh] overflow-hidden lg:col-span-5 lg:min-h-0">
-                <Image
+                <SafeImage
                   src={designer.coverImage || designer.cover_image || articleFallbackImage}
+                  fallbackSrc={articleFallbackImage}
                   alt={designer.name}
                   fill
                   className="object-cover"
@@ -491,9 +492,10 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
                   className="min-h-0"
                 >
-                  <Link href={`/editorial/${item.slug}`} className="group relative block h-full overflow-hidden">
-                    <Image
+                  <Link href={`/editorial/${item.slug}`} className="group relative block h-full overflow-hidden rounded-lg">
+                    <SafeImage
                       src={item.coverImage || item.cover_image || articleFallbackImage}
+                      fallbackSrc={articleFallbackImage}
                       alt={item.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -550,8 +552,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
 
             <div className="mx-8 flex w-full max-w-6xl items-center gap-8">
               <div className="relative flex-1">
-                <Image
+                <SafeImage
                   src={featuredLooks[currentLookIndex].image}
+                  fallbackSrc={articleFallbackImage}
                   alt={`Look ${featuredLooks[currentLookIndex].lookNumber}`}
                   width={800}
                   height={1200}

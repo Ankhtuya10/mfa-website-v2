@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { StickyNavbar, Footer } from '@/app/components'
+import { SafeImage } from '@/app/components/shared/SafeImage'
 import { ChevronRight, Play, Pause, ArrowRight } from 'lucide-react'
 
 interface EditorialArticle {
@@ -256,8 +256,9 @@ export default function EditorialPage() {
               transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0"
             >
-              <Image
+              <SafeImage
                 src={currentHeroImage}
+                fallbackSrc={editorialHeroFallbackImage}
                 alt={currentFeature?.title || 'Editorial'}
                 fill
                 className="object-cover"
@@ -272,9 +273,9 @@ export default function EditorialPage() {
             <div className="h-full w-full animate-pulse bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=')]" />
           </div>
 
-          <div className="relative z-10 flex h-full items-end justify-center pb-16 md:pb-24">
-            <div className="mx-auto w-full max-w-[95rem] px-6 md:px-10">
-              <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12">
+          <div className="relative z-10 flex h-full items-end justify-center pb-20 sm:pb-24 lg:pb-28">
+            <div className="mx-auto w-full max-w-[92rem] px-5 sm:px-8 lg:px-10">
+              <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-12 lg:gap-12">
                 <div className="lg:col-span-8">
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -284,9 +285,9 @@ export default function EditorialPage() {
                       exit={{ opacity: 0, y: -18 }}
                       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <div className="mb-6 flex items-center gap-3">
+                      <div className="mb-5 flex flex-wrap items-center gap-3">
                         <span
-                          className="font-sans text-[10px] tracking-[0.25em] uppercase px-3 py-1.5"
+                          className="px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.25em]"
                           style={{ backgroundColor: categoryColors[currentFeature?.category || 'features'], color: '#F5F2ED' }}
                         >
                           {currentFeature?.category || 'Feature'}
@@ -296,16 +297,16 @@ export default function EditorialPage() {
                         </span>
                       </div>
 
-                      <h1 className="mb-6 font-serif text-5xl leading-[0.95] text-white md:text-6xl lg:text-7xl xl:text-8xl">
+                      <h1 className="mb-6 max-w-5xl font-serif text-4xl leading-[0.96] text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
                         {currentFeature?.title || 'The Quiet Revolution'}
                       </h1>
 
-                      <p className="max-w-2xl font-sans text-lg leading-relaxed text-white/70 md:text-xl">
+                      <p className="max-w-2xl font-sans text-base leading-7 text-white/72 md:text-xl md:leading-8">
                         {currentFeature?.subtitle || 'How Mongolian designers are transforming the narrative of Asian fashion'}
                       </p>
 
                       <div className="mt-8 flex items-center gap-4">
-                        <div className="flex items-center gap-2 font-sans text-[11px] tracking-[0.18em] uppercase text-white/60">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-[11px] uppercase tracking-[0.18em] text-white/60">
                           <span>By {currentFeature?.author || 'Editorial Staff'}</span>
                           <span className="h-1 w-1 rounded-full bg-white/40" />
                           <span>{currentFeature?.publishedAt || 'March 2026'}</span>
@@ -324,11 +325,12 @@ export default function EditorialPage() {
                   >
                     <button
                       onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                      className="text-white/60 transition-colors hover:text-white"
+                      className="rounded-full border border-white/12 bg-black/18 p-3 text-white/62 backdrop-blur-md transition-colors hover:border-white/28 hover:text-white"
+                      aria-label={isAutoPlaying ? 'Pause editorial rotation' : 'Play editorial rotation'}
                     >
                       {isAutoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                     </button>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 rounded-full border border-white/12 bg-black/18 px-3 py-3 backdrop-blur-md">
                       {articles.slice(0, 5).map((_, idx) => (
                         <button
                           key={idx}
@@ -336,9 +338,10 @@ export default function EditorialPage() {
                             setCurrentFeatureIndex(idx)
                             setIsAutoPlaying(false)
                           }}
-                          className={`h-0.5 w-8 transition-all duration-300 ${
+                          className={`h-0.5 w-7 transition-all duration-300 ${
                             currentFeatureIndex === idx ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
                           }`}
+                          aria-label={`Show editorial feature ${idx + 1}`}
                         />
                       ))}
                     </div>
@@ -350,8 +353,8 @@ export default function EditorialPage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.6, delay: 0.7 }}
                     >
-                      <Link href={`/editorial/${currentFeature.slug}`} className="inline-flex items-center gap-3 group">
-                        <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/80 transition-colors group-hover:text-white">
+                      <Link href={`/editorial/${currentFeature.slug}`} className="group inline-flex items-center gap-3 border-b border-white/18 pb-1">
+                        <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-white/80 transition-colors group-hover:text-white">
                           Read Story
                         </span>
                         <ArrowRight className="h-4 w-4 text-white/60 transition-all group-hover:translate-x-1 group-hover:text-white" />
@@ -376,8 +379,9 @@ export default function EditorialPage() {
                   transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute inset-0"
                 >
-                  <Image
+                  <SafeImage
                     src={currentNarrativeImage}
+                    fallbackSrc={editorialHeroFallbackImage}
                     alt={currentFeature?.title || 'Editorial Feature'}
                     fill
                     className="object-cover"
@@ -423,11 +427,11 @@ export default function EditorialPage() {
                       In Focus
                     </span>
 
-                    <h2 className="mb-8 font-serif text-3xl leading-[1.1] text-white md:text-4xl lg:text-5xl">
+                    <h2 className="mb-7 font-serif text-3xl leading-[1.08] text-white md:text-4xl lg:text-5xl">
                       {currentFeature?.title || 'The Architecture of the Steppe'}
                     </h2>
 
-                    <p className="mb-8 font-inter text-lg leading-relaxed text-white/60">
+                    <p className="mb-8 font-inter text-base leading-7 text-white/64 md:text-lg md:leading-8">
                       {currentFeature?.subtitle || 'Exploring the geometric foundations of Mongolian design where the vastness of the landscape meets the precision of contemporary craft.'}
                     </p>
 
@@ -452,9 +456,10 @@ export default function EditorialPage() {
                     className="grid grid-cols-2 gap-4"
                   >
                     {supportingFeatures.map((article, idx) => (
-                      <div key={article.id} className="relative aspect-[3/4] overflow-hidden rounded-sm">
-                        <Image
+                      <div key={article.id} className="relative aspect-[3/4] overflow-hidden rounded-lg">
+                        <SafeImage
                           src={article.coverImageVertical || article.coverImage || editorialHeroFallbackImage}
+                          fallbackSrc={editorialHeroFallbackImage}
                           alt={article.title}
                           fill
                           className="object-cover transition-transform duration-700 hover:scale-105"
@@ -472,11 +477,8 @@ export default function EditorialPage() {
           </div>
         </section>
 
-        <section className="snap-start relative flex h-screen w-full items-center justify-center overflow-hidden border-t border-white/[0.06] bg-[#0A0A0A] px-6 md:px-10">
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,160,136,0.16),transparent_65%)]" />
-          </div>
-          <div className="relative max-w-4xl">
+        <section className="snap-start relative flex h-screen w-full items-center justify-center overflow-hidden border-t border-white/[0.06] bg-[linear-gradient(180deg,#0A0A0A_0%,#12100E_54%,#0A0A0A_100%)] px-6 md:px-10">
+          <div className="relative max-w-4xl border-y border-white/10 py-12">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -485,7 +487,7 @@ export default function EditorialPage() {
               className="text-center"
             >
               <span className="font-serif text-6xl leading-none text-[#B7AEA9]/40 md:text-8xl">"</span>
-              <blockquote className="-mt-8 mb-8 font-serif text-2xl leading-[1.3] text-white md:text-3xl lg:text-4xl">
+              <blockquote className="-mt-8 mb-8 font-serif text-2xl leading-[1.34] text-white md:text-3xl lg:text-4xl">
                 We&apos;re not just making clothes. We&apos;re preserving a way of life. Every sweater carries the memory of the herd.
               </blockquote>
               <cite className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#B7AEA9]/70 not-italic">
@@ -515,7 +517,7 @@ export default function EditorialPage() {
             </div>
 
             <div className="flex-1 overflow-hidden">
-              <div className="scrollbar-hide -mx-6 flex h-full gap-5 overflow-x-auto overflow-y-hidden px-6 pb-3 md:mx-0 md:px-0">
+              <div className="scrollbar-hide -mx-6 flex h-full gap-5 overflow-x-auto overflow-y-hidden px-6 pb-3 md:mx-0 md:gap-6 md:px-0">
                 {featuredPieces.map((item, idx) => (
                   <motion.div
                     key={item.id}
@@ -526,9 +528,10 @@ export default function EditorialPage() {
                     className="flex h-full w-[240px] shrink-0 flex-col md:w-[280px] xl:w-[300px]"
                   >
                     <Link href={item.href} className="group flex h-full flex-col">
-                      <div className="relative mb-4 min-h-0 flex-1 overflow-hidden">
-                        <Image
+                      <div className="relative mb-4 min-h-0 flex-1 overflow-hidden rounded-lg">
+                        <SafeImage
                           src={item.image}
+                          fallbackSrc={editorialHeroFallbackImage}
                           alt={item.title}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -596,9 +599,10 @@ export default function EditorialPage() {
                   className="min-h-0"
                 >
                   <Link href={`/editorial/${article.slug}`} className="group flex h-full flex-col">
-                    <div className="relative mb-5 aspect-[3/2] overflow-hidden">
-                      <Image
+                    <div className="relative mb-5 aspect-[3/2] overflow-hidden rounded-lg">
+                      <SafeImage
                         src={article.coverImage}
+                        fallbackSrc={editorialHeroFallbackImage}
                         alt={article.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -663,9 +667,10 @@ export default function EditorialPage() {
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
                   className="min-h-0"
                 >
-                  <Link href={`/editorial/${item.slug}`} className="group relative block h-full overflow-hidden">
-                    <Image
+                  <Link href={`/editorial/${item.slug}`} className="group relative block h-full overflow-hidden rounded-lg">
+                    <SafeImage
                       src={item.image}
+                      fallbackSrc={editorialHeroFallbackImage}
                       alt={item.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"

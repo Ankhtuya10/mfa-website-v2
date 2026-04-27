@@ -10,7 +10,6 @@ const VIDEO_URL = 'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/pu
 export const DiscoverSection = () => {
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Video */}
       <video
         autoPlay
         muted
@@ -22,10 +21,8 @@ export const DiscoverSection = () => {
         <source src={VIDEO_URL} type="video/mp4" />
       </video>
 
-      {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/40" />
 
-      {/* Content */}
       <div className="relative z-10 flex h-full w-full items-center justify-center px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -35,7 +32,7 @@ export const DiscoverSection = () => {
           className="flex w-full max-w-4xl flex-col items-center text-center"
         >
           <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-white/70">
-            Spring Collection · 2026
+            Spring Collection 2026
           </span>
 
           <div className="relative z-20 mb-8 px-2">
@@ -50,7 +47,7 @@ export const DiscoverSection = () => {
                 Beauty of
               </span>
               <span
-                className="block italic bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent"
+                className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
                 style={{
                   textShadow: '0 10px 40px rgba(255, 255, 255, 0.2)',
                   WebkitTextStroke: '0.6px rgba(255,255,255,0.24)',
@@ -59,7 +56,7 @@ export const DiscoverSection = () => {
                 Mongolian
               </span>
               <span
-                className="block italic bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent"
+                className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
                 style={{
                   textShadow: '0 10px 40px rgba(255, 255, 255, 0.2)',
                   WebkitTextStroke: '0.6px rgba(255,255,255,0.24)',
@@ -76,7 +73,7 @@ export const DiscoverSection = () => {
 
           <div className="relative z-10 flex items-center gap-5">
             <Button href="/archive">View Collection</Button>
-            <span className="text-white/40 text-xs">·</span>
+            <span className="text-xs text-white/40">/</span>
             <Link
               href="/editorial"
               className="border-b border-[#F4EEE8]/40 pb-1 font-sans text-[11px] font-semibold uppercase tracking-[3.5px] text-[#F4EEE8]/90 transition-all duration-300 hover:border-[#F4EEE8] hover:text-[#F4EEE8]"
@@ -92,7 +89,7 @@ export const DiscoverSection = () => {
         transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
         className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
       >
-        <span className="font-sans text-[9px] tracking-[3.6px] uppercase text-[#F4EEE8]/76">
+        <span className="font-sans text-[9px] uppercase tracking-[3.6px] text-[#F4EEE8]/76">
           Scroll
         </span>
         <div className="h-[42px] w-px bg-gradient-to-b from-[#F4EEE8]/76 to-[#F4EEE8]/20" />

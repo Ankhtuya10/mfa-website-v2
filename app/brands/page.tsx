@@ -67,8 +67,8 @@ export default function BrandsPage() {
         {/* Hero */}
         <section className="relative w-full bg-[#0A0A0A] flex items-center justify-center" style={{ height: '50vh' }}>
           <div className="w-full max-w-5xl mx-auto px-8 text-center">
-            <span className="font-sans text-xs tracking-[4.95px] uppercase text-[#B7AEA9] block mb-6">Mongolian Fashion</span>
-            <h1 className="font-serif text-white text-5xl md:text-6xl lg:text-7xl leading-[1.1] mb-6">The Brands</h1>
+            <span className="font-sans text-xs tracking-[0.32em] uppercase text-[#B7AEA9] block mb-6">Mongolian Fashion</span>
+            <h1 className="font-serif text-white text-5xl md:text-6xl lg:text-7xl leading-[1.1] mb-6 [overflow-wrap:anywhere]">The Brands</h1>
             <p className="font-sans text-[#B7AEA9] text-lg max-w-xl mx-auto">
               From heritage cashmere houses to the voices of a new generation
             </p>

@@ -120,13 +120,13 @@ export default function DesignerPage({ params }: { params: Promise<{ slug: strin
                 }}
                 initial="hidden"
                 animate="visible"
-                className="flex justify-between items-end"
+                className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
               >
-                <div>
+                <div className="max-w-4xl">
                   <motion.span variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className={`inline-block px-3 py-1 font-sans text-[10px] tracking-[2px] uppercase mb-4 ${tierStyles[designer.tier]}`}>
                     {tierLabels[designer.tier]}
                   </motion.span>
-                  <motion.h1 variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }} className="font-serif text-white text-6xl leading-tight">
+                  <motion.h1 variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }} className="font-serif text-white text-5xl leading-tight [overflow-wrap:anywhere] md:text-6xl">
                     {designer.name}
                   </motion.h1>
                   <motion.span variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className="font-sans text-[11px] tracking-[2px] uppercase text-white/60 mt-4 block">
@@ -158,19 +158,19 @@ export default function DesignerPage({ params }: { params: Promise<{ slug: strin
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Founded</span>
-                  <span className="font-serif text-4xl text-[#2A2522]">{designer.founded}</span>
+                  <span className="font-serif text-4xl text-[#2A2522] [overflow-wrap:anywhere]">{designer.founded}</span>
                 </div>
                 <div>
                   <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Active Seasons</span>
-                  <span className="font-serif text-4xl text-[#2A2522]">{activeSeasons}</span>
+                  <span className="font-serif text-4xl text-[#2A2522] [overflow-wrap:anywhere]">{activeSeasons}</span>
                 </div>
                 <div>
                   <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Collections</span>
-                  <span className="font-serif text-4xl text-[#2A2522]">{designerCollections.length}</span>
+                  <span className="font-serif text-4xl text-[#2A2522] [overflow-wrap:anywhere]">{designerCollections.length}</span>
                 </div>
                 <div>
                   <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Tier</span>
-                  <span className="font-serif text-4xl text-[#2A2522]">{tierLabels[designer.tier].split('-')[0]}</span>
+                  <span className="font-serif text-4xl text-[#2A2522] [overflow-wrap:anywhere]">{tierLabels[designer.tier].split('-')[0]}</span>
                 </div>
               </div>
             </div>

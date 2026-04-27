@@ -152,7 +152,7 @@ function ResultCard({ item, query }: { item: SearchResultItem; query: string }) 
         </div>
         <div className="flex flex-1 flex-col p-6">
           <p className="mb-2 font-sans text-[10px] tracking-[0.18em] uppercase text-white/38">{item.meta}</p>
-          <h3 className="font-serif text-2xl leading-[1.05] text-white [overflow-wrap:anywhere]">{highlightMatch(item.title, query)}</h3>
+          <h3 className="line-clamp-2 font-serif text-2xl leading-[1.08] text-white [overflow-wrap:anywhere]">{highlightMatch(item.title, query)}</h3>
           <p className="mt-3 line-clamp-3 font-sans text-sm leading-relaxed text-white/58">
             {highlightMatch(item.subtitle, query)}
           </p>
@@ -324,18 +324,18 @@ export default function ExplorePage() {
                 </p>
 
                 <div className="mt-10 overflow-hidden rounded-[36px] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
-                  <div className="flex items-center gap-4 px-6 py-5 md:px-7">
+                  <div className="flex min-w-0 items-center gap-4 px-5 py-4 md:px-7 md:py-5">
                     <Search className="h-5 w-5 shrink-0 text-white/35" />
                     <input
                       ref={inputRef}
                       value={query}
                       onChange={(event) => setQuery(event.target.value)}
                       placeholder="Search cashmere, FW2025, emerald wool, Gobi..."
-                      className="w-full bg-transparent font-serif text-xl leading-tight text-white outline-none placeholder:text-white/25 md:text-[2rem] xl:text-[2.35rem]"
+                      className="min-w-0 flex-1 truncate bg-transparent font-serif text-xl leading-tight text-white outline-none placeholder:text-white/25 md:text-[1.8rem] xl:text-[2.05rem]"
                     />
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 border-t border-white/[0.08] bg-black/10 px-6 py-4 md:px-7">
-                    <span className="min-w-[56px] font-sans text-[10px] tracking-[0.26em] uppercase text-white/30">Season</span>
+                  <div className="flex flex-wrap items-center gap-2.5 border-t border-white/[0.08] bg-black/10 px-5 py-4 md:px-7">
+                    <span className="min-w-[5rem] font-sans text-[10px] tracking-[0.26em] uppercase text-white/30">Season</span>
                     {[
                       { label: 'All', value: 'all' },
                       { label: 'Current Season', value: 'current' },
@@ -479,7 +479,7 @@ export default function ExplorePage() {
                           <div className="mb-5 flex items-end justify-between gap-4">
                             <div>
                               <p className="font-sans text-[10px] tracking-[0.26em] uppercase text-white/34">{category}</p>
-                              <h3 className="mt-2 font-serif text-2xl text-white">{items.length} top matches</h3>
+                              <h3 className="mt-2 font-serif text-2xl text-white [overflow-wrap:anywhere]">{items.length} top matches</h3>
                             </div>
                             <button
                               onClick={() => setActiveCategory(category)}
@@ -501,7 +501,9 @@ export default function ExplorePage() {
 
               {noResults && (
                 <div className="flex h-full flex-col items-center justify-center text-center">
-                  <h3 className="font-serif text-4xl text-white">No results for “{deferredQuery}”</h3>
+                  <h3 className="font-serif text-4xl text-white [overflow-wrap:anywhere]">
+                    No results for "{deferredQuery}"
+                  </h3>
                   <p className="mt-4 max-w-xl font-sans text-lg leading-relaxed text-white/52">
                     Try a related material, season, color, or brand term. You might also like these editorial picks.
                   </p>
