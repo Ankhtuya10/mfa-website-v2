@@ -54,10 +54,7 @@ const defaultNavLinks: FooterLink[] = [
   { label: "Archive", href: "/archive" },
   { label: "Editorial", href: "/editorial" },
   { label: "Designers", href: "/designers" },
-  { label: "Journal", href: "/journal" },
   { label: "About", href: "/about" },
-  { label: "Press", href: "/press" },
-  { label: "Careers", href: "/careers" },
 ];
 
 export const Footer = ({
@@ -74,25 +71,25 @@ export const Footer = ({
   return (
     <section
       className={cn(
-        "relative h-full w-full overflow-hidden bg-[linear-gradient(180deg,#ECE9E3_0%,#F1EEE8_54%,#ECE8E1_100%)]",
+        "relative h-full w-full overflow-hidden bg-[linear-gradient(180deg,#0F0D0B_0%,#0A0A0A_54%,#12100E_100%)]",
         className,
       )}
     >
-      <footer className="relative h-full border-t border-[#D7D1C9]">
+      <footer className="relative h-full border-t border-white/[0.08]">
         <div className="relative h-full w-full">
-          <div className="absolute inset-x-0 top-1/2 z-20 flex -translate-y-1/2 justify-center px-5 md:px-10">
+          <div className="safe-shell absolute inset-x-0 top-1/2 z-20 flex -translate-y-1/2 justify-center">
             <div className="relative flex w-fit max-w-[92vw] flex-col items-center">
               <div className="flex flex-col items-center gap-3">
                 <div className="flex items-center gap-2">
                   <span
-                    className="font-serif font-semibold tracking-tight text-[#1F1B17]"
+                    className="anoce-wordmark anoce-wordmark-cream"
                     style={{ fontSize: "clamp(3.25rem, 5.6vw, 5.25rem)" }}
                   >
                     {brandName}
                   </span>
                 </div>
                 <p
-                  className="w-full max-w-[920px] px-4 text-center font-sans font-medium text-[#6D655D] sm:px-0"
+                  className="w-full max-w-[920px] px-4 text-center font-sans font-medium text-[#D7D1C9] sm:px-0"
                   style={{ fontSize: "clamp(1.35rem, 1.85vw, 1.95rem)" }}
                 >
                   {brandDescription}
@@ -105,7 +102,7 @@ export const Footer = ({
                     <Link
                       key={link.label}
                       href={link.href}
-                      className="text-[#8A8178] transition-colors hover:text-[#1F1B17]"
+                      className="text-[#B7AEA9] transition-colors hover:text-[#F5F2ED]"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -118,13 +115,13 @@ export const Footer = ({
 
               {navLinks.length > 0 && (
                 <div
-                  className="flex max-w-full flex-wrap justify-center gap-6 px-4 font-sans font-medium text-[#847C74]"
+                  className="flex max-w-full flex-wrap justify-center gap-6 px-4 font-sans font-medium text-[#D7D1C9]"
                   style={{ fontSize: "clamp(1.7rem, 1.95vw, 2.2rem)" }}
                 >
                   {navLinks.map((link) => (
                     <Link
                       key={link.label}
-                      className="duration-300 hover:font-semibold hover:text-[#1F1B17]"
+                      className="duration-300 hover:font-semibold hover:text-[#F5F2ED]"
                       href={link.href}
                     >
                       {link.label}
@@ -134,7 +131,7 @@ export const Footer = ({
               )}
 
               <div
-                className="pointer-events-none absolute left-1/2 top-[62%] z-0 -translate-x-1/2 select-none bg-gradient-to-b from-[#1F1B17]/12 via-[#1F1B17]/6 to-transparent bg-clip-text text-center font-sans font-extrabold leading-none tracking-tighter text-transparent"
+                className="pointer-events-none absolute left-1/2 top-[62%] z-0 -translate-x-1/2 select-none bg-gradient-to-b from-[#ECE9E3]/12 via-[#ECE9E3]/6 to-transparent bg-clip-text text-center font-sans font-extrabold leading-none tracking-tighter text-transparent"
                 style={{
                   fontSize: "clamp(8rem, 14.5vw, 15rem)",
                   maxWidth: "95vw",
@@ -145,8 +142,8 @@ export const Footer = ({
             </div>
           </div>
 
-          <div className="absolute bottom-2 left-0 right-0 z-30 flex flex-col items-center justify-center gap-2 border-t border-[#DBD5CC] pt-2 text-center">
-            <p className="text-center font-sans text-base text-[#8A8178]">
+          <div className="absolute bottom-2 left-0 right-0 z-30 flex flex-col items-center justify-center gap-2 border-t border-white/[0.08] pt-2 text-center">
+            <p className="text-center font-sans text-base text-[#B7AEA9]">
               &copy;{currentYear} {brandName}. All rights reserved.
             </p>
             {creatorName && creatorUrl && (
@@ -154,7 +151,7 @@ export const Footer = ({
                 <Link
                   href={creatorUrl}
                   target="_blank"
-                  className="font-sans text-base text-[#8A8178] transition-colors duration-300 hover:font-medium hover:text-[#1F1B17]"
+                  className="font-sans text-base text-[#B7AEA9] transition-colors duration-300 hover:font-medium hover:text-[#F5F2ED]"
                 >
                   Crafted by {creatorName}
                 </Link>

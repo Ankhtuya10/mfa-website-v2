@@ -1,5 +1,5 @@
 import type { SearchGroups, SearchResultItem, SeasonFilter } from './types'
-import { createClient } from '@/lib/supabase/client'
+import { fetchSearchIndexItems } from '@/lib/content/client'
 
 export const TRENDING_TAGS = ['cashmere', 'fw2025', 'gobi', 'ulaanbaatar', 'wool', 'emerald', 'winter']
 export const RECENT_HISTORY_KEY = 'anoce_explore_recent_searches'
@@ -52,96 +52,7 @@ export const expandQueryTerms = (query: string) => {
   return Array.from(expanded)
 }
 
-export const fetchSearchIndex = async (): Promise<SearchResultItem[]> => {
-  const supabase = createClient()
-
-  const [{ data: articles }, { data: collections }, { data: designers }] = await Promise.all([
-    supabase
-      .from('articles')
-      .select('id, slug, title, subtitle, cover_image, author_name, read_time, body, tags, status')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false }),
-    supabase
-      .from('collections')
-      .select('id, slug, title, description, designer_name, season, year, cover_image, looks(materials, tags)'),
-    supabase
-      .from('designers')
-      .select('id, slug, name, tier, bio, short_bio, cover_image, founded'),
-  ])
-
-  const articleItems: SearchResultItem[] = (articles || []).map((article: any) => ({
-    id: `article-${article.id}`,
-    slug: article.slug,
-    title: article.title,
-    subtitle: article.subtitle || '',
-    image: article.cover_image || '',
-    href: `/editorial/${article.slug}`,
-    category: 'articles',
-    meta: `${article.author_name || 'Editorial'} · ${article.read_time || 5} min read`,
-    searchText: [article.title, article.subtitle, article.body, article.author_name, ...(article.tags || [])].join(' '),
-    tags: article.tags || [],
-  }))
-
-  const collectionItems: SearchResultItem[] = (collections || []).map((collection: any) => {
-    const looks = Array.isArray(collection.looks) ? collection.looks : []
-    const materialTags = looks.flatMap((look: any) => (Array.isArray(look?.materials) ? look.materials : []))
-    const lookTags = looks.flatMap((look: any) => (Array.isArray(look?.tags) ? look.tags : []))
-    const seasonLabel = `${collection.season || ''}${collection.year || ''}`
-
-    return {
-      id: `collection-${collection.id}`,
-      slug: collection.slug,
-      title: collection.title,
-      subtitle: collection.description || '',
-      image: collection.cover_image || '',
-      href: `/archive/${collection.slug}`,
-      category: 'collections',
-      meta: `${collection.designer_name || 'Unknown'} · ${collection.season || ''} ${collection.year || ''}`.trim(),
-      searchText: [
-        collection.title,
-        collection.description,
-        collection.designer_name,
-        collection.season,
-        `${collection.season || ''}${collection.year || ''}`,
-        `${collection.year || ''}`,
-        ...materialTags,
-        ...lookTags,
-      ].join(' '),
-      tags: [...lookTags, ...materialTags],
-      seasonLabel,
-    }
-  })
-
-  const designerItems: SearchResultItem[] = (designers || []).map((designer: any) => ({
-    id: `designer-${designer.id}`,
-    slug: designer.slug,
-    title: designer.name,
-    subtitle: designer.short_bio || '',
-    image: designer.cover_image || '',
-    href: `/designers/${designer.slug}`,
-    category: 'designers',
-    meta: `${designer.name} · ${designer.tier || ''}`.trim(),
-    searchText: [designer.name, designer.bio, designer.short_bio, `${designer.founded || ''}`].join(' '),
-    tags: [designer.tier || ''],
-  }))
-
-  const brandItems: SearchResultItem[] = (designers || []).map((designer: any) => ({
-    id: `brand-${designer.id}`,
-    slug: designer.slug,
-    title: designer.name,
-    subtitle: designer.short_bio || '',
-    image: designer.cover_image || '',
-    href: `/designers/${designer.slug}`,
-    category: 'brands',
-    meta: `${designer.name} · Founded ${designer.founded || '—'}`,
-    searchText: [designer.name, designer.bio, designer.short_bio].join(' '),
-    tags: [designer.tier || ''],
-  }))
-
-  return [...articleItems, ...collectionItems, ...designerItems, ...brandItems].filter(
-    (item) => item.slug && item.title && item.image
-  )
-}
+export const fetchSearchIndex = async (): Promise<SearchResultItem[]> => fetchSearchIndexItems()
 
 export const scoreResult = (item: SearchResultItem, query: string) => {
   const normalizedQuery = normalizeText(query)

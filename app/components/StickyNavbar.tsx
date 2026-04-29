@@ -200,8 +200,8 @@ export const StickyNavbar = () => {
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="fixed top-0 left-0 right-0 z-50"
             style={{
-              margin: '10px 40px 0',
-              maxWidth: 'calc(100% - 80px)',
+              margin: 'var(--safe-edge-y) var(--safe-edge-x) 0',
+              maxWidth: 'calc(100% - (var(--safe-edge-x) * 2))',
               background: isHomePage ? 'rgba(255, 255, 255, 0.03)' : 'rgba(10, 10, 10, 0.75)',
               borderRadius: '16px',
               boxShadow: isHomePage ? 'none' : '0 4px 30px rgba(0, 0, 0, 0.1)',
@@ -212,7 +212,7 @@ export const StickyNavbar = () => {
           >
             <div className="h-[58px] px-5 lg:px-8 flex items-center justify-between w-full">
               <Link href="/" className="pl-0">
-                <span className="font-serif text-[22px] font-bold text-white tracking-tight hover:text-white/70 transition-colors duration-300">
+                <span className="anoce-wordmark anoce-wordmark-light text-[22px]">
                   Anoce
                 </span>
               </Link>

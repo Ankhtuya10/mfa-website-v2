@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { StickyNavbar, Footer } from '@/app/components'
 import { DesignerCard } from '@/app/components/shared/DesignerCard'
+import { getDesigners } from '@/lib/supabase/queries'
 
 const tiers = ['All', 'High-End', 'Contemporary', 'Emerging']
 
@@ -15,16 +16,7 @@ export default function DesignersPage() {
   useEffect(() => {
     async function fetchDesigners() {
       try {
-        const { createClient } = await import('@/lib/supabase/client')
-        const supabase = createClient()
-        
-        const { data, error } = await supabase
-          .from('designers')
-          .select('*')
-          .order('name')
-        
-        if (error) throw error
-        setDesigners(data || [])
+        setDesigners(await getDesigners())
       } catch {
         setDesigners([])
       } finally {

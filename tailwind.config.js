@@ -8,8 +8,14 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Cormorant Garamond', 'serif'],
-        sans: ['Inter', 'sans-serif'],
+        serif: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      fontWeight: {
+        light: '300',
+      },
+      baseFontSize: {
+        light: '300',
       },
       colors: {
         'muted-white': '#F5F1EB',

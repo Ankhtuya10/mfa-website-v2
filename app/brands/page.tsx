@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { StickyNavbar, Footer } from '@/app/components'
+import { getDesigners } from '@/lib/supabase/queries'
 
 type BrandDesigner = {
   id: string
@@ -29,16 +30,8 @@ export default function BrandsPage() {
 
     async function loadDesigners() {
       try {
-        const { createClient } = await import('@/lib/supabase/client')
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from('designers')
-          .select('id, slug, name, tier, founded, short_bio, profile_image, cover_image')
-          .order('name')
-
-        if (error) throw error
         if (!active) return
-        setDesigners((data || []) as BrandDesigner[])
+        setDesigners((await getDesigners()) as BrandDesigner[])
       } catch {
         if (!active) return
         setDesigners([])

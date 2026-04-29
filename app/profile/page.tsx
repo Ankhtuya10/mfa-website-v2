@@ -1,14 +1,30 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import type { ReactNode } from 'react'
 import Image from 'next/image'
-import { StickyNavbar, Footer } from '@/app/components'
+import { StickyNavbar } from '@/app/components'
 import { ArticleCard } from '@/app/components/shared/ArticleCard'
 import { DesignerCard } from '@/app/components/shared/DesignerCard'
+import { BookmarkButton } from '@/app/components/shared/BookmarkButton'
+import { FollowButton } from '@/app/components/shared/FollowButton'
 import { createClient } from '@/lib/supabase/client'
+import { getArticles, getCollections, getDesigners } from '@/lib/supabase/queries'
 import { useRouter } from 'next/navigation'
 
-const tabs = ['Saved Articles', 'Saved Looks', 'Following', 'Settings']
+const TABS = [
+  { id: 'articles', label: 'Saved Articles', eyebrow: 'Library' },
+  { id: 'looks', label: 'Saved Looks', eyebrow: 'Library' },
+  { id: 'following', label: 'Following', eyebrow: 'Designers' },
+  { id: 'settings', label: 'Settings', eyebrow: 'Account' },
+]
+
+const EMPTY_QUOTES: Record<string, string> = {
+  articles: '"The best fashion is the one that makes you feel like yourself."',
+  looks: '"Style is a way to say who you are without having to speak."',
+  following: '"Fashion is instant language." - Miuccia Prada',
+}
+
 const NOTIFICATIONS_STORAGE_KEY = 'anoce_profile_notifications'
 
 interface Profile {
@@ -25,13 +41,6 @@ interface Profile {
   created_at: string
 }
 
-interface Bookmark {
-  id: string
-  user_id: string
-  content_type: string
-  content_id: string
-}
-
 interface Article {
   id: string
   title: string
@@ -45,10 +54,7 @@ interface Look {
   id: string
   image: string
   title: string | null
-  collections: {
-    title: string | null
-    designer_name: string | null
-  } | null
+  collections: { title: string | null; designer_name: string | null } | null
 }
 
 interface Designer {
@@ -63,19 +69,17 @@ export default function ProfilePage() {
   const supabase = createClient()
   const router = useRouter()
 
-  const [activeTab, setActiveTab] = useState('Saved Articles')
+  const [activeTab, setActiveTab] = useState('articles')
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [savedArticles, setSavedArticles] = useState<Article[]>([])
   const [savedLooks, setSavedLooks] = useState<Look[]>([])
   const [followedDesigners, setFollowedDesigners] = useState<Designer[]>([])
   const [loading, setLoading] = useState(true)
-
   const [nameValue, setNameValue] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
-  const [canPersistNotifications, setCanPersistNotifications] = useState(true)
+  const [canPersistNotifs, setCanPersistNotifs] = useState(true)
   const [notifications, setNotifications] = useState({
     new_collections: true,
     editorial_picks: true,
@@ -85,147 +89,103 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadAll() {
       try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
-        
-        if (authError) {
-          console.error('[Profile] Auth error:', authError)
-        }
-
+        const {
+          data: { user },
+          error: authErr,
+        } = await supabase.auth.getUser()
+        if (authErr) console.error('[Profile] Auth error:', authErr)
         if (!user) {
           router.push('/login')
           return
         }
         setUser(user)
 
-        let { data: profile, error: profileError } = await supabase
+        let { data: loadedProfile, error: profileErr } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single()
+        if (profileErr) console.error('[Profile] Profile fetch error:', profileErr)
 
-        if (profileError) {
-          console.error('[Profile] Error fetching profile:', profileError)
-        }
-
-        if (!profile) {
-          const { data: newProfile, error: insertError } = await supabase
+        if (!loadedProfile) {
+          const { data: np, error: insertErr } = await supabase
             .from('profiles')
             .insert({ id: user.id, name: user.email?.split('@')[0] || 'Anonymous' })
             .select()
             .single()
-          
-          if (insertError) {
-            console.error('[Profile] Error creating profile:', insertError)
-          }
-          profile = newProfile
+          if (insertErr) console.error('[Profile] Profile create error:', insertErr)
+          loadedProfile = np
         }
 
-        setProfile(profile)
-        if (profile?.name) setNameValue(profile.name)
-        const localNotifications = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY)
-        if (localNotifications) {
+        setProfile(loadedProfile)
+        if (loadedProfile?.name) setNameValue(loadedProfile.name)
+
+        const local = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY)
+        if (local) {
           try {
-            setNotifications(JSON.parse(localNotifications))
+            setNotifications(JSON.parse(local))
           } catch {
             localStorage.removeItem(NOTIFICATIONS_STORAGE_KEY)
           }
-        } else if (profile?.notifications) {
-          setNotifications(profile.notifications)
+        } else if (loadedProfile?.notifications) {
+          setNotifications(loadedProfile.notifications)
         }
 
-        const { error: notificationsProbeError } = await supabase
+        const { error: notifProbeErr } = await supabase
           .from('profiles')
           .select('notifications')
           .eq('id', user.id)
           .single()
+        if (notifProbeErr) setCanPersistNotifs(false)
 
-        if (notificationsProbeError) {
-          setCanPersistNotifications(false)
+        const { data: bookmarks } = await supabase.from('bookmarks').select('*').eq('user_id', user.id)
+
+        const articleIds = (bookmarks || []).filter((b) => b.content_type === 'article').map((b) => b.content_id)
+        if (articleIds.length) {
+          const articles = await getArticles({ status: 'published' })
+          setSavedArticles((articles || []).filter((article: Article) => articleIds.includes(article.id)))
         }
 
-        const { data: bookmarks, error: bookmarksError } = await supabase
-          .from('bookmarks')
-          .select('*')
-          .eq('user_id', user.id)
-        
-        if (bookmarksError) {
-          console.error('[Profile] Error fetching bookmarks:', bookmarksError)
-        }
-        setBookmarks(bookmarks || [])
-
-        const articleIds = (bookmarks || [])
-          .filter(b => b.content_type === 'article')
-          .map(b => b.content_id)
-        
-        if (articleIds.length > 0) {
-          const { data: articles, error: articlesError } = await supabase
-            .from('articles')
-            .select('*')
-            .in('id', articleIds)
-            .eq('status', 'published')
-          
-          if (articlesError) {
-            console.error('[Profile] Error fetching saved articles:', articlesError)
-          }
-          setSavedArticles(articles || [])
-        }
-
-        const lookIds = (bookmarks || [])
-          .filter(b => b.content_type === 'look')
-          .map(b => b.content_id)
-        
-        if (lookIds.length > 0) {
-          const { data: looks, error: looksError } = await supabase
-            .from('looks')
-            .select('*, collections(title, designer_name)')
-            .in('id', lookIds)
-          
-          if (looksError) {
-            console.error('[Profile] Error fetching saved looks:', looksError)
-          }
-          setSavedLooks(looks || [])
+        const lookIds = (bookmarks || []).filter((b) => b.content_type === 'look').map((b) => b.content_id)
+        if (lookIds.length) {
+          const collections = await getCollections()
+          const looks = (collections || []).flatMap((collection: any) =>
+            (Array.isArray(collection.looks) ? collection.looks : [])
+              .filter((look: any) => lookIds.includes(look.id))
+              .map((look: any) => ({
+                ...look,
+                title: look.description || `Look ${look.number || ''}`.trim(),
+                collections: {
+                  title: collection.title || null,
+                  designer_name: collection.designer_name || collection.designerName || null,
+                },
+              })),
+          )
+          setSavedLooks(looks)
         }
 
         const designerIds = (bookmarks || [])
-          .filter(b => b.content_type === 'designer')
-          .map(b => b.content_id)
-        
-        if (designerIds.length > 0) {
-          const { data: designers, error: designersError } = await supabase
-            .from('designers')
-            .select('*')
-            .in('id', designerIds)
-          
-          if (designersError) {
-            console.error('[Profile] Error fetching followed designers:', designersError)
-          }
-          setFollowedDesigners(designers || [])
+          .filter((b) => b.content_type === 'designer')
+          .map((b) => b.content_id)
+        if (designerIds.length) {
+          const designers = await getDesigners()
+          setFollowedDesigners((designers || []).filter((designer: Designer) => designerIds.includes(designer.id)))
         }
-
-        setLoading(false)
       } catch (err) {
-        console.error('[Profile] Unexpected error loading profile:', err)
+        console.error('[Profile] Unexpected error:', err)
+      } finally {
         setLoading(false)
       }
     }
 
     loadAll()
-  }, [])
+  }, [router, supabase])
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        router.push('/login')
-      }
-      if (event === 'TOKEN_REFRESHED') {
-        console.log('[Profile] Token refreshed successfully')
-      }
-      if (event === 'USER_UPDATED') {
-        console.log('[Profile] User updated:', session?.user)
-      }
-      if (event === 'SIGNED_IN') {
-        console.log('[Profile] User signed in:', session?.user)
-      }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) router.push('/login')
     })
     return () => subscription.unsubscribe()
   }, [supabase, router])
@@ -233,18 +193,11 @@ export default function ProfilePage() {
   async function handleSaveProfile() {
     if (!user) return
     setSaving(true)
-    
-    const { error } = await supabase
-      .from('profiles')
-      .update({ name: nameValue })
-      .eq('id', user.id)
-    
+    const { error } = await supabase.from('profiles').update({ name: nameValue }).eq('id', user.id)
     setSaving(false)
-    if (error) {
-      console.error('[Profile] Error saving profile:', error)
-    } else {
+    if (!error) {
       setSaveSuccess(true)
-      setProfile(prev => prev ? { ...prev, name: nameValue } : null)
+      setProfile((prev) => (prev ? { ...prev, name: nameValue } : null))
       setTimeout(() => setSaveSuccess(false), 3000)
     }
   }
@@ -253,364 +206,435 @@ export default function ProfilePage() {
     if (!user) return
     const updated = { ...notifications, [key]: !notifications[key as keyof typeof notifications] }
     setNotifications(updated)
-
     localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(updated))
-
-    if (!canPersistNotifications) return
-
-    const { error } = await supabase
-      .from('profiles')
-      .update({ notifications: updated })
-      .eq('id', user.id)
-
-    if (error) {
-      console.error('[Profile] Error updating notifications:', error)
-      setCanPersistNotifications(false)
-    }
+    if (!canPersistNotifs) return
+    const { error } = await supabase.from('profiles').update({ notifications: updated }).eq('id', user.id)
+    if (error) setCanPersistNotifs(false)
   }
 
   async function handleChangePassword() {
     if (!user?.email) return
-    
     const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
     })
-    
-    if (error) {
-      console.error('[Profile] Error sending password reset email:', error)
-      alert('Failed to send password reset email. Please try again.')
-    } else {
-      alert('Password reset email sent. Check your inbox.')
-    }
+    if (error) alert('Failed to send password reset email. Please try again.')
+    else alert('Password reset email sent. Check your inbox.')
   }
 
   async function handleDeleteAccount() {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete your account? This cannot be undone.'
-    )
-    if (!confirmed) return
-    
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error('[Profile] Error signing out:', error)
-    }
+    if (!window.confirm('Are you sure you want to delete your account? This cannot be undone.')) return
+    await supabase.auth.signOut()
     router.push('/')
   }
 
   const userName = profile?.name || user?.email?.split('@')[0] || 'Anonymous'
   const userRole = profile?.role || 'viewer'
   const roleDisplay = userRole.charAt(0).toUpperCase() + userRole.slice(1)
-  const joinedDate = user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''
-  const profileInitial = userName[0]?.toUpperCase() || 'A'
-  const statCards = [
-    { label: 'Saved', value: savedArticles.length },
-    { label: 'Looks', value: savedLooks.length },
-    { label: 'Following', value: followedDesigners.length },
-  ]
+  const joinedDate = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : ''
+  const profileInit = userName[0]?.toUpperCase() || 'A'
+  const activeTabMeta = TABS.find((t) => t.id === activeTab)!
+
+  const contentCounts: Record<string, number> = {
+    articles: savedArticles.length,
+    looks: savedLooks.length,
+    following: followedDesigners.length,
+    settings: 0,
+  }
+
+  const shellTopOffset = 'calc(var(--safe-edge-y) + 72px)'
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen justify-between bg-[#0A0A0A]">
-        <StickyNavbar />
-        <div className="flex-1">
-          <section className="bg-[#0A0A0A] py-20">
-            <div className="max-w-6xl mx-auto px-8 w-full">
-              <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                <div className="flex items-center gap-6">
-                  <div className="w-24 h-24 rounded-full bg-[#B7AEA9]/30 animate-pulse" />
-                  <div>
-                    <div className="w-48 h-8 bg-[#B7AEA9]/30 animate-pulse rounded" />
-                    <div className="w-32 h-4 bg-[#B7AEA9]/20 animate-pulse mt-2 rounded" />
-                  </div>
-                </div>
-                <div className="flex gap-16">
-                  <div className="w-16 h-8 bg-[#B7AEA9]/20 animate-pulse" />
-                  <div className="w-16 h-8 bg-[#B7AEA9]/20 animate-pulse" />
-                  <div className="w-16 h-8 bg-[#B7AEA9]/20 animate-pulse" />
-                </div>
+      <div className="h-screen w-full overflow-hidden bg-[#080808]">
+        <div className="relative h-full w-full overflow-hidden bg-[#080808]">
+          <StickyNavbar />
+          <div className="flex h-full" style={{ paddingTop: shellTopOffset }}>
+            <aside className="w-[340px] shrink-0 border-r border-white/[0.07] p-9">
+              <div className="flex flex-col items-center gap-4">
+                <div className="h-24 w-24 animate-pulse rounded-full bg-white/[0.06]" />
+                <div className="h-5 w-32 animate-pulse rounded bg-white/[0.06]" />
+                <div className="h-3 w-48 animate-pulse rounded bg-white/[0.04]" />
               </div>
-            </div>
-          </section>
-          <div className="sticky top-20 z-40 bg-transparent">
-            <div className="max-w-6xl mx-auto px-8">
-              <div className="glass-panel-dark rounded-full px-6 py-4 flex gap-10">
-                {tabs.map((tab) => (
-                  <div key={tab} className="w-20 h-4 bg-[#B7AEA9]/20 animate-pulse" />
+              <div className="mt-8 grid grid-cols-3 gap-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-20 animate-pulse rounded-2xl bg-white/[0.04]" />
                 ))}
               </div>
-            </div>
-          </div>
-          <div className="max-w-6xl mx-auto px-8 w-full py-16">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="glass-panel-dark rounded-[34px] animate-pulse aspect-[3/4]" />
-              ))}
-            </div>
+            </aside>
+            <main className="flex-1 p-10">
+              <div className="h-12 w-64 animate-pulse rounded bg-white/[0.04]" />
+            </main>
           </div>
         </div>
-        <Footer />
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="flex flex-col min-h-screen justify-between bg-[#0A0A0A]">
-        <StickyNavbar />
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <h1 className="font-serif text-4xl text-white mb-4">Not logged in</h1>
-          <a href="/login" className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] hover:text-white">
-            Go to Login →
+      <div className="h-screen w-full overflow-hidden bg-[#080808]">
+        <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#080808]">
+          <StickyNavbar />
+          <p className="font-serif text-3xl text-white">Not signed in</p>
+          <a
+            href="/login"
+            className="mt-6 text-[10px] uppercase tracking-widest text-[#B7AEA9] hover:text-white"
+          >
+            Go to Login {"->"}
           </a>
         </div>
-        <Footer />
       </div>
     )
   }
 
-  return (
-    <div className="h-screen w-full overflow-hidden bg-[#0A0A0A]">
-      <StickyNavbar />
+  const EmptyState = ({
+    icon,
+    title,
+    description,
+    cta,
+    href,
+    quote,
+  }: {
+    icon: ReactNode
+    title: string
+    description: string
+    cta: string
+    href: string
+    quote?: string
+  }) => (
+    <div className="relative flex h-full min-h-[340px] flex-col items-center justify-center text-center">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.07]">
+        {icon}
+      </div>
+      <h3 className="mb-3 font-serif text-[28px] font-light text-white">{title}</h3>
+      <p className="max-w-[260px] text-[11px] leading-[1.75] text-white/40">{description}</p>
+      <a
+        href={href}
+        className="mt-7 rounded-full border border-white/[0.14] px-7 py-2.5 text-[8px] uppercase tracking-[0.3em] text-[#B7AEA9] transition-all hover:border-white/[0.24] hover:bg-white/[0.06] hover:text-white"
+      >
+        {cta}
+      </a>
+      {quote && (
+        <p className="pointer-events-none absolute bottom-6 left-0 right-0 font-serif text-[12px] italic font-light tracking-[0.08em] text-white/[0.09]">
+          {quote}
+        </p>
+      )}
+    </div>
+  )
 
-      <main className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container pt-[72px] md:pt-[88px]">
-        <section className="snap-start relative h-screen w-full overflow-hidden bg-[#0A0A0A] px-6 pb-6 pt-[92px] md:px-10 md:pb-8 md:pt-[108px] lg:px-14">
-          <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-center">
-            <div className="glass-panel-dark flex w-full max-w-5xl flex-col items-center justify-center gap-8 rounded-[42px] px-8 py-10 text-center md:px-12 md:py-12 lg:px-16">
-              <div className="flex flex-col items-center gap-5">
-                <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[#B7AEA9] ring-4 ring-white/10 md:h-32 md:w-32">
+  return (
+    <div className="h-screen w-full overflow-hidden bg-[#080808]">
+      <div className="relative h-full w-full overflow-hidden bg-[#080808]">
+        <StickyNavbar />
+
+        <div className="flex h-full" style={{ paddingTop: shellTopOffset }}>
+          <aside className="flex w-[340px] shrink-0 flex-col overflow-hidden border-r border-white/[0.07]">
+            <div className="px-7 pb-6 pt-10">
+            <div className="mb-7 flex flex-col items-center text-center">
+              <div className="relative mb-5">
+                <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-white/[0.12] bg-white/[0.04]">
                   {profile?.avatar_url ? (
                     <Image src={profile.avatar_url} alt={userName} fill className="object-cover" />
                   ) : (
-                    <span className="font-serif text-5xl text-white">{profileInitial}</span>
+                    <span className="font-serif text-[42px] font-light text-[#D4C9B8]">{profileInit}</span>
                   )}
                 </div>
-                <div className="max-w-2xl space-y-2">
-                  <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-[#9B9590]">{roleDisplay}</p>
-                  <h1 className="font-serif text-4xl leading-none text-white md:text-5xl [overflow-wrap:anywhere]">{userName}</h1>
-                  <p className="mx-auto max-w-xl font-sans text-base leading-relaxed text-white/62 [overflow-wrap:anywhere]">{user.email}</p>
-                  {joinedDate && (
-                    <p className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#9B9590]">Joined {joinedDate}</p>
-                  )}
+                <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full border-2 border-[#080808] bg-green-400" />
+              </div>
+              <p className="mb-2.5 text-[8px] uppercase tracking-[0.42em] text-[#6B6560]">{roleDisplay}</p>
+              <h1 className="mb-2 font-serif text-[48px] font-light leading-[0.95] text-white">{userName}</h1>
+              <p className="text-[11px] tracking-[0.05em] text-white/36">{user.email}</p>
+              {joinedDate && (
+                <p className="mt-1.5 text-[8px] uppercase tracking-[0.3em] text-[#6B6560]">Joined {joinedDate}</p>
+              )}
+            </div>
+            </div>
+
+            <div className="mx-7 mb-6 h-px bg-white/[0.07]" />
+
+            <div className="mb-6 grid grid-cols-3 gap-2 px-5">
+              {[
+                { label: 'Saved', value: savedArticles.length },
+                { label: 'Looks', value: savedLooks.length },
+                { label: 'Following', value: followedDesigners.length },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-[20px] border border-white/[0.07] bg-white/[0.03] px-2 py-4 text-center transition-colors hover:border-white/[0.12]"
+                >
+                  <div className="font-serif text-[44px] font-light leading-none text-white">{s.value}</div>
+                  <div className="mt-1 text-[8px] uppercase tracking-[0.3em] text-[#6B6560]">{s.label}</div>
                 </div>
-              </div>
+              ))}
+            </div>
 
-              <div className="grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
-                {statCards.map((stat) => (
-                  <div key={stat.label} className="glass-panel-dark flex min-h-[148px] min-w-0 flex-col items-center justify-center rounded-[32px] px-6 py-6 text-center">
-                    <span className="font-serif text-5xl leading-none text-white md:text-6xl">{stat.value}</span>
-                    <span className="mt-3 font-sans text-[10px] tracking-[0.26em] uppercase text-[#9B9590]">{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="glass-panel-dark flex w-full max-w-4xl flex-wrap items-center justify-center gap-3 rounded-full px-4 py-4 md:px-6">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`rounded-full px-5 py-2.5 font-sans text-[10px] tracking-[0.24em] uppercase transition-all ${
-                      activeTab === tab
-                        ? 'bg-white text-[#0A0A0A] shadow-[0_8px_24px_rgba(255,255,255,0.16)]'
-                        : 'border border-white/[0.08] bg-white/[0.03] text-[#B7AEA9] hover:border-white/[0.18] hover:bg-white/[0.07] hover:text-white'
+            <nav className="mt-auto flex flex-col gap-1 px-4 pb-6">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{ paddingLeft: '18px', paddingRight: '18px' }}
+                  className={`group flex min-h-[40px] w-full items-center justify-between rounded-[14px] px-4 py-[11px] text-[9px] uppercase tracking-[0.28em] transition-all ${
+                    activeTab === tab.id
+                      ? 'border border-white/[0.07] bg-white/[0.06] text-[#D4C9B8]'
+                      : 'border border-transparent text-[#6B6560] hover:bg-white/[0.03] hover:text-white/70'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`text-[11px] transition-opacity ${
+                      activeTab === tab.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                     }`}
                   >
-                    {tab}
-                  </button>
-                ))}
-              </div>
+                    {"->"}
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </aside>
+
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="flex items-end justify-between border-b border-white/[0.07] px-10 pb-7 pt-10 md:px-12">
+            <div>
+              <p className="mb-2 text-[8px] uppercase tracking-[0.38em] text-[#6B6560]">{activeTabMeta.eyebrow}</p>
+              <h2
+                className="font-serif text-[52px] font-light leading-[1.02] text-white"
+                style={{ fontStyle: activeTab === 'settings' ? 'normal' : 'italic' }}
+              >
+                {activeTabMeta.label}
+              </h2>
             </div>
-          </div>
-        </section>
-
-        <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0A0A0A] px-6 pb-6 pt-[92px] md:px-10 md:pb-8 md:pt-[108px] lg:px-14">
-          <div className="mx-auto flex h-full w-full max-w-6xl flex-col">
-            <div className="glass-panel-dark relative flex-1 overflow-hidden rounded-[40px]">
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center px-6 pt-6 text-center md:pt-7">
-                <p className="mb-3 font-sans text-[10px] tracking-[0.3em] uppercase text-[#9B9590]">Profile Library</p>
-                <h2 className="font-serif text-3xl leading-none text-white md:text-4xl">{activeTab}</h2>
+            {activeTab !== 'settings' && (
+              <div className="font-serif text-[64px] font-light leading-none text-white/[0.06]">
+                {contentCounts[activeTab]}
               </div>
+            )}
+          </div>
 
-              <div className="h-full overflow-y-auto px-6 pb-6 pt-28 md:px-8 md:pb-8 md:pt-32">
-                {activeTab === 'Saved Articles' && (
-                  savedArticles.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                      {savedArticles.map((article) => (
-                        <ArticleCard key={article.id} article={article} variant="grid" />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex h-full min-h-[480px] flex-col items-center justify-center text-center">
-                      <div className="glass-panel-dark mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-                        <svg className="h-10 w-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                        </svg>
-                      </div>
-                      <h3 className="font-serif text-2xl text-white">No saved articles yet</h3>
-                      <p className="mt-3 max-w-md font-sans text-white/58">Bookmark articles as you read to build your personal editorial shelf.</p>
-                      <a href="/editorial" className="glass-pill-dark mt-8 inline-block px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]">
-                        Browse Editorial
-                      </a>
-                    </div>
-                  )
-                )}
-
-                {activeTab === 'Saved Looks' && (
-                  savedLooks.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                      {savedLooks.map((look) => (
-                        <div key={look.id} className="glass-panel-dark group relative aspect-[4/5] overflow-hidden rounded-[32px] p-2.5">
-                          <Image
-                            src={look.image}
-                            alt={look.title || 'Look'}
-                            fill
-                            className="rounded-[24px] object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-x-2.5 bottom-2.5 rounded-[24px] bg-gradient-to-t from-black/85 via-black/45 to-transparent px-5 pb-5 pt-12">
-                            <p className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/62 [overflow-wrap:anywhere]">
-                              {look.collections?.designer_name || 'Saved Look'}
-                            </p>
-                            <p className="mt-2 font-serif text-xl leading-tight text-white [overflow-wrap:anywhere]">
-                              {look.collections?.title || look.title || 'Untitled look'}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex h-full min-h-[480px] flex-col items-center justify-center text-center">
-                      <div className="glass-panel-dark mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-                        <svg className="h-10 w-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <h3 className="font-serif text-2xl text-white">No saved looks yet</h3>
-                      <p className="mt-3 max-w-md font-sans text-white/58">Explore collections and save the looks you want to revisit later.</p>
-                      <a href="/archive" className="glass-pill-dark mt-8 inline-block px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]">
-                        Explore Archive
-                      </a>
-                    </div>
-                  )
-                )}
-
-                {activeTab === 'Following' && (
-                  followedDesigners.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                      {followedDesigners.map((designer) => (
-                        <DesignerCard key={designer.id} designer={designer} variant="grid" />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex h-full min-h-[480px] flex-col items-center justify-center text-center">
-                      <div className="glass-panel-dark mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-                        <svg className="h-10 w-10 text-[#9B9590]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                        </svg>
-                      </div>
-                      <h3 className="font-serif text-2xl text-white">Not following anyone yet</h3>
-                      <p className="mt-3 max-w-md font-sans text-white/58">Follow designers from their profiles to keep your favorites close.</p>
-                      <a href="/designers" className="glass-pill-dark mt-8 inline-block px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]">
-                        Discover Designers
-                      </a>
-                    </div>
-                  )
-                )}
-
-                {activeTab === 'Settings' && (
-                  <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-                    <div className="space-y-6">
-                      <div className="glass-panel-dark rounded-[34px] p-8 md:p-10">
-                        <h3 className="mb-8 text-center font-serif text-3xl text-white">Profile Settings</h3>
-                        <div className="space-y-6">
-                          <div>
-                            <label className="mb-2 block font-sans text-[10px] tracking-[0.24em] uppercase text-[#9B9590]">Full Name</label>
-                            <input
-                              type="text"
-                              value={nameValue}
-                              onChange={(e) => setNameValue(e.target.value)}
-                              className="w-full rounded-[20px] border border-white/[0.1] bg-white/[0.03] px-5 py-4 text-center font-sans text-[15px] text-white outline-none transition-colors focus:border-white/30"
-                            />
-                          </div>
-                          <div>
-                            <label className="mb-2 block font-sans text-[10px] tracking-[0.24em] uppercase text-[#9B9590]">Email</label>
-                            <input
-                              type="email"
-                              value={user?.email || ''}
-                              disabled
-                              className="w-full cursor-not-allowed rounded-[20px] border border-white/[0.08] bg-white/[0.02] px-5 py-4 text-center font-sans text-[15px] text-white/46 outline-none"
-                            />
-                            <p className="mt-3 text-center font-sans text-xs leading-relaxed text-white/46">Contact support to change your email address.</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-center xl:justify-start">
-                        <button
-                          onClick={handleSaveProfile}
-                          disabled={saving}
-                          className={`glass-pill-dark px-12 py-4 font-sans text-[11px] font-bold tracking-[0.28em] uppercase text-white transition-colors hover:bg-white/[0.08] ${
-                            saving ? 'cursor-not-allowed opacity-50' : ''
-                          } ${saveSuccess ? 'text-green-400' : ''}`}
-                        >
-                          {saving ? 'Saving...' : saveSuccess ? 'Saved ✓' : 'Save Changes'}
-                        </button>
+          <div className="relative flex-1 overflow-y-auto px-10 py-9 md:px-12">
+{activeTab === 'articles' &&
+              (savedArticles.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {savedArticles.map((a) => (
+                    <div key={a.id} className="relative">
+                      <ArticleCard article={a} variant="grid" />
+                      <div className="absolute top-4 right-4 z-10">
+                        <BookmarkButton id={a.id} type="article" />
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={
+                    <svg
+                      className="h-[22px] w-[22px]"
+                      fill="none"
+                      stroke="#6B6560"
+                      strokeWidth={1.3}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                      />
+                    </svg>
+                  }
+                  title="No saved articles yet"
+                  description="Bookmark articles as you read to build your personal editorial shelf."
+                  cta="Browse Editorial"
+                  href="/editorial"
+                  quote={EMPTY_QUOTES.articles}
+                />
+              ))}
 
-                    <div className="space-y-6">
-                      <div className="glass-panel-dark rounded-[34px] p-8 md:p-10">
-                        <h3 className="mb-8 text-center font-serif text-3xl text-white">Notifications</h3>
-                        <div className="space-y-5">
-                          {[
-                            ['New Collection Drops', 'new_collections'],
-                            ['Editorial Picks', 'editorial_picks'],
-                            ['Breaking Fashion News', 'breaking_news'],
-                          ].map(([label, key]) => (
-                            <label key={key} className="flex items-center justify-between gap-4 rounded-[22px] border border-white/[0.08] bg-white/[0.03] px-5 py-4">
-                              <span className="min-w-0 font-sans text-sm leading-relaxed text-white/78 [overflow-wrap:anywhere]">{label}</span>
-                              <div className="relative shrink-0">
-                                <input
-                                  type="checkbox"
-                                  checked={notifications[key as keyof typeof notifications]}
-                                  onChange={() => handleToggle(key)}
-                                  className="peer sr-only"
-                                />
-                                <div className="h-7 w-14 rounded-full bg-white/10 transition-colors peer-checked:bg-white/60" />
-                                <div className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-7" />
-                              </div>
-                            </label>
-                          ))}
-                        </div>
+{activeTab === 'looks' &&
+              (savedLooks.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {savedLooks.map((look) => (
+                    <div
+                      key={look.id}
+                      className="group relative aspect-[4/5] overflow-hidden rounded-[28px] border border-white/[0.07] p-2"
+                    >
+                      <div className="absolute top-4 right-4 z-10">
+                        <BookmarkButton id={look.id} type="look" />
                       </div>
+                      <Image
+                        src={look.image}
+                        alt={look.title || 'Look'}
+                        fill
+                        className="rounded-[22px] object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-x-2 bottom-2 rounded-[22px] bg-gradient-to-t from-black/85 via-black/40 to-transparent px-5 pb-5 pt-12">
+                        <p className="text-[9px] uppercase tracking-[0.22em] text-white/50">
+                          {look.collections?.designer_name || 'Saved Look'}
+                        </p>
+                        <p className="mt-1.5 font-serif text-[18px] font-light leading-tight text-white">
+                          {look.collections?.title || look.title || 'Untitled'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={
+                    <svg
+                      className="h-[22px] w-[22px]"
+                      fill="none"
+                      stroke="#6B6560"
+                      strokeWidth={1.3}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  }
+                  title="No saved looks yet"
+                  description="Explore collections and save the looks you want to revisit later."
+                  cta="Explore Archive"
+                  href="/archive"
+                  quote={EMPTY_QUOTES.looks}
+                />
+              ))}
 
-                      <div className="glass-panel-dark rounded-[34px] p-8 md:p-10">
-                        <h3 className="mb-6 text-center font-serif text-3xl text-white">Account</h3>
-                        <div className="flex flex-col items-center gap-4 text-center">
-                          <button
-                            onClick={handleChangePassword}
-                            className="glass-pill-dark px-8 py-3 font-sans text-[11px] tracking-[0.24em] uppercase text-white hover:bg-white/[0.08]"
-                          >
-                            Change Password
-                          </button>
-                          <button
-                            onClick={handleDeleteAccount}
-                            className="font-sans text-[11px] tracking-[0.24em] uppercase text-red-400 transition-colors hover:text-red-300"
-                          >
-                            Delete Account
-                          </button>
-                        </div>
+{activeTab === 'following' &&
+              (followedDesigners.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {followedDesigners.map((d) => (
+                    <div key={d.id} className="relative">
+                      <DesignerCard designer={d} variant="grid" />
+                      <div className="absolute top-4 right-4 z-10">
+                        <FollowButton designerId={d.id} size="sm" />
                       </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={
+                    <svg
+                      className="h-[22px] w-[22px]"
+                      fill="none"
+                      stroke="#6B6560"
+                      strokeWidth={1.3}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                      />
+                    </svg>
+                  }
+                  title="Not following anyone yet"
+                  description="Follow designers from their profiles to keep your favorites close."
+                  cta="Discover Designers"
+                  href="/designers"
+                  quote={EMPTY_QUOTES.following}
+                />
+              ))}
+
+            {activeTab === 'settings' && (
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_1fr]">
+                <div className="col-span-full rounded-[28px] border border-white/[0.07] bg-white/[0.03] p-7">
+                  <h3 className="mb-7 text-center font-serif text-[22px] font-light text-white">Profile</h3>
+                  <div className="mx-auto max-w-sm space-y-4">
+                    <div>
+                      <label className="mb-2 block text-[8px] uppercase tracking-[0.28em] text-[#6B6560]">
+                        Display name
+                      </label>
+                      <input
+                        type="text"
+                        value={nameValue}
+                        onChange={(e) => setNameValue(e.target.value)}
+                        className="w-full rounded-[12px] border border-white/[0.07] bg-white/[0.025] px-4 py-3 text-center text-[12px] tracking-[0.03em] text-white outline-none transition-colors focus:border-white/[0.22]"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[8px] uppercase tracking-[0.28em] text-[#6B6560]">
+                        Email address
+                      </label>
+                      <input
+                        type="email"
+                        value={user?.email || ''}
+                        disabled
+                        className="w-full cursor-not-allowed rounded-[12px] border border-white/[0.05] bg-white/[0.015] px-4 py-3 text-center text-[12px] tracking-[0.03em] text-white/25 outline-none"
+                      />
+                      <p className="mt-2 text-center text-[9px] leading-relaxed text-white/24">
+                        Contact support to update your email address.
+                      </p>
+                    </div>
+                    <div className="pt-1 text-center">
+                      <button
+                        onClick={handleSaveProfile}
+                        disabled={saving}
+                        className={`rounded-full border border-white/[0.14] px-7 py-2.5 text-[8px] uppercase tracking-[0.3em] transition-all hover:border-white/[0.24] hover:bg-white/[0.06] ${
+                          saving ? 'cursor-not-allowed opacity-40' : ''
+                        } ${saveSuccess ? 'text-green-400' : 'text-[#D4C9B8]'}`}
+                      >
+                        {saving ? 'Saving...' : saveSuccess ? 'Saved ?' : 'Save changes'}
+                      </button>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
+                </div>
 
-        <div className="snap-start h-screen w-full">
-          <Footer />
-        </div>
-      </main>
+                <div className="rounded-[28px] border border-white/[0.07] bg-white/[0.03] p-7">
+                  <h3 className="mb-6 text-center font-serif text-[22px] font-light text-white">Notifications</h3>
+                  <div className="space-y-2">
+                    {([
+                      ['New collection drops', 'new_collections'],
+                      ['Editorial picks', 'editorial_picks'],
+                      ['Breaking fashion news', 'breaking_news'],
+                    ] as [string, string][]).map(([label, key]) => (
+                      <label
+                        key={key}
+                        className="flex cursor-pointer items-center justify-between gap-4 rounded-[14px] border border-white/[0.07] px-4 py-3 transition-colors hover:border-white/[0.12]"
+                      >
+                        <span className="text-[11px] text-white/62">{label}</span>
+                        <div className="relative shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={notifications[key as keyof typeof notifications]}
+                            onChange={() => handleToggle(key)}
+                            className="peer sr-only"
+                          />
+                          <div className="h-[22px] w-[42px] rounded-full bg-white/[0.09] transition-colors peer-checked:bg-white/[0.45]" />
+                          <div className="absolute left-[3px] top-[3px] h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-5" />
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] border border-white/[0.07] bg-white/[0.03] p-7 text-center">
+                  <h3 className="font-serif text-[22px] font-light text-white">Account</h3>
+                  <button
+                    onClick={handleChangePassword}
+                    className="rounded-full border border-white/[0.14] px-7 py-2.5 text-[8px] uppercase tracking-[0.3em] text-[#D4C9B8] transition-all hover:border-white/[0.24] hover:bg-white/[0.06]"
+                  >
+                    Change password
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="text-[8px] uppercase tracking-[0.26em] text-red-400 transition-colors hover:text-red-300"
+                  >
+                    Delete account
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+      </div>
     </div>
   )
 }
+

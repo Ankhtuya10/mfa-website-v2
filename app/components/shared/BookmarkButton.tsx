@@ -8,14 +8,17 @@ import { createClient } from '@/lib/supabase/client'
 interface BookmarkButtonProps {
   id: string
   type: 'article' | 'look' | 'designer'
+  variant?: 'default' | 'dark'
 }
 
-export function BookmarkButton({ id, type }: BookmarkButtonProps) {
+export function BookmarkButton({ id, type, variant = 'default' }: BookmarkButtonProps) {
   const supabase = useMemo(() => createClient(), [])
   const storageKey = `anoce_saved_${type}_${id}`
   const [isSaved, setIsSaved] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+
+  const isDark = variant === 'dark'
 
   useEffect(() => {
     let active = true
@@ -149,7 +152,11 @@ export function BookmarkButton({ id, type }: BookmarkButtonProps) {
       disabled={isSaving}
       aria-pressed={isSaved}
       aria-label={isSaved ? `Remove saved ${type}` : `Save ${type}`}
-      className="relative p-2 transition-colors hover:bg-black/5 disabled:cursor-wait disabled:opacity-60"
+      className={`relative p-2 transition-colors hover:bg-black/5 disabled:cursor-wait disabled:opacity-60 ${
+        isDark 
+          ? 'rounded-full border border-white/20 bg-black/20 text-white/70 hover:text-white hover:border-white/40' 
+          : ''
+      }`}
     >
       <motion.div
         animate={showFeedback ? { scale: [1, 1.3, 1] } : {}}
@@ -157,7 +164,13 @@ export function BookmarkButton({ id, type }: BookmarkButtonProps) {
       >
         <Heart
           className={`h-5 w-5 transition-colors ${
-            isSaved ? 'fill-[#B7AEA9] text-[#B7AEA9]' : 'text-[rgba(0,0,0,0.3)]'
+            isSaved 
+              ? isDark 
+                ? 'fill-white text-white' 
+                : 'fill-[#B7AEA9] text-[#B7AEA9]'
+              : isDark 
+                ? 'text-white/50' 
+                : 'text-[rgba(0,0,0,0.3)]'
           }`}
         />
       </motion.div>

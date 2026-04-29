@@ -3,11 +3,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createContentRepository } from '@/lib/couchdb/repository';
 
-const frames = [
+interface CollectionFrame {
+  id: string;
+  frameId: string;
+  tag: string;
+  title: string;
+  image: string;
+  href: string;
+}
+
+const fallbackFrames: CollectionFrame[] = [
   {
-    id: 1,
+    id: '1',
     frameId: '01',
     tag: 'Contemporary Interpretations',
     title: "Spring '26 Lookbook",
@@ -15,7 +25,7 @@ const frames = [
     href: '/archive/gobi-ss2025',
   },
   {
-    id: 2,
+    id: '2',
     frameId: '02',
     tag: 'Premium Cashmere',
     title: 'FW 2025 - Gobi',
@@ -23,7 +33,7 @@ const frames = [
     href: '/archive/gobi-fw2025',
   },
   {
-    id: 3,
+    id: '3',
     frameId: '03',
     tag: 'Hand-Crafted Luxury',
     title: 'SS 2025 - Goyol',
@@ -31,7 +41,7 @@ const frames = [
     href: '/archive/goyol-ss2025',
   },
   {
-    id: 4,
+    id: '4',
     frameId: '04',
     tag: 'Timeless Meets Contemporary',
     title: 'Emerging - Michel&Amazonka',
@@ -48,7 +58,7 @@ const CollectionTile = ({
   onEnter,
   onLeave,
 }: {
-  frame: (typeof frames)[number];
+  frame: CollectionFrame;
   featured?: boolean;
   className?: string;
   dimmed: boolean;
@@ -85,12 +95,72 @@ const CollectionTile = ({
 );
 
 export const CollectionsGrid = () => {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [frames, setFrames] = useState<CollectionFrame[]>(fallbackFrames);
+  const [loading, setLoading] = useState(true);
 
-  const isDimmed = (id: number) => hoveredId !== null && hoveredId !== id;
+  useEffect(() => {
+    async function fetchCollections() {
+      try {
+        console.log('Fetching collections from CouchDB...');
+        const repo = createContentRepository();
+        const collections = await repo.getCollections();
+        console.log('Collections found:', collections.length);
+        
+        if (collections.length > 0) {
+          const collectionFrames = collections.slice(0, 4).map((col, idx) => ({
+            id: col.id,
+            frameId: String(idx + 1).padStart(2, '0'),
+            tag: `${col.designer_name || 'Designer'} ${col.season || ''} ${col.year || ''}`.trim(),
+            title: col.title || 'Untitled',
+            image: col.cover_image || col.coverImage || fallbackFrames[idx]?.image || '',
+            href: `/archive/${col.slug}`,
+          }));
+          setFrames(collectionFrames);
+        }
+      } catch (err) {
+        console.error('Error fetching collections:', err);
+        // Keep using fallbackFrames on error
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCollections();
+  }, []);
+
+  const isDimmed = (id: string) => hoveredId !== null && hoveredId !== id;
+
+  if (loading) {
+    return (
+      <section className="safe-shell relative flex h-full w-full flex-col overflow-hidden bg-[#EEE9E1] pb-6 pt-[128px] md:pt-[136px]">
+        <div className="mb-6 flex shrink-0 flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="mb-2 block font-sans text-[10px] tracking-[0.32em] uppercase text-[#7F756A]">
+              Featured Collections
+            </span>
+            <h2 className="font-serif text-4xl leading-none text-[#1E1B18] md:text-5xl">
+              Latest Collections
+            </h2>
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 animate-pulse rounded-[22px] border border-black/10 bg-[#15120F] p-3 md:p-4">
+          <div className="grid h-full min-h-0 grid-cols-1 gap-3 md:grid-cols-4 md:grid-rows-2 md:gap-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="aspect-[4/5] rounded-[18px] bg-white/5" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (frames.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="relative flex h-full w-full flex-col overflow-hidden bg-[#EEE9E1] px-5 pb-6 pt-[128px] md:px-8 md:pt-[136px] lg:px-10">
+    <section className="safe-shell relative flex h-full w-full flex-col overflow-hidden bg-[#EEE9E1] pb-6 pt-[128px] md:pt-[136px]">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}

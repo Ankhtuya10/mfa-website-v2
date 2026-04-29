@@ -23,7 +23,7 @@ export const DiscoverSection = () => {
 
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="relative z-10 flex h-full w-full items-center justify-center px-8">
+      <div className="safe-shell relative z-10 flex h-full w-full items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

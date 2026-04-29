@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { StickyNavbar, Footer } from '@/app/components'
 import { EmptyState } from '@/app/components/shared/EmptyState'
+import { getCollections } from '@/lib/supabase/queries'
 
 const canonicalSeasons = ['SS', 'FW', 'Pre-Fall', 'Resort'] as const
 const archiveFallbackImage =
@@ -170,16 +171,7 @@ export default function ArchivePage() {
   useEffect(() => {
     async function fetchCollections() {
       try {
-        const { createClient } = await import('@/lib/supabase/client')
-        const supabase = createClient()
-
-        const { data, error } = await supabase
-          .from('collections')
-          .select('*, looks(materials, tags)')
-          .order('year', { ascending: false })
-
-        if (error) throw error
-        setCollections(data || [])
+        setCollections(await getCollections())
       } catch {
         setCollections([])
       } finally {
@@ -325,7 +317,13 @@ export default function ArchivePage() {
           <div className="absolute inset-0 bg-black/58" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.5)_62%,rgba(0,0,0,0.86)_100%)]" />
 
-          <div className="relative z-10 flex h-full items-center justify-center px-6 pt-24 md:px-10">
+          <div
+            className="relative z-10 flex h-full items-center justify-center pt-24"
+            style={{
+              paddingLeft: 'var(--safe-edge-x)',
+              paddingRight: 'var(--safe-edge-x)',
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -347,7 +345,15 @@ export default function ArchivePage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_74%_12%,rgba(212,201,184,0.055),transparent_30%),radial-gradient(circle_at_18%_88%,rgba(116,86,58,0.055),transparent_32%)]" />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.025),transparent_22%,rgba(0,0,0,0.28))]" />
 
-          <div className="absolute bottom-4 left-8 right-8 top-[92px] z-10 grid min-h-0 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-4 md:left-10 md:right-10 md:top-[104px] lg:left-12 lg:right-10 lg:top-[96px] lg:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-1">
+          <div
+            className="absolute z-10 grid min-h-0 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-4 lg:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-1"
+            style={{
+              left: 'var(--safe-edge-x)',
+              right: 'var(--safe-edge-x)',
+              top: 'calc(84px + var(--safe-edge-y))',
+              bottom: 'calc(var(--safe-edge-y) + 6px)',
+            }}
+          >
             <aside className="flex min-h-0 max-h-[30vh] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.035] shadow-[0_24px_90px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:max-h-none">
               <div className="shrink-0 border-b border-white/[0.07] px-8 py-5">
                 <span className="mb-2 block pl-1 font-sans text-[10px] tracking-[0.24em] uppercase text-white/38">

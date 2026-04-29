@@ -63,7 +63,7 @@ function FilterPill({
 function SearchResultCard({ item, query, onClose }: { item: SearchResultItem; query: string; onClose: () => void }) {
   return (
     <Link href={item.href} onClick={onClose} className="group block h-full min-w-0">
-      <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.045] transition-all duration-300 hover:-translate-y-1 hover:border-white/22 hover:bg-white/[0.075]">
+      <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-[20px] border border-white/10 bg-white/[0.045] transition-all duration-300 hover:-translate-y-1 hover:border-white/22 hover:bg-white/[0.075]">
         <div className="relative aspect-[4/3] overflow-hidden bg-black">
           <Image
             src={item.image}
@@ -74,12 +74,12 @@ function SearchResultCard({ item, query, onClose }: { item: SearchResultItem; qu
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-black/10" />
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col p-4">
-          <p className="mb-2 truncate font-sans text-[9px] tracking-[0.2em] uppercase text-white/38">{item.meta}</p>
-          <h3 className="line-clamp-2 font-serif text-lg leading-[1.12] text-[#F5EFE7] md:text-xl">
+        <div className="flex min-h-0 flex-1 flex-col p-5">
+          <p className="mb-3 truncate font-sans text-[9px] tracking-[0.2em] uppercase text-white/38">{item.meta}</p>
+          <h3 className="line-clamp-2 font-sans text-[17px] leading-[1.15] text-[#F5EFE7]">
             {highlightMatch(item.title, query)}
           </h3>
-          <p className="mt-3 line-clamp-2 font-sans text-[13px] leading-[1.45] text-white/50">
+          <p className="mt-3 line-clamp-2 font-sans text-[12px] leading-[1.55] text-white/48">
             {highlightMatch(item.subtitle, query)}
           </p>
         </div>
@@ -99,6 +99,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     setSeasonFilter,
     deferredQuery,
     recentSearches,
+    removeRecentSearch,
     groupedResults,
     totalResults,
     showLiveResults,
@@ -159,17 +160,27 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(212,201,184,0.12),rgba(0,0,0,0.62)_42%,rgba(0,0,0,0.78)_100%)] backdrop-blur-2xl"
           />
 
-          <div className="pointer-events-none relative flex h-full w-full items-start justify-center px-3 py-5 md:px-8 md:pt-[7vh]">
+          <div
+            className="pointer-events-none relative flex h-full w-full items-start justify-center"
+            style={{
+              paddingLeft: 'var(--safe-edge-x)',
+              paddingRight: 'var(--safe-edge-x)',
+              // FIX: more top breathing room so the modal doesn't hug the edge
+              paddingTop: 'calc(var(--safe-edge-y) + 32px)',
+              paddingBottom: 'calc(var(--safe-edge-y) + 32px)',
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, y: 18, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.99 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="pointer-events-auto relative flex h-[calc(100vh-2.5rem)] max-h-[760px] w-full max-w-[72rem] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#0A0A0A]/72 shadow-[0_36px_140px_rgba(0,0,0,0.7)] backdrop-blur-2xl md:h-[78vh] md:rounded-[32px]"
+              className="pointer-events-auto relative flex h-full w-full max-w-[72rem] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#0A0A0A]/72 shadow-[0_36px_140px_rgba(0,0,0,0.7)] backdrop-blur-2xl md:rounded-[32px]"
             >
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_0%,rgba(212,201,184,0.12),transparent_34%),linear-gradient(135deg,rgba(255,255,255,0.06),transparent_28%,rgba(255,255,255,0.025))]" />
 
-              <div className="relative z-10 border-b border-white/10 px-4 py-4 md:px-7 md:py-5">
+              {/* Search bar */}
+              <div className="relative z-10 border-b border-white/10 px-7 py-6">
                 <div className="flex min-w-0 items-center gap-3">
                   <Search className="h-5 w-5 shrink-0 text-white/42" />
                   <input
@@ -177,7 +188,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Search cashmere, FW2025, emerald wool, Gobi..."
-                    className="h-11 min-w-0 flex-1 truncate bg-transparent font-serif text-xl leading-none text-white/92 outline-none placeholder:text-white/36 md:h-12 md:text-2xl"
+                    className="h-11 min-w-0 flex-1 truncate bg-transparent font-sans text-xl leading-none text-white/92 outline-none placeholder:text-white/36 md:h-12 md:text-2xl"
                   />
                   <button
                     type="button"
@@ -188,9 +199,11 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   </button>
                 </div>
 
-                <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <span className="mr-1 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Season</span>
+                {/* FIX: filters grouped together in one row with a divider, not split left/right */}
+                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+                  {/* Season group */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">Season</span>
                     {[
                       { label: 'All', value: 'all' },
                       { label: 'Current', value: 'current' },
@@ -206,8 +219,12 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     ))}
                   </div>
 
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <span className="mr-1 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Type</span>
+                  {/* Divider */}
+                  <div className="h-5 w-px bg-white/12" />
+
+                  {/* Type group */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">Type</span>
                     {categories.map((category) => (
                       <FilterPill
                         key={category}
@@ -221,41 +238,52 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 </div>
               </div>
 
-              <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 py-5 md:px-7 md:py-6">
-                <div className="grid gap-6 lg:grid-cols-12">
-                  <aside className="space-y-6 lg:col-span-4">
-                    <section className="rounded-[24px] border border-white/10 bg-white/[0.035] p-4">
-                      <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Recent</p>
+              {/* Body */}
+              <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-7 py-7">
+                <div className="grid gap-7 lg:grid-cols-12">
+
+                  {/* Sidebar — narrower so results get more room */}
+                  <aside className="space-y-5 lg:col-span-3">
+                    <section className="rounded-[20px] border border-white/10 bg-white/[0.035] p-5">
+                      <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">Recent</p>
                       {recentSearches.length > 0 ? (
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                           {recentSearches.slice(0, 5).map((item) => (
-                            <button
-                              key={item}
-                              type="button"
-                              onClick={() => setQuery(item)}
-                              className="flex w-full min-w-0 items-center gap-2 rounded-full px-3 py-2 text-left font-sans text-[13px] leading-none text-white/58 transition-all hover:bg-white/[0.07] hover:text-white/86"
-                            >
-                              <Clock3 className="h-[13px] w-[13px] shrink-0 text-white/38" />
-                              <span className="truncate">{item}</span>
-                            </button>
+                            <div key={item} className="group flex w-full min-w-0 items-center gap-2 rounded-full px-3 py-2 hover:bg-white/[0.07]">
+                              <button
+                                type="button"
+                                onClick={() => setQuery(item)}
+                                className="flex min-w-0 flex-1 items-center gap-2 text-left font-sans text-[13px] leading-none text-white/55 transition-all hover:text-white/86"
+                              >
+                                <Clock3 className="h-[13px] w-[13px] shrink-0 text-white/35" />
+                                <span className="truncate">{item}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeRecentSearch(item)}
+                                className="shrink-0 text-white/28 opacity-0 transition-all hover:text-white/86 group-hover:opacity-100"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="font-sans text-[13px] leading-relaxed text-white/42">
+                        <p className="font-sans text-[13px] leading-relaxed text-white/40">
                           Your recent searches will appear here.
                         </p>
                       )}
                     </section>
 
-                    <section className="rounded-[24px] border border-white/10 bg-white/[0.025] p-4">
-                      <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">Trending</p>
+                    <section className="rounded-[20px] border border-white/8 bg-white/[0.025] p-5">
+                      <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">Trending</p>
                       <div className="flex flex-wrap gap-2">
                         {TRENDING_TAGS.map((tag) => (
                           <button
                             key={tag}
                             type="button"
                             onClick={() => setQuery(tag)}
-                            className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 font-sans text-[10px] leading-none tracking-[0.14em] uppercase text-[#D4C9B8]/72 transition-all hover:border-white/22 hover:bg-white/[0.07] hover:text-white"
+                            className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 font-sans text-[10px] leading-none tracking-[0.14em] uppercase text-[#D4C9B8]/70 transition-all hover:border-white/22 hover:bg-white/[0.07] hover:text-white"
                           >
                             #{tag}
                           </button>
@@ -264,14 +292,15 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     </section>
                   </aside>
 
-                  <main className="min-w-0 lg:col-span-8">
-                    <div className="mb-4 flex items-end justify-between gap-4">
+                  {/* Results */}
+                  <main className="min-w-0 lg:col-span-9">
+                    <div className="mb-5 flex items-end justify-between gap-4">
                       <div>
-                        <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/42">
+                        <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">
                           {showLiveResults ? 'Top matches' : 'Featured'}
                         </p>
                         {showLiveResults && (
-                          <p className="mt-1 font-sans text-[13px] text-white/44">{totalResults} results in archive</p>
+                          <p className="mt-1 font-sans text-[13px] text-white/42">{totalResults} results in archive</p>
                         )}
                       </div>
                     </div>
@@ -307,9 +336,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     )}
 
                     {noResults && (
-                      <div className="rounded-[24px] border border-white/10 bg-white/[0.035] p-6 text-center md:p-8">
-                        <h3 className="font-serif text-2xl leading-tight text-white">No results for "{deferredQuery}"</h3>
-                        <p className="mt-2 font-sans text-[14px] leading-relaxed text-white/50">
+                      <div className="rounded-[20px] border border-white/10 bg-white/[0.035] p-6 text-center md:p-8">
+                        <h3 className="font-sans text-2xl leading-tight text-white">No results for "{deferredQuery}"</h3>
+                        <p className="mt-2 font-sans text-[14px] leading-relaxed text-white/48">
                           Try a material, season, designer, or collection name.
                         </p>
                         <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -327,6 +356,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                       </div>
                     )}
                   </main>
+
                 </div>
               </div>
             </motion.div>

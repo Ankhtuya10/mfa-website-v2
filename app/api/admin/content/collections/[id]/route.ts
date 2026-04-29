@@ -1,0 +1,57 @@
+import { NextResponse } from "next/server";
+import { requireContentAdmin } from "@/lib/admin/contentAuth";
+import { createContentRepository } from "@/lib/couchdb/repository";
+import { adminJsonError } from "../../utils";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireContentAdmin();
+  if (auth.response) return auth.response;
+
+  try {
+    const { id } = await context.params;
+    const collection = await createContentRepository().getCollectionById(id);
+    if (!collection) return NextResponse.json({ error: "Collection not found" }, { status: 404 });
+    return NextResponse.json(collection);
+  } catch (error) {
+    return adminJsonError(error);
+  }
+}
+
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireContentAdmin();
+  if (auth.response) return auth.response;
+
+  try {
+    const { id } = await context.params;
+    const body = (await request.json()) as Record<string, unknown>;
+    const collection = await createContentRepository().upsertCollection({ ...body, id });
+    return NextResponse.json(collection);
+  } catch (error) {
+    return adminJsonError(error);
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireContentAdmin();
+  if (auth.response) return auth.response;
+
+  try {
+    const { id } = await context.params;
+    const deleted = await createContentRepository().deleteCollection(id);
+    if (!deleted) return NextResponse.json({ error: "Collection not found" }, { status: 404 });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return adminJsonError(error);
+  }
+}

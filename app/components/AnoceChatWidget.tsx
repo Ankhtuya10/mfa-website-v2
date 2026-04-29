@@ -142,7 +142,13 @@ export function AnoceChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-4 right-3 z-[70] flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
+    <div
+      className="fixed z-[70] flex flex-col items-end gap-3"
+      style={{
+        right: 'var(--safe-edge-x)',
+        bottom: 'calc(var(--safe-edge-y) + 22px)',
+      }}
+    >
       <AnimatePresence>
         {isOpen && (
           <motion.section
@@ -151,7 +157,8 @@ export function AnoceChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 18, scale: 0.96 }}
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="flex h-[min(620px,calc(100vh-96px))] w-[calc(100vw-24px)] flex-col overflow-hidden rounded-lg border border-[#D8CABA]/20 bg-[#100D0B]/85 text-[#F7EFE4] shadow-[0_28px_90px_rgba(0,0,0,0.44)] backdrop-blur-2xl sm:w-[380px]"
+            className="flex h-[min(620px,calc(100vh-112px))] w-full max-w-[390px] flex-col overflow-hidden rounded-lg border border-[#D8CABA]/20 bg-[#100D0B]/85 text-[#F7EFE4] shadow-[0_28px_90px_rgba(0,0,0,0.44)] backdrop-blur-2xl"
+            style={{ maxWidth: 'min(390px, calc(100vw - (var(--safe-edge-x) * 2)))' }}
             aria-label="Anoce AI чат"
           >
             <div className="border-b border-[#D8CABA]/15 bg-white/[0.04] px-5 py-4">

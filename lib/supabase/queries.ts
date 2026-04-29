@@ -1,101 +1,78 @@
+'use client'
+
+import {
+  fetchContentArticle,
+  fetchContentArticles,
+  fetchContentCollection,
+  fetchContentCollections,
+  fetchContentDesigner,
+  fetchContentDesigners,
+} from '@/lib/content/client'
 import { createClient } from './client'
 
-const supabase = createClient()
+// Backwards-compatible content helpers. Content now comes from CouchDB APIs;
+// Supabase remains here only for user-specific bookmark data.
 
-// ── DESIGNERS ──
 export async function getDesigners(tier?: string) {
-  let query = supabase.from('designers').select('*').order('name')
-  if (tier && tier !== 'all') query = query.eq('tier', tier)
-  const { data, error } = await query
-  if (error) throw error
-  return data
+  return fetchContentDesigners(tier)
 }
 
 export async function getDesignerBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from('designers')
-    .select('*')
-    .eq('slug', slug)
-    .single()
-  if (error) throw error
-  return data
+  return fetchContentDesigner(slug)
 }
 
-// ── COLLECTIONS ──
 export async function getCollections(filters?: { season?: string; designerSlug?: string }) {
-  let query = supabase
-    .from('collections')
-    .select('*, looks(count)')
-    .order('year', { ascending: false })
-  if (filters?.season) query = query.eq('season', filters.season.slice(0, 2).toUpperCase())
-  if (filters?.designerSlug) query = query.eq('designer_slug', filters.designerSlug)
-  const { data, error } = await query
-  if (error) throw error
-  return data
+  return fetchContentCollections(filters)
 }
 
 export async function getCollectionBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from('collections')
-    .select('*, looks(*)')
-    .eq('slug', slug)
-    .single()
-  if (error) throw error
-  return data
+  return fetchContentCollection(slug)
 }
 
-// ── ARTICLES ──
 export async function getArticles(filters?: { category?: string; status?: string }) {
-  let query = supabase
-    .from('articles')
-    .select('*')
-    .order('published_at', { ascending: false })
-  if (filters?.category && filters.category !== 'all')
-    query = query.eq('category', filters.category)
-  if (filters?.status) query = query.eq('status', filters.status)
-  else query = query.eq('status', 'published')
-  const { data, error } = await query
-  if (error) throw error
-  return data
+  return fetchContentArticles(filters)
 }
 
 export async function getArticleBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('slug', slug)
-    .single()
-  if (error) throw error
-  return data
+  return fetchContentArticle(slug)
 }
 
-// ── ADMIN: all articles including drafts ──
 export async function getAllArticlesAdmin() {
-  const { data, error } = await supabase
-    .from('articles')
-    .select('*')
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data
+  const response = await fetch('/api/admin/content/articles', { cache: 'no-store' })
+  if (!response.ok) throw new Error('Failed to load admin articles')
+  return response.json()
 }
 
-// ── SEARCH ──
 export async function searchAll(query: string) {
-  const q = `%${query}%`
-  const [articlesRes, collectionsRes, designersRes] = await Promise.all([
-    supabase.from('articles').select('*').or(`title.ilike.${q},body.ilike.${q}`).eq('status', 'published').limit(6),
-    supabase.from('collections').select('*').or(`title.ilike.${q},description.ilike.${q},designer_name.ilike.${q}`).limit(6),
-    supabase.from('designers').select('*').or(`name.ilike.${q},bio.ilike.${q}`).limit(6),
+  const normalizedQuery = query.trim().toLowerCase()
+  const [articles, collections, designers] = await Promise.all([
+    getArticles({ status: 'published' }),
+    getCollections(),
+    getDesigners(),
   ])
+
+  const includes = (...values: unknown[]) =>
+    values
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+      .includes(normalizedQuery)
+
   return {
-    articles: articlesRes.data || [],
-    collections: collectionsRes.data || [],
-    designers: designersRes.data || [],
+    articles: articles
+      .filter((article: any) => includes(article.title, article.subtitle, article.body, ...(article.tags || [])))
+      .slice(0, 6),
+    collections: collections
+      .filter((collection: any) => includes(collection.title, collection.description, collection.designer_name))
+      .slice(0, 6),
+    designers: designers
+      .filter((designer: any) => includes(designer.name, designer.bio, designer.short_bio))
+      .slice(0, 6),
   }
 }
 
-// ── BOOKMARKS ──
 export async function toggleBookmark(userId: string, contentId: string, contentType: string) {
+  const supabase = createClient()
   const { data: existing } = await supabase
     .from('bookmarks')
     .select('id')
@@ -107,13 +84,14 @@ export async function toggleBookmark(userId: string, contentId: string, contentT
   if (existing) {
     await supabase.from('bookmarks').delete().eq('id', existing.id)
     return false
-  } else {
-    await supabase.from('bookmarks').insert({ user_id: userId, content_id: contentId, content_type: contentType })
-    return true
   }
+
+  await supabase.from('bookmarks').insert({ user_id: userId, content_id: contentId, content_type: contentType })
+  return true
 }
 
 export async function getUserBookmarks(userId: string) {
+  const supabase = createClient()
   const { data, error } = await supabase
     .from('bookmarks')
     .select('*')

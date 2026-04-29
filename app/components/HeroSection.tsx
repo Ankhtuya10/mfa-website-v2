@@ -82,7 +82,7 @@ export const HeroSection = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.42)_58%,rgba(0,0,0,0.78)_100%)]" />
         </motion.div>
 
-        <div className="relative z-10 flex h-full w-full items-center justify-center px-6 md:px-10">
+        <div className="safe-shell relative z-10 flex h-full w-full items-center justify-center">
           {/* Low-opacity glow integrates the center media into the background. */}
           <div
             className="pointer-events-none absolute top-1/2 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 blur-3xl"

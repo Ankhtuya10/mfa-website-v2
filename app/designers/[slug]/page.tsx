@@ -9,6 +9,7 @@ import { StickyNavbar, Footer } from '@/app/components'
 import { Breadcrumb } from '@/app/components/shared/Breadcrumb'
 import { CollectionCard } from '@/app/components/shared/CollectionCard'
 import { ArticleCard } from '@/app/components/shared/ArticleCard'
+import { FollowButton } from '@/app/components/shared/FollowButton'
 
 const tabs = ['Collections', 'Press', 'All Looks']
 
@@ -122,7 +123,7 @@ export default function DesignerPage({ params }: { params: Promise<{ slug: strin
                 animate="visible"
                 className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
               >
-                <div className="max-w-4xl">
+<div className="max-w-4xl">
                   <motion.span variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className={`inline-block px-3 py-1 font-sans text-[10px] tracking-[2px] uppercase mb-4 ${tierStyles[designer.tier]}`}>
                     {tierLabels[designer.tier]}
                   </motion.span>
@@ -132,6 +133,9 @@ export default function DesignerPage({ params }: { params: Promise<{ slug: strin
                   <motion.span variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className="font-sans text-[11px] tracking-[2px] uppercase text-white/60 mt-4 block">
                     Est. {designer.founded}
                   </motion.span>
+                  <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className="mt-6">
+                    <FollowButton designerId={designer.id} size="lg" />
+                  </motion.div>
                 </div>
               </motion.div>
             </div>

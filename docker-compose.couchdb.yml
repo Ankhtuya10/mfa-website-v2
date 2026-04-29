@@ -1,0 +1,15 @@
+services:
+  couchdb:
+    image: couchdb:3.3
+    container_name: anoce-couchdb
+    restart: unless-stopped
+    ports:
+      - "5984:5984"
+    environment:
+      COUCHDB_USER: anoce
+      COUCHDB_PASSWORD: "1234"
+    volumes:
+      - anoce_couchdb_data:/opt/couchdb/data
+
+volumes:
+  anoce_couchdb_data:

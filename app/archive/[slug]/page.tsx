@@ -119,8 +119,14 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           
-          <div className="absolute inset-0 flex items-end justify-center" style={{ paddingBottom: '60px' }}>
-            <div className="max-w-[95rem] mx-auto px-6 md:px-10 w-full">
+          <div
+            className="absolute inset-0 flex items-end justify-center"
+            style={{ paddingBottom: 'var(--safe-bottom-lift)' }}
+          >
+            <div
+              className="mx-auto w-full max-w-[95rem]"
+              style={{ paddingLeft: 'var(--safe-edge-x)', paddingRight: 'var(--safe-edge-x)' }}
+            >
               <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                 <div className="max-w-4xl">
                   <span className="font-sans text-[10px] tracking-[4.95px] uppercase text-white/70 block mb-2">
@@ -143,7 +149,10 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
 
         {/* Content */}
         <section className="snap-start min-h-screen w-full bg-[#F5F2ED]">
-          <div className="max-w-[95rem] mx-auto px-6 md:px-10 w-full">
+          <div
+            className="mx-auto w-full max-w-[95rem]"
+            style={{ paddingLeft: 'var(--safe-edge-x)', paddingRight: 'var(--safe-edge-x)' }}
+          >
             <Breadcrumb
               items={[
                 { label: 'Archive', href: '/archive' },
@@ -221,7 +230,10 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
         {/* More from designer */}
         {otherCollections.length > 0 && (
           <section className="snap-start min-h-screen py-16 bg-white flex items-center">
-            <div className="max-w-[95rem] mx-auto px-6 md:px-10 w-full">
+            <div
+              className="mx-auto w-full max-w-[95rem]"
+              style={{ paddingLeft: 'var(--safe-edge-x)', paddingRight: 'var(--safe-edge-x)' }}
+            >
               <h2 className="font-display text-2xl text-[#2A2522] mb-10">More from {collection.designer_name}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {otherCollections.map((col) => (
@@ -248,21 +260,24 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
           >
             <button
               onClick={closeLightbox}
-              className="absolute top-6 right-6 text-white p-3 hover:bg-white/10 transition-colors z-10"
+              className="absolute text-white p-3 hover:bg-white/10 transition-colors z-10"
+              style={{ top: 'var(--safe-edge-y)', right: 'var(--safe-edge-x)' }}
             >
               <X className="w-8 h-8" />
             </button>
 
             <button
               onClick={prevLook}
-              className="absolute left-6 text-white p-3 hover:bg-white/10 transition-colors"
+              className="absolute text-white p-3 hover:bg-white/10 transition-colors"
+              style={{ left: 'var(--safe-edge-x)' }}
             >
               <ChevronLeft className="w-10 h-10" />
             </button>
 
             <button
               onClick={nextLook}
-              className="absolute right-6 text-white p-3 hover:bg-white/10 transition-colors"
+              className="absolute text-white p-3 hover:bg-white/10 transition-colors"
+              style={{ right: 'var(--safe-edge-x)' }}
             >
               <ChevronRight className="w-10 h-10" />
             </button>

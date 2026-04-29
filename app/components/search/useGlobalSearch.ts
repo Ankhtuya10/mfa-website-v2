@@ -11,6 +11,16 @@ export const useGlobalSearch = () => {
   const [seasonFilter, setSeasonFilter] = useState<SeasonFilter>('all')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [recentSearches, setRecentSearches] = useState<string[]>([])
+
+  const removeRecentSearch = (itemToRemove: string) => {
+    setRecentSearches((previous) => {
+      const next = previous.filter((item) => item !== itemToRemove)
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(RECENT_HISTORY_KEY, JSON.stringify(next))
+      }
+      return next
+    })
+  }
   const [searchIndex, setSearchIndex] = useState<SearchResultItem[]>([])
 
   const deferredQuery = useDeferredValue(debouncedQuery)
@@ -94,6 +104,7 @@ export const useGlobalSearch = () => {
     setSeasonFilter,
     deferredQuery,
     recentSearches,
+    removeRecentSearch,
     rankedResults,
     groupedResults,
     activeResults,
