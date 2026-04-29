@@ -108,7 +108,7 @@ export function AnoceChatWidget() {
       }
 
       if (!response.ok) {
-        throw new Error(payload.error ?? 'Anoce AI түр хариу өгөх боломжгүй байна.')
+        throw new Error(payload.answer ?? payload.error ?? 'Anoce AI түр хариу өгөх боломжгүй байна.')
       }
 
       setMessages((current) => [

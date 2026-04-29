@@ -293,6 +293,10 @@ export async function buildAnoceRagContext(query: string, limit = DEFAULT_LIMIT)
   const documents = await searchAnoceRagDocuments(query, limit)
   if (documents.length === 0) return ''
 
+  return formatAnoceRagContext(documents)
+}
+
+export function formatAnoceRagContext(documents: AnoceRagDocumentRow[]) {
   return documents
     .map((document, index) =>
       [

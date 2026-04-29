@@ -4,7 +4,11 @@ import {
   ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN,
   buildAnoceChatPromptMn,
 } from '@/lib/ai/anoce-prompt.mn'
-import { buildAnoceRagContext } from '@/lib/supabase/rag'
+import {
+  formatAnoceRagContext,
+  searchAnoceRagDocuments,
+  type AnoceRagDocumentRow,
+} from '@/lib/supabase/rag'
 import { createClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
@@ -30,6 +34,18 @@ type GeminiAnswerResult = {
   answer: string
   finishReason: string | null
   usageMetadata?: GeminiResponse['usageMetadata']
+}
+
+type OllamaResponse = {
+  message?: {
+    content?: string
+  }
+  error?: string
+}
+
+type ModelAnswer = {
+  answer: string
+  provider: 'gemini' | 'ollama'
 }
 
 function getMessage(body: unknown) {
@@ -123,9 +139,78 @@ function buildAnswerGuidance(message: string) {
   ].join('\n')
 }
 
+function cleanFallbackExcerpt(content: string) {
+  return content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .find((line) => !/^Төрөл:|^Tags:|^Anoce URL:/i.test(line))
+    ?.replace(/\s+/g, ' ')
+    .slice(0, 180)
+}
+
+function buildArchiveFallbackAnswer(documents: AnoceRagDocumentRow[]) {
+  const topDocuments = documents.slice(0, 4)
+
+  if (topDocuments.length === 0) return ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
+
+  const lines = [
+    'AI model түр хариулах боломжгүй байгаа тул Anoce архивын context-оос шууд товчиллоо:',
+    '',
+    ...topDocuments.map((document, index) => {
+      const details = [
+        document.category,
+        document.brand_slug ? `брэнд: ${document.brand_slug}` : null,
+        document.url ? `URL: ${document.url}` : null,
+      ].filter(Boolean)
+
+      const excerpt = cleanFallbackExcerpt(document.content)
+
+      return [
+        `${index + 1}. ${document.title}`,
+        details.length ? `   ${details.join(' · ')}` : null,
+        excerpt ? `   ${excerpt}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n')
+    }),
+    '',
+    'Дээрх нь зөвхөн архивт олдсон бичлэгүүд дээр үндэслэсэн товч хариу.',
+  ]
+
+  return lines.join('\n')
+}
+
+function buildModelPrompt(message: string, context: string) {
+  return [
+    buildAnoceChatPromptMn(message, context),
+    '',
+    buildAnswerGuidance(message),
+  ].join('\n')
+}
+
 function looksIncomplete(answer: string) {
   if (!answer) return true
   return !/[.!?\u3002\uff1f\uff01]$/.test(answer.trim())
+}
+
+function getProviderOrder() {
+  const configuredProvider = process.env.ANOCE_AI_PROVIDER?.trim().toLowerCase()
+
+  if (configuredProvider === 'ollama' || configuredProvider === 'local') return ['ollama'] as const
+  if (configuredProvider === 'gemini' || configuredProvider === 'google') return ['gemini'] as const
+
+  return ['gemini', 'ollama'] as const
+}
+
+function getGeminiModelName() {
+  const configuredModel = process.env.GEMINI_MODEL?.trim()
+  if (!configuredModel) return 'gemini-2.5-flash'
+
+  return configuredModel
+    .replace(/^models\//i, '')
+    .toLowerCase()
+    .replace(/\s+/g, '-')
 }
 
 async function requestGeminiAnswer(prompt: string): Promise<GeminiAnswerResult> {
@@ -134,7 +219,7 @@ async function requestGeminiAnswer(prompt: string): Promise<GeminiAnswerResult> 
     return { answer: '', finishReason: null }
   }
 
-  const model = (process.env.GEMINI_MODEL ?? 'gemini-2.5-flash').replace(/^models\//, '')
+  const model = getGeminiModelName()
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
     model,
   )}:generateContent?key=${encodeURIComponent(apiKey)}`
@@ -218,6 +303,98 @@ async function generateGeminiAnswer(message: string, context: string) {
   return retryResult.answer || firstResult.answer || ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
 }
 
+function getOllamaBaseUrl() {
+  return (process.env.OLLAMA_BASE_URL?.trim() || 'http://127.0.0.1:11434').replace(/\/+$/, '')
+}
+
+function getOllamaModelName() {
+  return process.env.OLLAMA_MODEL?.trim() || 'qwen2.5:7b-instruct'
+}
+
+async function requestOllamaAnswer(prompt: string) {
+  const model = getOllamaModelName()
+  const endpoint = `${getOllamaBaseUrl()}/api/chat`
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    signal: AbortSignal.timeout(45_000),
+    body: JSON.stringify({
+      model,
+      stream: false,
+      messages: [
+        {
+          role: 'system',
+          content: ANOCE_CHATBOT_SYSTEM_PROMPT_MN,
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      options: {
+        temperature: 0.25,
+        top_p: 0.9,
+        num_predict: 900,
+      },
+    }),
+  })
+
+  const payload = (await response.json().catch(() => ({}))) as OllamaResponse
+
+  if (!response.ok) {
+    throw new Error(payload.error ?? `Ollama request failed with ${response.status}`)
+  }
+
+  return payload.message?.content?.trim() || ''
+}
+
+async function generateOllamaAnswer(message: string, context: string) {
+  const answer = await requestOllamaAnswer(buildModelPrompt(message, context))
+
+  if (!looksIncomplete(answer)) return answer
+
+  console.warn('Ollama answer looked incomplete; retrying with shorter prompt.')
+
+  const retryPrompt = [
+    buildAnoceChatPromptMn(message, context),
+    '',
+    '[IMPORTANT]',
+    'Өмнөх хариулт дутуу тасарсан байж магадгүй. Зөвхөн энэ context дээр үндэслээд хариултыг шинээр, маш товч, бүрэн өгүүлбэрээр дуусган бич.',
+    'Markdown bold/italic тэмдэглэгээ бүү ашигла.',
+    'Дээд тал нь 4 богино bullet ашигла.',
+  ].join('\n')
+
+  return (await requestOllamaAnswer(retryPrompt)) || answer || ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
+}
+
+async function generateModelAnswer(message: string, context: string): Promise<ModelAnswer | null> {
+  const providers = getProviderOrder()
+
+  for (const provider of providers) {
+    try {
+      if (provider === 'gemini') {
+        const answer = await generateGeminiAnswer(message, context)
+        if (answer) return { answer, provider }
+      }
+
+      if (provider === 'ollama') {
+        const answer = await generateOllamaAnswer(message, context)
+        if (answer) return { answer, provider }
+      }
+    } catch (error) {
+      console.warn(
+        `Anoce ${provider} generation failed:`,
+        error instanceof Error ? error.message : error,
+      )
+    }
+  }
+
+  return null
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient()
   const {
@@ -246,36 +423,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'message хэт урт байна.' }, { status: 400 })
   }
 
-  const context = await buildAnoceRagContext(message, 10)
+  const documents = await searchAnoceRagDocuments(message, 10)
 
-  if (!context) {
+  if (documents.length === 0) {
     return NextResponse.json({
       answer: ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN,
       usedAI: false,
     })
   }
 
-  try {
-    const answer = await generateGeminiAnswer(message, context)
+  const context = formatAnoceRagContext(documents)
 
-    if (!answer) {
+  try {
+    const modelAnswer = await generateModelAnswer(message, context)
+
+    if (!modelAnswer) {
       return NextResponse.json({
-        answer:
-          'Gemini API түлхүүр тохируулаагүй байна. Anoce архивын холбогдох context олдсон боловч AI хариулт одоогоор идэвхгүй байна.',
+        answer: buildArchiveFallbackAnswer(documents),
         usedAI: false,
       })
     }
 
-    return NextResponse.json({ answer, usedAI: true })
+    return NextResponse.json({
+      answer: modelAnswer.answer,
+      usedAI: true,
+      provider: modelAnswer.provider,
+    })
   } catch (error) {
     console.error('Anoce chatbot generation failed:', error)
 
-    return NextResponse.json(
-      {
-        answer: 'Anoce AI хариулт үүсгэх үед алдаа гарлаа. Түр дараа дахин оролдоно уу.',
-        usedAI: false,
-      },
-      { status: 502 },
-    )
+    return NextResponse.json({
+      answer: buildArchiveFallbackAnswer(documents),
+      usedAI: false,
+    })
   }
 }
