@@ -1,13 +1,45 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
-import { Button } from './shared';
+import { fetchContentCollections } from "@/lib/content/client";
+import { Button } from "./shared";
 
-const VIDEO_URL = 'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennieklunklun.mp4';
+const VIDEO_URL =
+  "https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennieklunklun.mp4";
+
+const FALLBACK_LABEL = "New Collection";
+const FALLBACK_DESCRIPTION =
+  "Timeless design rooted in the Mongolian steppe, refined for modern living.";
+
+type Collection = {
+  season: string;
+  year: number;
+  description?: string;
+};
 
 export const DiscoverSection = () => {
+  const [collection, setCollection] = useState<Collection | null>(null);
+
+  useEffect(() => {
+    fetchContentCollections()
+      .then((collections) => {
+        if (collections.length > 0) {
+          setCollection(collections[0]);
+        }
+      })
+      .catch(() => {
+        // silently keep the fallback values on error
+      });
+  }, []);
+
+  const label = collection
+    ? `${collection.season} ${collection.year}`
+    : FALLBACK_LABEL;
+  const description = collection?.description ?? FALLBACK_DESCRIPTION;
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       <video
@@ -32,7 +64,7 @@ export const DiscoverSection = () => {
           className="flex w-full max-w-4xl flex-col items-center text-center"
         >
           <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-white/70">
-            Spring Collection 2026
+            {label}
           </span>
 
           <div className="relative z-20 mb-8 px-2">
@@ -40,8 +72,8 @@ export const DiscoverSection = () => {
               <span
                 className="block bg-gradient-to-b from-[#FCF6F0] via-[#F0E4D7] to-[#E2D4C6] bg-clip-text text-transparent"
                 style={{
-                  textShadow: '0 8px 32px rgba(255, 255, 255, 0.16)',
-                  WebkitTextStroke: '0.5px rgba(255,255,255,0.28)',
+                  textShadow: "0 8px 32px rgba(255, 255, 255, 0.16)",
+                  WebkitTextStroke: "0.5px rgba(255,255,255,0.28)",
                 }}
               >
                 Beauty of
@@ -49,8 +81,8 @@ export const DiscoverSection = () => {
               <span
                 className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
                 style={{
-                  textShadow: '0 10px 40px rgba(255, 255, 255, 0.2)',
-                  WebkitTextStroke: '0.6px rgba(255,255,255,0.24)',
+                  textShadow: "0 10px 40px rgba(255, 255, 255, 0.2)",
+                  WebkitTextStroke: "0.6px rgba(255,255,255,0.24)",
                 }}
               >
                 Mongolian
@@ -58,8 +90,8 @@ export const DiscoverSection = () => {
               <span
                 className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
                 style={{
-                  textShadow: '0 10px 40px rgba(255, 255, 255, 0.2)',
-                  WebkitTextStroke: '0.6px rgba(255,255,255,0.24)',
+                  textShadow: "0 10px 40px rgba(255, 255, 255, 0.2)",
+                  WebkitTextStroke: "0.6px rgba(255,255,255,0.24)",
                 }}
               >
                 Cashmere
@@ -68,7 +100,7 @@ export const DiscoverSection = () => {
           </div>
 
           <p className="mx-auto mb-10 max-w-2xl font-sans text-base font-normal leading-relaxed text-white/82 [text-shadow:0_6px_20px_rgba(0,0,0,0.22)] md:text-lg">
-            Timeless design rooted in the Mongolian steppe, refined for modern living.
+            {description}
           </p>
 
           <div className="relative z-10 flex items-center gap-5">
@@ -86,7 +118,7 @@ export const DiscoverSection = () => {
 
       <motion.div
         animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
       >
         <span className="font-sans text-[9px] uppercase tracking-[3.6px] text-[#F4EEE8]/76">

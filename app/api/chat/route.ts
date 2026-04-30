@@ -1,460 +1,428 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 import {
   ANOCE_CHATBOT_SYSTEM_PROMPT_MN,
   ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN,
   buildAnoceChatPromptMn,
-} from '@/lib/ai/anoce-prompt.mn'
+} from "@/lib/ai/anoce-prompt.mn";
+import {
+  searchLiveArchive,
+  formatLiveArchiveContext,
+} from "@/lib/couchdb/chatSearch";
 import {
   formatAnoceRagContext,
   searchAnoceRagDocuments,
   type AnoceRagDocumentRow,
-} from '@/lib/supabase/rag'
-import { createClient } from '@/lib/supabase/server'
+} from "@/lib/supabase/rag";
+import { createClient } from "@/lib/supabase/server";
 
-export const runtime = 'nodejs'
+export const runtime = "nodejs";
+
+// ─── types ────────────────────────────────────────────────────────────────────
 
 type GeminiResponse = {
   candidates?: Array<{
-    finishReason?: string
-    content?: {
-      parts?: Array<{ text?: string }>
-    }
-  }>
+    finishReason?: string;
+    content?: { parts?: Array<{ text?: string }> };
+  }>;
   usageMetadata?: {
-    thoughtsTokenCount?: number
-    candidatesTokenCount?: number
-    totalTokenCount?: number
-  }
-  error?: {
-    message?: string
-  }
-}
+    thoughtsTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+  };
+  error?: { message?: string };
+};
 
 type GeminiAnswerResult = {
-  answer: string
-  finishReason: string | null
-  usageMetadata?: GeminiResponse['usageMetadata']
-}
+  answer: string;
+  finishReason: string | null;
+  usageMetadata?: GeminiResponse["usageMetadata"];
+};
 
 type OllamaResponse = {
-  message?: {
-    content?: string
-  }
-  error?: string
-}
+  message?: { content?: string };
+  error?: string;
+};
 
 type ModelAnswer = {
-  answer: string
-  provider: 'gemini' | 'ollama'
-}
+  answer: string;
+  provider: "gemini" | "ollama";
+};
 
-function getMessage(body: unknown) {
-  if (!body || typeof body !== 'object' || !('message' in body)) return ''
-  const message = (body as { message?: unknown }).message
-  return typeof message === 'string' ? message.trim() : ''
+// ─── helpers ─────────────────────────────────────────────────────────────────
+
+function getMessage(body: unknown): string {
+  if (!body || typeof body !== "object" || !("message" in body)) return "";
+  const message = (body as { message?: unknown }).message;
+  return typeof message === "string" ? message.trim() : "";
 }
 
 function normalizeIntentText(value: string) {
   return value
-    .normalize('NFC')
+    .normalize("NFC")
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+    .replace(/[^\p{L}\p{N}\s-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function isTrendQuestion(message: string) {
-  const normalized = normalizeIntentText(message)
+  const n = normalizeIntentText(message);
   return (
-    /trend|trends|трэнд|чиг хандлага|чиглэл/.test(normalized) ||
-    (normalized.includes('fashion') && normalized.includes('одоо')) ||
-    (normalized.includes('загвар') && normalized.includes('одоо'))
-  )
+    /trend|trends|трэнд|чиг хандлага|чиглэл/.test(n) ||
+    (n.includes("fashion") && n.includes("одоо")) ||
+    (n.includes("загвар") && n.includes("одоо"))
+  );
 }
 
 function isCollectionQuestion(message: string) {
-  const normalized = normalizeIntentText(message)
+  const n = normalizeIntentText(message);
   return (
-    /\b(19|20)\d{2}\b/.test(normalized) ||
-    /collection|collections|цуглуулга|tsugluulga|look|show|үзүүл|харуул/.test(normalized) ||
-    /onii|oni|оны|он|havar|havriin|havriinh|хавар|хаврын|uvul|uvliin|өвөл|өвлийн|ss|fw/.test(normalized)
-  )
+    /\b(19|20)\d{2}\b/.test(n) ||
+    /collection|collections|цуглуулга|tsugluulga|look|show|үзүүл|харуул/.test(
+      n,
+    ) ||
+    /onii|oni|оны|он|havar|havriin|хавар|хаврын|uvul|uvliin|өвөл|өвлийн|ss|fw/.test(
+      n,
+    )
+  );
 }
 
 function buildAnswerGuidance(message: string) {
   if (isCollectionQuestion(message)) {
     return [
-      '[COLLECTION ANSWER FORMAT]',
-      'Хэрэглэгч collection, жил, улирал, look, эсвэл "show" маягийн асуулт асуусан бол context-оос зөвхөн тохирох archive_collection болон archive_look бичлэгүүдийг ашигла.',
-      'Хэрэв яг тохирох жил/улирал/сэдэв context-д байвал дараах бүтэцтэй хариул:',
-      '',
-      'Anoce архивт тохирох бичлэгүүд:',
-      '1. Collection name — Season Year',
-      '   Брэнд/эх сурвалж: ...',
-      '   Товч: ...',
-      '   URL: ...',
-      '',
-      'Онцлох looks:',
-      '- Look 1: ...',
-      '- Look 2: ...',
-      '',
-      'Хэрэв яг тохирох collection байхгүй боловч ойролцоо бичлэг байвал "яг энэ нөхцөлөөр бүртгэл олдсонгүй, ойролцоо нь:" гэж тодорхой хэл.',
-      'Context-д байхгүй collection, жил, брэнд, look бүү зохио.',
-      'Markdown bold/italic тэмдэглэгээ бүү ашигла.',
-    ].join('\n')
+      "[COLLECTION ANSWER FORMAT]",
+      "Хэрэглэгч collection, жил, улирал, look асуусан бол LIVE ARCHIVE-ийн тохирох цуглуулга, look-уудыг ашигла.",
+      "Дараах бүтэцтэй хариул:",
+      "  Цуглуулгын нэр — Season Year",
+      "  Дизайнер: ...",
+      "  Товч: ...",
+      "  URL: ...",
+      "Онцлох looks:",
+      "  - Look N: тайлбар (материал)",
+      "Context-д байхгүй collection, look, материал бүү зохио.",
+      "Markdown тэмдэглэгээ бүү ашигла.",
+    ].join("\n");
   }
-
   if (isTrendQuestion(message)) {
     return [
-      '[TREND ANSWER FORMAT]',
-      'Хэрэв context хангалттай бол яг ийм бүтэцтэй, бүрэн хариул:',
-      '"Товчоор хэлбэл, Anoce архивын өгөгдлөөс харахад Монгол fashion-д дараах чиглэлүүд давамгай байна:"',
-      '',
-      '1. Ноолуур ба luxury minimalism',
-      'Context-д байгаа ноолуур, minimal, premium basic, winter layering холбоосыг 1-2 өгүүлбэрээр тайлбарла.',
-      '',
-      '2. Дээлээс санаа авсан silhouette',
-      'Context-д байгаа дээл, heritage-modern, торго, ёслолын хувцасны холбоосыг тайлбарла.',
-      '',
-      '3. Ulaanbaatar streetwear',
-      'Context-д байгаа hoodie, denim, graphic, comfort fit, youth casualwear чиглэлийг тайлбарла.',
-      '',
-      '4. Custom / made-to-order загвар',
-      'Context-д байгаа custom sizing, made-to-order, boutique production холбоосыг тайлбарла.',
-      '',
-      'Холбоотой брэндүүд:',
-      '- Context-д нэрлэгдсэн брэндүүдээс 3-6-г л жагсаа.',
-      '',
-      'Context-д байхгүй брэнд, факт, тренд бүү нэм.',
-      'Markdown bold/italic тэмдэглэгээ бүү ашигла.',
-    ].join('\n')
+      "[TREND ANSWER FORMAT]",
+      "Монгол fashion-д давамгай чиглэлүүдийг context дээр үндэслэн тайлбарла.",
+      "LIVE ARCHIVE дахь нийтлэл, цуглуулгатай холбон хариул.",
+      "Context-д байхгүй брэнд, факт, тренд бүү нэм.",
+      "Markdown тэмдэглэгээ бүү ашигла.",
+    ].join("\n");
   }
-
   return [
-    '[RESPONSE STYLE]',
-    'Хариултыг 3-5 богино өгүүлбэр эсвэл bullet хэлбэрээр бүрэн дуусга.',
-    'Өгүүлбэрийг дундаас нь тасалж болохгүй.',
-    'Холбоотой Anoce URL context-д байвал богино зөвлөмж болгон дурд.',
-    'Markdown bold/italic тэмдэглэгээ бүү ашигла.',
-  ].join('\n')
+    "[RESPONSE STYLE]",
+    "Хариултыг 3-5 богино өгүүлбэр эсвэл bullet хэлбэрээр бүрэн дуусга.",
+    "Холбоотой Anoce URL байвал богино зөвлөмж болгон дурд.",
+    "Markdown тэмдэглэгээ бүү ашигла.",
+  ].join("\n");
 }
 
 function cleanFallbackExcerpt(content: string) {
   return content
-    .split('\n')
+    .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .find((line) => !/^Төрөл:|^Tags:|^Anoce URL:/i.test(line))
-    ?.replace(/\s+/g, ' ')
-    .slice(0, 180)
+    .find((line) => !/^(Төрөл:|Tags:|Anoce URL:|Type:|Category:)/i.test(line))
+    ?.replace(/\s+/g, " ")
+    .slice(0, 200);
 }
 
-function buildArchiveFallbackAnswer(documents: AnoceRagDocumentRow[]) {
-  const topDocuments = documents.slice(0, 4)
-
-  if (topDocuments.length === 0) return ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
-
+function buildFallbackAnswer(
+  liveResults: Awaited<ReturnType<typeof searchLiveArchive>>,
+  brandDocs: AnoceRagDocumentRow[],
+) {
   const lines = [
-    'AI model түр хариулах боломжгүй байгаа тул Anoce архивын context-оос шууд товчиллоо:',
-    '',
-    ...topDocuments.map((document, index) => {
-      const details = [
-        document.category,
-        document.brand_slug ? `брэнд: ${document.brand_slug}` : null,
-        document.url ? `URL: ${document.url}` : null,
-      ].filter(Boolean)
+    "AI model түр хариулах боломжгүй. Архивын өгөгдлөөс товчлоход:",
+  ];
 
-      const excerpt = cleanFallbackExcerpt(document.content)
+  if (liveResults.length > 0) {
+    lines.push("");
+    for (const [i, r] of liveResults.slice(0, 3).entries()) {
+      const firstLine = r.context.split("\n")[0] || "";
+      lines.push(`${i + 1}. ${firstLine}`);
+    }
+  }
 
-      return [
-        `${index + 1}. ${document.title}`,
-        details.length ? `   ${details.join(' · ')}` : null,
-        excerpt ? `   ${excerpt}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n')
-    }),
-    '',
-    'Дээрх нь зөвхөн архивт олдсон бичлэгүүд дээр үндэслэсэн товч хариу.',
-  ]
+  if (brandDocs.length > 0) {
+    lines.push("");
+    for (const [i, doc] of brandDocs.slice(0, 2).entries()) {
+      const excerpt = cleanFallbackExcerpt(doc.content);
+      lines.push(
+        `${liveResults.length + i + 1}. ${doc.title}${excerpt ? " — " + excerpt : ""}`,
+      );
+    }
+  }
 
-  return lines.join('\n')
-}
+  if (liveResults.length === 0 && brandDocs.length === 0) {
+    return ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN;
+  }
 
-function buildModelPrompt(message: string, context: string) {
-  return [
-    buildAnoceChatPromptMn(message, context),
-    '',
-    buildAnswerGuidance(message),
-  ].join('\n')
+  lines.push("", "Дээрх нь архивын бичлэгүүд дээр үндэслэсэн товч хариу.");
+  return lines.join("\n");
 }
 
 function looksIncomplete(answer: string) {
-  if (!answer) return true
-  return !/[.!?\u3002\uff1f\uff01]$/.test(answer.trim())
+  if (!answer) return true;
+  return !/[.!?\u3002\uff1f\uff01]$/.test(answer.trim());
 }
 
-function getProviderOrder() {
-  const configuredProvider = process.env.ANOCE_AI_PROVIDER?.trim().toLowerCase()
+// ─── provider helpers ─────────────────────────────────────────────────────────
 
-  if (configuredProvider === 'ollama' || configuredProvider === 'local') return ['ollama'] as const
-  if (configuredProvider === 'gemini' || configuredProvider === 'google') return ['gemini'] as const
-
-  return ['gemini', 'ollama'] as const
+function getProviderOrder(): Array<"gemini" | "ollama"> {
+  const p = process.env.ANOCE_AI_PROVIDER?.trim().toLowerCase();
+  if (p === "ollama" || p === "local") return ["ollama"];
+  if (p === "gemini" || p === "google") return ["gemini"];
+  return ["gemini", "ollama"];
 }
 
-function getGeminiModelName() {
-  const configuredModel = process.env.GEMINI_MODEL?.trim()
-  if (!configuredModel) return 'gemini-2.5-flash'
-
-  return configuredModel
-    .replace(/^models\//i, '')
+function getGeminiModel() {
+  return (process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash")
+    .replace(/^models\//i, "")
     .toLowerCase()
-    .replace(/\s+/g, '-')
+    .replace(/\s+/g, "-");
 }
 
-async function requestGeminiAnswer(prompt: string): Promise<GeminiAnswerResult> {
-  const apiKey = process.env.GEMINI_API_KEY?.trim()
-  if (!apiKey) {
-    return { answer: '', finishReason: null }
-  }
+// ─── Gemini ────────────────────────────────────────────────────────────────────
 
-  const model = getGeminiModelName()
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    model,
-  )}:generateContent?key=${encodeURIComponent(apiKey)}`
+async function requestGemini(prompt: string): Promise<GeminiAnswerResult> {
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  if (!apiKey) return { answer: "", finishReason: null };
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(getGeminiModel())}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: ANOCE_CHATBOT_SYSTEM_PROMPT_MN }],
-      },
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: prompt }],
-        },
-      ],
+      systemInstruction: { parts: [{ text: ANOCE_CHATBOT_SYSTEM_PROMPT_MN }] },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.25,
         topP: 0.9,
         maxOutputTokens: 2048,
-        thinkingConfig: {
-          thinkingBudget: 0,
-        },
+        thinkingConfig: { thinkingBudget: 0 },
       },
     }),
-  })
+  });
 
-  const payload = (await response.json()) as GeminiResponse
+  const payload = (await res.json()) as GeminiResponse;
+  if (!res.ok)
+    throw new Error(payload.error?.message ?? "Gemini request failed");
 
-  if (!response.ok) {
-    throw new Error(payload.error?.message ?? 'Gemini request failed')
-  }
-
-  const candidate = payload.candidates?.[0]
+  const candidate = payload.candidates?.[0];
   const answer = candidate?.content?.parts
-    ?.map((part) => part.text ?? '')
-    .join('')
-    .trim()
-
+    ?.map((p) => p.text ?? "")
+    .join("")
+    .trim();
   return {
     answer: answer || ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN,
     finishReason: candidate?.finishReason ?? null,
     usageMetadata: payload.usageMetadata,
-  }
+  };
 }
 
-async function generateGeminiAnswer(message: string, context: string) {
-  if (!process.env.GEMINI_API_KEY?.trim()) return null
+async function generateGemini(
+  message: string,
+  liveContext: string,
+  brandContext: string,
+) {
+  if (!process.env.GEMINI_API_KEY?.trim()) return null;
 
-  const basePrompt = [
-    buildAnoceChatPromptMn(message, context),
-    '',
+  const prompt = [
+    buildAnoceChatPromptMn(message, liveContext, brandContext),
+    "",
     buildAnswerGuidance(message),
-  ].join('\n')
+  ].join("\n");
+  const first = await requestGemini(prompt);
 
-  const firstResult = await requestGeminiAnswer(basePrompt)
-
-  if (firstResult.finishReason !== 'MAX_TOKENS' && !looksIncomplete(firstResult.answer)) {
-    return firstResult.answer
+  if (first.finishReason !== "MAX_TOKENS" && !looksIncomplete(first.answer)) {
+    return first.answer;
   }
 
-  console.warn('Gemini answer looked incomplete; retrying with shorter prompt.', {
-    finishReason: firstResult.finishReason,
-    usageMetadata: firstResult.usageMetadata,
-  })
-
+  console.warn("Gemini answer looked incomplete; retrying.");
   const retryPrompt = [
-    buildAnoceChatPromptMn(message, context),
-    '',
-    '[IMPORTANT]',
-    'Өмнөх хариулт дутуу тасарсан байж магадгүй. Зөвхөн энэ context дээр үндэслээд хариултыг шинээр, маш товч, бүрэн өгүүлбэрээр дуусган бич.',
-    'Markdown bold/italic тэмдэглэгээ бүү ашигла.',
-    'Дээд тал нь 4 богино bullet ашигла.',
+    buildAnoceChatPromptMn(message, liveContext, brandContext),
+    "",
+    "[IMPORTANT] Өмнөх хариулт дутуу тасарсан. Маш товч, бүрэн өгүүлбэрээр дуусган бич. Дээд тал нь 4 bullet.",
     buildAnswerGuidance(message),
-  ].join('\n')
+  ].join("\n");
 
-  const retryResult = await requestGeminiAnswer(retryPrompt)
-  return retryResult.answer || firstResult.answer || ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
+  const retry = await requestGemini(retryPrompt);
+  return retry.answer || first.answer || ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN;
 }
 
-function getOllamaBaseUrl() {
-  return (process.env.OLLAMA_BASE_URL?.trim() || 'http://127.0.0.1:11434').replace(/\/+$/, '')
-}
+// ─── Ollama ───────────────────────────────────────────────────────────────────
 
-function getOllamaModelName() {
-  return process.env.OLLAMA_MODEL?.trim() || 'qwen2.5:7b-instruct'
-}
+async function requestOllama(prompt: string): Promise<string> {
+  const baseUrl = (
+    process.env.OLLAMA_BASE_URL?.trim() || "http://127.0.0.1:11434"
+  ).replace(/\/+$/, "");
+  const model = process.env.OLLAMA_MODEL?.trim() || "qwen2.5:7b-instruct";
 
-async function requestOllamaAnswer(prompt: string) {
-  const model = getOllamaModelName()
-  const endpoint = `${getOllamaBaseUrl()}/api/chat`
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  const res = await fetch(`${baseUrl}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     signal: AbortSignal.timeout(45_000),
     body: JSON.stringify({
       model,
       stream: false,
       messages: [
-        {
-          role: 'system',
-          content: ANOCE_CHATBOT_SYSTEM_PROMPT_MN,
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
+        { role: "system", content: ANOCE_CHATBOT_SYSTEM_PROMPT_MN },
+        { role: "user", content: prompt },
       ],
-      options: {
-        temperature: 0.25,
-        top_p: 0.9,
-        num_predict: 900,
-      },
+      options: { temperature: 0.25, top_p: 0.9, num_predict: 900 },
     }),
-  })
+  });
 
-  const payload = (await response.json().catch(() => ({}))) as OllamaResponse
-
-  if (!response.ok) {
-    throw new Error(payload.error ?? `Ollama request failed with ${response.status}`)
-  }
-
-  return payload.message?.content?.trim() || ''
+  const payload = (await res.json().catch(() => ({}))) as OllamaResponse;
+  if (!res.ok)
+    throw new Error(payload.error ?? `Ollama failed with ${res.status}`);
+  return payload.message?.content?.trim() || "";
 }
 
-async function generateOllamaAnswer(message: string, context: string) {
-  const answer = await requestOllamaAnswer(buildModelPrompt(message, context))
+async function generateOllama(
+  message: string,
+  liveContext: string,
+  brandContext: string,
+) {
+  const prompt = [
+    buildAnoceChatPromptMn(message, liveContext, brandContext),
+    "",
+    buildAnswerGuidance(message),
+  ].join("\n");
+  const answer = await requestOllama(prompt);
 
-  if (!looksIncomplete(answer)) return answer
+  if (!looksIncomplete(answer)) return answer;
 
-  console.warn('Ollama answer looked incomplete; retrying with shorter prompt.')
-
+  console.warn("Ollama answer looked incomplete; retrying.");
   const retryPrompt = [
-    buildAnoceChatPromptMn(message, context),
-    '',
-    '[IMPORTANT]',
-    'Өмнөх хариулт дутуу тасарсан байж магадгүй. Зөвхөн энэ context дээр үндэслээд хариултыг шинээр, маш товч, бүрэн өгүүлбэрээр дуусган бич.',
-    'Markdown bold/italic тэмдэглэгээ бүү ашигла.',
-    'Дээд тал нь 4 богино bullet ашигла.',
-  ].join('\n')
+    buildAnoceChatPromptMn(message, liveContext, brandContext),
+    "",
+    "[IMPORTANT] Өмнөх хариулт дутуу. Маш товч, бүрэн өгүүлбэрээр дуусган бич. Дээд тал нь 4 bullet.",
+  ].join("\n");
 
-  return (await requestOllamaAnswer(retryPrompt)) || answer || ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
+  return (
+    (await requestOllama(retryPrompt)) ||
+    answer ||
+    ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
+  );
 }
 
-async function generateModelAnswer(message: string, context: string): Promise<ModelAnswer | null> {
-  const providers = getProviderOrder()
+// ─── orchestrator ─────────────────────────────────────────────────────────────
 
-  for (const provider of providers) {
+async function generateAnswer(
+  message: string,
+  liveContext: string,
+  brandContext: string,
+): Promise<ModelAnswer | null> {
+  for (const provider of getProviderOrder()) {
     try {
-      if (provider === 'gemini') {
-        const answer = await generateGeminiAnswer(message, context)
-        if (answer) return { answer, provider }
+      if (provider === "gemini") {
+        const answer = await generateGemini(message, liveContext, brandContext);
+        if (answer) return { answer, provider };
       }
-
-      if (provider === 'ollama') {
-        const answer = await generateOllamaAnswer(message, context)
-        if (answer) return { answer, provider }
+      if (provider === "ollama") {
+        const answer = await generateOllama(message, liveContext, brandContext);
+        if (answer) return { answer, provider };
       }
-    } catch (error) {
+    } catch (err) {
       console.warn(
-        `Anoce ${provider} generation failed:`,
-        error instanceof Error ? error.message : error,
-      )
+        `Anoce ${provider} failed:`,
+        err instanceof Error ? err.message : err,
+      );
     }
   }
-
-  return null
+  return null;
 }
 
+// ─── route ────────────────────────────────────────────────────────────────────
+
 export async function POST(request: Request) {
-  const supabase = await createClient()
+  // Auth check
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-
+  } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Anoce AI чат ашиглахын тулд нэвтэрнэ үү.' }, { status: 401 })
+    return NextResponse.json(
+      { error: "Anoce AI чат ашиглахын тулд нэвтэрнэ үү." },
+      { status: 401 },
+    );
   }
 
-  let body: unknown
-
+  // Parse body
+  let body: unknown;
   try {
-    body = await request.json()
+    body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON body буруу байна.' }, { status: 400 })
+    return NextResponse.json(
+      { error: "JSON body буруу байна." },
+      { status: 400 },
+    );
   }
 
-  const message = getMessage(body)
+  const message = getMessage(body);
+  if (!message)
+    return NextResponse.json(
+      { error: "message талбар заавал хэрэгтэй." },
+      { status: 400 },
+    );
+  if (message.length > 2000)
+    return NextResponse.json(
+      { error: "message хэт урт байна." },
+      { status: 400 },
+    );
 
-  if (!message) {
-    return NextResponse.json({ error: 'message талбар заавал хэрэгтэй.' }, { status: 400 })
-  }
+  // ── Search both sources in parallel ──────────────────────────────────────
+  const [liveResults, brandDocs] = await Promise.all([
+    // 1. Live CouchDB archive — always fresh
+    searchLiveArchive(message, 8).catch((err) => {
+      console.warn("Live archive search failed:", err);
+      return [];
+    }),
+    // 2. Supabase brand/trend knowledge — static curated data
+    searchAnoceRagDocuments(message, 6).catch(() => []),
+  ]);
 
-  if (message.length > 2000) {
-    return NextResponse.json({ error: 'message хэт урт байна.' }, { status: 400 })
-  }
+  const liveContext = formatLiveArchiveContext(liveResults);
+  const brandContext = formatAnoceRagContext(brandDocs);
 
-  const documents = await searchAnoceRagDocuments(message, 10)
-
-  if (documents.length === 0) {
+  // If neither source found anything, return early
+  if (!liveContext && !brandContext) {
     return NextResponse.json({
       answer: ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN,
       usedAI: false,
-    })
+    });
   }
 
-  const context = formatAnoceRagContext(documents)
-
+  // ── Generate answer ───────────────────────────────────────────────────────
   try {
-    const modelAnswer = await generateModelAnswer(message, context)
+    const result = await generateAnswer(message, liveContext, brandContext);
 
-    if (!modelAnswer) {
+    if (!result) {
       return NextResponse.json({
-        answer: buildArchiveFallbackAnswer(documents),
+        answer: buildFallbackAnswer(liveResults, brandDocs),
         usedAI: false,
-      })
+      });
     }
 
     return NextResponse.json({
-      answer: modelAnswer.answer,
+      answer: result.answer,
       usedAI: true,
-      provider: modelAnswer.provider,
-    })
-  } catch (error) {
-    console.error('Anoce chatbot generation failed:', error)
-
+      provider: result.provider,
+      sources: {
+        liveArchive: liveResults.length,
+        brandKnowledge: brandDocs.length,
+      },
+    });
+  } catch (err) {
+    console.error("Anoce chatbot error:", err);
     return NextResponse.json({
-      answer: buildArchiveFallbackAnswer(documents),
+      answer: buildFallbackAnswer(liveResults, brandDocs),
       usedAI: false,
-    })
+    });
   }
 }

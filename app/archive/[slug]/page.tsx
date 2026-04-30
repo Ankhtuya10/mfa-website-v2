@@ -1,79 +1,89 @@
-'use client'
+"use client";
 
-import { use } from 'react'
-import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
-import { getCollectionBySlug, getCollections } from '@/lib/supabase/queries'
-import { StickyNavbar, Footer } from '@/app/components'
-import { Breadcrumb } from '@/app/components/shared/Breadcrumb'
-import { CollectionCard } from '@/app/components/shared/CollectionCard'
-import { BookmarkButton } from '@/app/components/shared/BookmarkButton'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
-import Link from 'next/link'
+import { use } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { getCollectionBySlug, getCollections } from "@/lib/supabase/queries";
+import { StickyNavbar, Footer } from "@/app/components";
+import { Breadcrumb } from "@/app/components/shared/Breadcrumb";
+import { CollectionCard } from "@/app/components/shared/CollectionCard";
+import { BookmarkButton } from "@/app/components/shared/BookmarkButton";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 interface Collection {
-  id: string
-  slug: string
-  title: string
-  designer_id: string
-  designer_name: string
-  designer_slug: string
-  season: string
-  year: number
-  description: string
-  cover_image: string
+  id: string;
+  slug: string;
+  title: string;
+  designer_id: string;
+  designer_name: string;
+  designer_slug: string;
+  season: string;
+  year: number;
+  description: string;
+  cover_image: string;
   looks: Array<{
-    id: string
-    number: number
-    image: string
-    description: string
-    materials: string[]
-  }>
+    id: string;
+    number: number;
+    image: string;
+    description: string;
+    materials: string[];
+  }>;
 }
 
-export default function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params)
-  const [collection, setCollection] = useState<Collection | null>(null)
-  const [otherCollections, setOtherCollections] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [lightboxOpen, setLightboxOpen] = useState(false)
-  const [currentLookIndex, setCurrentLookIndex] = useState(0)
+export default function CollectionPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const [otherCollections, setOtherCollections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentLookIndex, setCurrentLookIndex] = useState(0);
 
   useEffect(() => {
     async function loadData() {
       try {
         const [colData, allColsData] = await Promise.all([
           getCollectionBySlug(slug),
-          getCollections()
-        ])
-        
+          getCollections(),
+        ]);
+
         if (colData) {
-          setCollection(colData as Collection)
-          const others = (allColsData || []).filter(
-            (c: any) => c.designer_slug === (colData as any).designer_slug && c.id !== (colData as any).id
-          ).slice(0, 3)
-          setOtherCollections(others)
+          setCollection(colData as Collection);
+          const others = (allColsData || [])
+            .filter(
+              (c: any) =>
+                c.designer_slug === (colData as any).designer_slug &&
+                c.id !== (colData as any).id,
+            )
+            .slice(0, 3);
+          setOtherCollections(others);
         }
       } catch (err) {
-        console.error('Error loading collection:', err)
+        console.error("Error loading collection:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    loadData()
-  }, [slug])
+    loadData();
+  }, [slug]);
 
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen justify-between bg-[#F5F2ED]">
         <StickyNavbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-pulse font-sans text-[#B7AEA9]">Loading...</div>
+          <div className="animate-pulse font-sans text-[#B7AEA9]">
+            Loading...
+          </div>
         </div>
         <Footer />
       </div>
-    )
+    );
   }
 
   if (!collection) {
@@ -81,27 +91,33 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
       <div className="flex flex-col min-h-screen justify-between bg-[#F5F2ED]">
         <StickyNavbar />
         <div className="flex-1 flex items-center justify-center">
-          <h1 className="font-serif text-4xl text-[#2A2522]">Collection not found</h1>
+          <h1 className="font-serif text-4xl text-[#2A2522]">
+            Collection not found
+          </h1>
         </div>
         <Footer />
       </div>
-    )
+    );
   }
 
   const openLightbox = (index: number) => {
-    setCurrentLookIndex(index)
-    setLightboxOpen(true)
-  }
+    setCurrentLookIndex(index);
+    setLightboxOpen(true);
+  };
 
-  const closeLightbox = () => setLightboxOpen(false)
+  const closeLightbox = () => setLightboxOpen(false);
 
   const nextLook = () => {
-    setCurrentLookIndex((prev) => (prev + 1) % (collection.looks?.length || 1))
-  }
+    setCurrentLookIndex((prev) => (prev + 1) % (collection.looks?.length || 1));
+  };
 
   const prevLook = () => {
-    setCurrentLookIndex((prev) => (prev - 1 + (collection.looks?.length || 1)) % (collection.looks?.length || 1))
-  }
+    setCurrentLookIndex(
+      (prev) =>
+        (prev - 1 + (collection.looks?.length || 1)) %
+        (collection.looks?.length || 1),
+    );
+  };
 
   return (
     <div className="h-screen w-full overflow-hidden bg-[#F5F2ED]">
@@ -118,14 +134,17 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          
+
           <div
             className="absolute inset-0 flex items-end justify-center"
-            style={{ paddingBottom: 'var(--safe-bottom-lift)' }}
+            style={{ paddingBottom: "var(--safe-bottom-lift)" }}
           >
             <div
               className="mx-auto w-full max-w-[95rem]"
-              style={{ paddingLeft: 'var(--safe-edge-x)', paddingRight: 'var(--safe-edge-x)' }}
+              style={{
+                paddingLeft: "var(--safe-edge-x)",
+                paddingRight: "var(--safe-edge-x)",
+              }}
             >
               <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                 <div className="max-w-4xl">
@@ -135,13 +154,23 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
                   <h1 className="font-serif text-white text-5xl leading-[1.05] [overflow-wrap:anywhere] md:text-6xl">
                     {collection.title}
                   </h1>
-                  <Link href={`/designers/${collection.designer_slug}`} className="font-sans text-[13px] tracking-[3px] uppercase text-white/60 mt-2 block hover:text-white/80 transition-colors">
+                  <Link
+                    href={`/designers/${collection.designer_slug}`}
+                    className="font-sans text-[13px] tracking-[3px] uppercase text-white/60 mt-2 block hover:text-white/80 transition-colors"
+                  >
                     {collection.designer_name}
                   </Link>
                 </div>
-                <span className="shrink-0 font-sans text-[11px] tracking-[2px] uppercase text-white/60">
-                  {collection.looks?.length || 0} Looks
-                </span>
+                <div className="flex items-center gap-4">
+                  <span className="shrink-0 font-sans text-[11px] tracking-[2px] uppercase text-white/60">
+                    {collection.looks?.length || 0} Looks
+                  </span>
+                  <BookmarkButton
+                    id={collection.id}
+                    type="collection"
+                    variant="dark"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -151,13 +180,19 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
         <section className="snap-start min-h-screen w-full bg-[#F5F2ED]">
           <div
             className="mx-auto w-full max-w-[95rem]"
-            style={{ paddingLeft: 'var(--safe-edge-x)', paddingRight: 'var(--safe-edge-x)' }}
+            style={{
+              paddingLeft: "var(--safe-edge-x)",
+              paddingRight: "var(--safe-edge-x)",
+            }}
           >
             <Breadcrumb
               items={[
-                { label: 'Archive', href: '/archive' },
-                { label: `${collection.season} ${collection.year}`, href: '/archive' },
-                { label: collection.designer_name }
+                { label: "Archive", href: "/archive" },
+                {
+                  label: `${collection.season} ${collection.year}`,
+                  href: "/archive",
+                },
+                { label: collection.designer_name },
               ]}
             />
 
@@ -168,26 +203,45 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
                   <p className="font-inter text-[17px] leading-[1.85] text-[#3A3530] line-clamp-2">
                     {collection.description}
                   </p>
-                  <Link href={`/designers/${collection.designer_slug}`} className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] mt-4 inline-block hover:text-[#2A2522] transition-colors">
+                  <Link
+                    href={`/designers/${collection.designer_slug}`}
+                    className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] mt-4 inline-block hover:text-[#2A2522] transition-colors"
+                  >
                     View Designer Profile →
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
                   <div>
-                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Year</span>
-                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">{collection.year}</span>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
+                      Year
+                    </span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
+                      {collection.year}
+                    </span>
                   </div>
                   <div>
-                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Season</span>
-                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">{collection.season}</span>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
+                      Season
+                    </span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
+                      {collection.season}
+                    </span>
                   </div>
                   <div>
-                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Looks</span>
-                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">{collection.looks?.length || 0}</span>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
+                      Looks
+                    </span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
+                      {collection.looks?.length || 0}
+                    </span>
                   </div>
                   <div>
-                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">Material</span>
-                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">Cashmere</span>
+                    <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
+                      Material
+                    </span>
+                    <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
+                      Cashmere
+                    </span>
                   </div>
                 </div>
               </div>
@@ -232,9 +286,14 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
           <section className="snap-start min-h-screen py-16 bg-white flex items-center">
             <div
               className="mx-auto w-full max-w-[95rem]"
-              style={{ paddingLeft: 'var(--safe-edge-x)', paddingRight: 'var(--safe-edge-x)' }}
+              style={{
+                paddingLeft: "var(--safe-edge-x)",
+                paddingRight: "var(--safe-edge-x)",
+              }}
             >
-              <h2 className="font-display text-2xl text-[#2A2522] mb-10">More from {collection.designer_name}</h2>
+              <h2 className="font-display text-2xl text-[#2A2522] mb-10">
+                More from {collection.designer_name}
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {otherCollections.map((col) => (
                   <CollectionCard key={col.id} collection={col} />
@@ -261,7 +320,7 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
             <button
               onClick={closeLightbox}
               className="absolute text-white p-3 hover:bg-white/10 transition-colors z-10"
-              style={{ top: 'var(--safe-edge-y)', right: 'var(--safe-edge-x)' }}
+              style={{ top: "var(--safe-edge-y)", right: "var(--safe-edge-x)" }}
             >
               <X className="w-8 h-8" />
             </button>
@@ -269,7 +328,7 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
             <button
               onClick={prevLook}
               className="absolute text-white p-3 hover:bg-white/10 transition-colors"
-              style={{ left: 'var(--safe-edge-x)' }}
+              style={{ left: "var(--safe-edge-x)" }}
             >
               <ChevronLeft className="w-10 h-10" />
             </button>
@@ -277,7 +336,7 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
             <button
               onClick={nextLook}
               className="absolute text-white p-3 hover:bg-white/10 transition-colors"
-              style={{ right: 'var(--safe-edge-x)' }}
+              style={{ right: "var(--safe-edge-x)" }}
             >
               <ChevronRight className="w-10 h-10" />
             </button>
@@ -297,14 +356,21 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
                 <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#B7AEA9]">
                   Look {collection.looks[currentLookIndex].number}
                 </span>
-                <h3 className="font-serif text-xl mt-2 mb-4">{collection.title}</h3>
-                
+                <h3 className="font-serif text-xl mt-2 mb-4">
+                  {collection.title}
+                </h3>
+
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {collection.looks[currentLookIndex].materials.map((mat, i) => (
-                    <span key={i} className="px-3 py-1 bg-white/10 font-sans text-[10px] tracking-[1.5px] uppercase [overflow-wrap:anywhere]">
-                      {mat}
-                    </span>
-                  ))}
+                  {collection.looks[currentLookIndex].materials.map(
+                    (mat, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 bg-white/10 font-sans text-[10px] tracking-[1.5px] uppercase [overflow-wrap:anywhere]"
+                      >
+                        {mat}
+                      </span>
+                    ),
+                  )}
                 </div>
 
                 <p className="font-inter text-[13px] text-[#B7AEA9] leading-relaxed">
@@ -312,14 +378,16 @@ export default function CollectionPage({ params }: { params: Promise<{ slug: str
                 </p>
 
                 <div className="mt-6">
-                  <BookmarkButton id={collection.looks[currentLookIndex].id} type="look" />
+                  <BookmarkButton
+                    id={collection.looks[currentLookIndex].id}
+                    type="look"
+                  />
                 </div>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
-  )
+  );
 }

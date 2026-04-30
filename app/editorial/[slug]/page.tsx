@@ -1,212 +1,235 @@
-'use client'
+"use client";
 
-import { use, useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Footer, StickyNavbar } from '@/app/components'
-import { BookmarkButton } from '@/app/components/shared/BookmarkButton'
-import { SafeImage } from '@/app/components/shared/SafeImage'
-import Link from 'next/link'
-import { ChevronLeft, ChevronRight, X, ArrowRight } from 'lucide-react'
-import { getArticleBySlug, getArticles, getCollections, getDesignerBySlug } from '@/lib/supabase/queries'
+import { use, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Footer, StickyNavbar } from "@/app/components";
+import { BookmarkButton } from "@/app/components/shared/BookmarkButton";
+import { SafeImage } from "@/app/components/shared/SafeImage";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, X, ArrowRight } from "lucide-react";
+import {
+  getArticleBySlug,
+  getArticles,
+  getCollections,
+  getDesignerBySlug,
+} from "@/lib/supabase/queries";
 
 interface Article {
-  id: string
-  slug: string
-  title: string
-  subtitle: string
-  category: string
-  author: string
-  publishedAt: string
-  published_at?: string
-  coverImage: string
-  cover_image?: string
-  coverImageVertical?: string
-  cover_image_vertical?: string
-  designerSlug?: string
-  designer_slug?: string
-  tags: string[]
-  readTime: number
-  read_time?: number
-  body: string
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  category: string;
+  author: string;
+  publishedAt: string;
+  published_at?: string;
+  coverImage: string;
+  cover_image?: string;
+  coverImageVertical?: string;
+  cover_image_vertical?: string;
+  designerSlug?: string;
+  designer_slug?: string;
+  tags: string[];
+  readTime: number;
+  read_time?: number;
+  body: string;
   credits?: {
-    photographer?: string
-    stylist?: string
-    model?: string
-    creativeDirector?: string
-    location?: string
-    date?: string
-    equipment?: string
-  }
+    photographer?: string;
+    stylist?: string;
+    model?: string;
+    creativeDirector?: string;
+    location?: string;
+    date?: string;
+    equipment?: string;
+  };
   relatedLooks?: Array<{
-    lookId: string
-    lookNumber: number
-    image: string
-    collectionSlug: string
-    collectionName: string
-  }>
-  status: string
+    lookId: string;
+    lookNumber: number;
+    image: string;
+    collectionSlug: string;
+    collectionName: string;
+  }>;
+  status: string;
 }
 
 type FeaturedLook = {
-  lookId: string
-  lookNumber: number
-  image: string
-  collectionSlug: string
-  collectionName: string
-}
+  lookId: string;
+  lookNumber: number;
+  image: string;
+  collectionSlug: string;
+  collectionName: string;
+};
 
 const categoryColors: Record<string, string> = {
-  features: '#2A2522',
-  interviews: '#4A4038',
-  news: '#6B5D4D',
-  trends: '#8B7A68',
-}
-
-const articleFallbackImage =
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=1600&fit=crop'
+  features: "#2A2522",
+  interviews: "#4A4038",
+  news: "#6B5D4D",
+  trends: "#8B7A68",
+};
 
 const normalizeArticle = (
-  article: Partial<Article> & { [key: string]: unknown }
+  article: Partial<Article> & { [key: string]: unknown },
 ): Article => ({
-  id: String(article.id || ''),
-  slug: String(article.slug || ''),
-  title: String(article.title || ''),
-  subtitle: String(article.subtitle || ''),
-  category: String(article.category || 'features'),
-  author: String(article.author || ''),
-  publishedAt: String(article.publishedAt || article.published_at || ''),
-  published_at: typeof article.published_at === 'string' ? article.published_at : undefined,
-  coverImage: String(article.coverImage || article.cover_image || articleFallbackImage),
-  cover_image: typeof article.cover_image === 'string' ? article.cover_image : undefined,
+  id: String(article.id || ""),
+  slug: String(article.slug || ""),
+  title: String(article.title || ""),
+  subtitle: String(article.subtitle || ""),
+  category: String(article.category || "features"),
+  author: String(article.author || ""),
+  publishedAt: String(article.publishedAt || article.published_at || ""),
+  published_at:
+    typeof article.published_at === "string" ? article.published_at : undefined,
+  coverImage: String(article.coverImage || article.cover_image || ""),
+  cover_image:
+    typeof article.cover_image === "string" ? article.cover_image : undefined,
   coverImageVertical:
-    typeof article.coverImageVertical === 'string'
+    typeof article.coverImageVertical === "string"
       ? article.coverImageVertical
-      : typeof article.cover_image_vertical === 'string'
+      : typeof article.cover_image_vertical === "string"
         ? article.cover_image_vertical
         : undefined,
   cover_image_vertical:
-    typeof article.cover_image_vertical === 'string' ? article.cover_image_vertical : undefined,
+    typeof article.cover_image_vertical === "string"
+      ? article.cover_image_vertical
+      : undefined,
   designerSlug:
-    typeof article.designerSlug === 'string'
+    typeof article.designerSlug === "string"
       ? article.designerSlug
-      : typeof article.designer_slug === 'string'
+      : typeof article.designer_slug === "string"
         ? article.designer_slug
         : undefined,
-  designer_slug: typeof article.designer_slug === 'string' ? article.designer_slug : undefined,
+  designer_slug:
+    typeof article.designer_slug === "string"
+      ? article.designer_slug
+      : undefined,
   tags: Array.isArray(article.tags)
-    ? article.tags.filter((tag): tag is string => typeof tag === 'string')
+    ? article.tags.filter((tag): tag is string => typeof tag === "string")
     : [],
   readTime:
-    typeof article.readTime === 'number'
+    typeof article.readTime === "number"
       ? article.readTime
-      : typeof article.read_time === 'number'
+      : typeof article.read_time === "number"
         ? article.read_time
         : 5,
-  read_time: typeof article.read_time === 'number' ? article.read_time : undefined,
-  body: String(article.body || ''),
-  credits: article.credits as Article['credits'],
-  relatedLooks: article.relatedLooks as Article['relatedLooks'],
-  status: String(article.status || 'published'),
-})
+  read_time:
+    typeof article.read_time === "number" ? article.read_time : undefined,
+  body: String(article.body || ""),
+  credits: article.credits as Article["credits"],
+  relatedLooks: article.relatedLooks as Article["relatedLooks"],
+  status: String(article.status || "published"),
+});
 
-export default function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params)
-  const [article, setArticle] = useState<Article | null>(null)
-  const [relatedArticles, setRelatedArticles] = useState<Article[]>([])
-  const [designer, setDesigner] = useState<any>(null)
-  const [featuredLooks, setFeaturedLooks] = useState<FeaturedLook[]>([])
-  const [loading, setLoading] = useState(true)
-  const [lightboxOpen, setLightboxOpen] = useState(false)
-  const [currentLookIndex, setCurrentLookIndex] = useState(0)
+export default function ArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+  const [article, setArticle] = useState<Article | null>(null);
+  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
+  const [designer, setDesigner] = useState<any>(null);
+  const [featuredLooks, setFeaturedLooks] = useState<FeaturedLook[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentLookIndex, setCurrentLookIndex] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
       try {
         const [articleData, relatedData] = await Promise.all([
           getArticleBySlug(slug),
-          getArticles({ status: 'published' }),
-        ])
+          getArticles({ status: "published" }),
+        ]);
 
         if (articleData) {
-          const normalizedArticle = normalizeArticle(articleData as Record<string, unknown>)
-          setArticle(normalizedArticle)
+          const normalizedArticle = normalizeArticle(
+            articleData as Record<string, unknown>,
+          );
+          setArticle(normalizedArticle);
 
           const resolvedDesignerSlug =
-            normalizedArticle.designerSlug || normalizedArticle.designer_slug
+            normalizedArticle.designerSlug || normalizedArticle.designer_slug;
           if (resolvedDesignerSlug) {
             const [designerData, designerCollections] = await Promise.all([
               getDesignerBySlug(resolvedDesignerSlug).catch(() => null),
               getCollections({ designerSlug: resolvedDesignerSlug }),
-            ])
-            if (designerData) setDesigner(designerData)
+            ]);
+            if (designerData) setDesigner(designerData);
 
             const looks = (designerCollections || [])
               .flatMap((collection: any) =>
-                (Array.isArray(collection.looks) ? collection.looks : []).map((look: any) => ({
-                  lookId: String(look.id),
-                  lookNumber: Number(look.number) || 0,
-                  image: String(look.image || articleFallbackImage),
-                  collectionSlug: String(collection.slug || ''),
-                  collectionName: String(collection.title || 'Collection'),
-                }))
+                (Array.isArray(collection.looks) ? collection.looks : []).map(
+                  (look: any) => ({
+                    lookId: String(look.id),
+                    lookNumber: Number(look.number) || 0,
+                    image: String(look.image || ""),
+                    collectionSlug: String(collection.slug || ""),
+                    collectionName: String(collection.title || "Collection"),
+                  }),
+                ),
               )
               .filter((look) => look.lookId && look.collectionSlug)
-              .slice(0, 8)
+              .slice(0, 8);
 
-            setFeaturedLooks(looks)
+            setFeaturedLooks(looks);
           } else {
-            setFeaturedLooks([])
+            setFeaturedLooks([]);
           }
         } else {
-          setArticle(null)
-          setDesigner(null)
-          setFeaturedLooks([])
+          setArticle(null);
+          setDesigner(null);
+          setFeaturedLooks([]);
         }
 
-        const related = (relatedData || []).filter((item: any) => item.slug !== slug).slice(0, 3)
+        const related = (relatedData || [])
+          .filter((item: any) => item.slug !== slug)
+          .slice(0, 3);
         if (related.length > 0) {
           setRelatedArticles(
-            related.map((item: any) => normalizeArticle(item as Record<string, unknown>))
-          )
+            related.map((item: any) =>
+              normalizeArticle(item as Record<string, unknown>),
+            ),
+          );
         } else {
-          setRelatedArticles([])
+          setRelatedArticles([]);
         }
       } catch {
-        setArticle(null)
-        setRelatedArticles([])
-        setDesigner(null)
-        setFeaturedLooks([])
+        setArticle(null);
+        setRelatedArticles([]);
+        setDesigner(null);
+        setFeaturedLooks([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchData()
-  }, [slug])
+    fetchData();
+  }, [slug]);
 
   const openLightbox = (index: number) => {
-    setCurrentLookIndex(index)
-    setLightboxOpen(true)
-  }
-  const closeLightbox = () => setLightboxOpen(false)
+    setCurrentLookIndex(index);
+    setLightboxOpen(true);
+  };
+  const closeLightbox = () => setLightboxOpen(false);
   const nextLook = () =>
-    setCurrentLookIndex((previous) => (previous + 1) % featuredLooks.length)
+    setCurrentLookIndex((previous) => (previous + 1) % featuredLooks.length);
   const prevLook = () =>
     setCurrentLookIndex(
-      (previous) => (previous - 1 + featuredLooks.length) % featuredLooks.length
-    )
+      (previous) =>
+        (previous - 1 + featuredLooks.length) % featuredLooks.length,
+    );
 
   // keyboard nav for lightbox
   useEffect(() => {
-    if (!lightboxOpen) return
+    if (!lightboxOpen) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeLightbox()
-      if (e.key === 'ArrowRight') nextLook()
-      if (e.key === 'ArrowLeft') prevLook()
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [lightboxOpen, featuredLooks.length])
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") nextLook();
+      if (e.key === "ArrowLeft") prevLook();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxOpen, featuredLooks.length]);
 
   if (loading) {
     return (
@@ -220,7 +243,7 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
           </main>
         </div>
       </div>
-    )
+    );
   }
 
   if (!article) {
@@ -228,19 +251,23 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
         <h1 className="font-serif text-4xl text-white">Article not found</h1>
       </div>
-    )
+    );
   }
 
   const formattedDate = new Date(
-    article.publishedAt || article.published_at || '2026-03-15'
-  ).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    article.publishedAt || article.published_at || "2026-03-15",
+  ).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
-  const articleParagraphs = (article.body || '').split('\n\n').filter(Boolean)
+  const articleParagraphs = (article.body || "").split("\n\n").filter(Boolean);
   const pullQuote =
     articleParagraphs[0]?.slice(0, 140) ||
-    'Woven from the finest inner fleece of Mongolian goats, each piece carries the silence of the steppe.'
+    "Woven from the finest inner fleece of Mongolian goats, each piece carries the silence of the steppe.";
 
-  const currentLook = featuredLooks[currentLookIndex]
+  const currentLook = featuredLooks[currentLookIndex];
 
   return (
     <div className="h-screen w-full overflow-hidden bg-[#060606] p-2 sm:p-3">
@@ -248,17 +275,19 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
         <StickyNavbar />
 
         <main className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container pt-[72px] md:pt-[88px]">
-
           {/* ── HERO ── */}
           <section className="snap-start relative h-screen w-full overflow-hidden">
-            <SafeImage
-              src={article.coverImageVertical || article.coverImage || articleFallbackImage}
-              fallbackSrc={articleFallbackImage}
-              alt={article.title}
-              fill
-              className="object-cover"
-              priority
-            />
+            {article.coverImageVertical || article.coverImage ? (
+              <SafeImage
+                src={article.coverImageVertical || article.coverImage}
+                alt={article.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="absolute inset-0 bg-[#1A1714]" />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/35 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/78 via-[#0A0A0A]/10 to-transparent" />
 
@@ -280,8 +309,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                       <span
                         className="px-3 py-1.5 font-sans text-[10px] tracking-[0.25em] uppercase"
                         style={{
-                          backgroundColor: categoryColors[article.category] || '#2A2522',
-                          color: '#F5F2ED',
+                          backgroundColor:
+                            categoryColors[article.category] || "#2A2522",
+                          color: "#F5F2ED",
                         }}
                       >
                         {article.category}
@@ -299,16 +329,20 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                       {article.subtitle}
                     </p>
 
-                    <div className="mt-8 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-[11px] uppercase tracking-[0.18em] text-white/55">
+                    <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 font-sans text-[11px] uppercase tracking-[0.18em] text-white/55">
                       <span>By {article.author}</span>
                       <span className="h-1 w-1 rounded-full bg-white/35" />
                       <span>{formattedDate}</span>
+                      <span className="h-1 w-1 rounded-full bg-white/35" />
+                      <BookmarkButton
+                        id={article.id}
+                        type="article"
+                        variant="dark"
+                      />
                     </div>
                   </div>
 
-                  <div className="lg:col-span-4 lg:text-right">
-                    <BookmarkButton id={article.id} type="article" variant="dark" />
-                  </div>
+                  <div className="lg:col-span-4" />
                 </motion.div>
               </div>
             </div>
@@ -317,16 +351,18 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
           {/* ── COVER + CREDITS SPLIT ── */}
           <section className="snap-start relative h-screen w-full overflow-hidden bg-[#0A0A0A]">
             <div className="grid h-full grid-cols-1 lg:grid-cols-12">
-
               {/* image + credits */}
               <div className="relative min-h-[45vh] overflow-hidden lg:col-span-6 lg:min-h-0">
-                <SafeImage
-                  src={article.coverImage || article.coverImageVertical || articleFallbackImage}
-                  fallbackSrc={articleFallbackImage}
-                  alt={article.title}
-                  fill
-                  className="object-cover"
-                />
+                {article.coverImage || article.coverImageVertical ? (
+                  <SafeImage
+                    src={article.coverImage || article.coverImageVertical}
+                    alt={article.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[#1A1714]" />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/80 via-[#0A0A0A]/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
                   <div className="max-w-md border-t border-white/18 pt-4">
@@ -334,12 +370,23 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                       Credits
                     </p>
                     <div className="grid grid-cols-2 gap-x-8 gap-y-1.5 font-sans text-[11px] tracking-[0.08em] text-white/65">
-                      <span>Photo: {article.credits?.photographer || 'Batbayar'}</span>
-                      <span>Stylist: {article.credits?.stylist || 'Nomin'}</span>
-                      <span>Model: {article.credits?.model || 'Anu'}</span>
-                      <span>Creative Dir: {article.credits?.creativeDirector || 'Bold'}</span>
-                      <span>Location: {article.credits?.location || 'Ulaanbaatar'}</span>
-                      <span>Equipment: {article.credits?.equipment || '35mm Film'}</span>
+                      <span>
+                        Photo: {article.credits?.photographer || "Batbayar"}
+                      </span>
+                      <span>
+                        Stylist: {article.credits?.stylist || "Nomin"}
+                      </span>
+                      <span>Model: {article.credits?.model || "Anu"}</span>
+                      <span>
+                        Creative Dir:{" "}
+                        {article.credits?.creativeDirector || "Bold"}
+                      </span>
+                      <span>
+                        Location: {article.credits?.location || "Ulaanbaatar"}
+                      </span>
+                      <span>
+                        Equipment: {article.credits?.equipment || "35mm Film"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -371,7 +418,6 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                   )}
                 </div>
               </div>
-
             </div>
           </section>
 
@@ -384,7 +430,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="relative mx-auto max-w-4xl border-y border-white/10 py-14 text-center"
             >
-              <span className="font-serif text-7xl leading-none text-white/18 md:text-9xl">"</span>
+              <span className="font-serif text-7xl leading-none text-white/18 md:text-9xl">
+                "
+              </span>
               <blockquote className="-mt-10 mb-8 font-serif text-2xl leading-[1.36] text-white md:text-3xl lg:text-4xl">
                 {pullQuote}…
               </blockquote>
@@ -453,7 +501,6 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                         <div className="relative mb-4 min-h-0 flex-1 overflow-hidden rounded-[16px] border border-white/8">
                           <SafeImage
                             src={look.image}
-                            fallbackSrc={articleFallbackImage}
                             alt={`Look ${look.lookNumber}`}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-[1.045]"
@@ -488,7 +535,10 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
               </div>
 
               <div className="mt-6 shrink-0 text-center">
-                <Link href="/archive" className="group inline-flex items-center gap-2">
+                <Link
+                  href="/archive"
+                  className="group inline-flex items-center gap-2"
+                >
                   <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 transition-colors group-hover:text-white">
                     View All in Archive
                   </span>
@@ -503,13 +553,16 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
             <section className="snap-start relative h-screen w-full overflow-hidden border-t border-white/[0.06] bg-[#0F0D0B]">
               <div className="grid h-full grid-cols-1 lg:grid-cols-12">
                 <div className="relative min-h-[42vh] overflow-hidden lg:col-span-5 lg:min-h-0">
-                  <SafeImage
-                    src={designer.coverImage || designer.cover_image || articleFallbackImage}
-                    fallbackSrc={articleFallbackImage}
-                    alt={designer.name}
-                    fill
-                    className="object-cover"
-                  />
+                  {designer.coverImage || designer.cover_image ? (
+                    <SafeImage
+                      src={designer.coverImage || designer.cover_image}
+                      alt={designer.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[#1A1714]" />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0F0D0B]/72 via-transparent to-transparent" />
                 </div>
 
@@ -518,12 +571,17 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                     <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
                       Featured Designer
                     </span>
-                    <Link href={`/designers/${designer.slug}`} className="group block">
+                    <Link
+                      href={`/designers/${designer.slug}`}
+                      className="group block"
+                    >
                       <h2 className="mb-5 font-serif text-3xl leading-[1.08] text-white transition-colors group-hover:text-white/80 md:text-4xl lg:text-5xl">
                         {designer.name}
                       </h2>
                       <p className="mb-8 font-sans text-base leading-relaxed text-white/52 md:text-lg">
-                        {designer.shortBio || designer.short_bio || designer.bio?.slice(0, 200)}
+                        {designer.shortBio ||
+                          designer.short_bio ||
+                          designer.bio?.slice(0, 200)}
                       </p>
                       <div className="inline-flex items-center gap-2">
                         <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/58 transition-colors group-hover:text-white">
@@ -545,7 +603,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                 <span className="mb-3 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
                   Continue Reading
                 </span>
-                <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">Read Next</h2>
+                <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
+                  Read Next
+                </h2>
               </div>
 
               <div className="grid min-h-0 flex-1 grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
@@ -562,13 +622,16 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                       href={`/editorial/${item.slug}`}
                       className="group relative block h-full overflow-hidden rounded-[20px]"
                     >
-                      <SafeImage
-                        src={item.coverImage || item.cover_image || articleFallbackImage}
-                        fallbackSrc={articleFallbackImage}
-                        alt={item.title}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                      />
+                      {item.coverImage || item.cover_image ? (
+                        <SafeImage
+                          src={item.coverImage || item.cover_image}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-[#1A1714]" />
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/28 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-7">
                         <span className="mb-2 block font-sans text-[9px] tracking-[0.25em] uppercase text-white/45">
@@ -588,7 +651,6 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
           <div className="snap-start h-screen w-full">
             <Footer />
           </div>
-
         </main>
       </div>
 
@@ -645,7 +707,6 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
               >
                 <SafeImage
                   src={currentLook.image}
-                  fallbackSrc={articleFallbackImage}
                   alt={`Look ${currentLook.lookNumber}`}
                   width={800}
                   height={1200}
@@ -683,7 +744,9 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                           key={i}
                           onClick={() => setCurrentLookIndex(i)}
                           className={`h-0.5 flex-1 transition-all duration-300 ${
-                            i === currentLookIndex ? 'bg-white' : 'bg-white/20 hover:bg-white/40'
+                            i === currentLookIndex
+                              ? "bg-white"
+                              : "bg-white/20 hover:bg-white/40"
                           }`}
                         />
                       ))}
@@ -702,17 +765,19 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                     </Link>
 
                     <div className="pt-1">
-                      <BookmarkButton id={currentLook.lookId} type="look" variant="dark" />
+                      <BookmarkButton
+                        id={currentLook.lookId}
+                        type="look"
+                        variant="dark"
+                      />
                     </div>
                   </div>
                 </div>
               </motion.div>
             </div>
-
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
-  )
+  );
 }

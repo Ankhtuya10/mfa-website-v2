@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { createContentRepository } from '@/lib/couchdb/repository';
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { fetchContentCollections } from "@/lib/content/client";
 
 interface CollectionFrame {
   id: string;
@@ -15,45 +15,10 @@ interface CollectionFrame {
   href: string;
 }
 
-const fallbackFrames: CollectionFrame[] = [
-  {
-    id: '1',
-    frameId: '01',
-    tag: 'Contemporary Interpretations',
-    title: "Spring '26 Lookbook",
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=1200&fit=crop&q=80',
-    href: '/archive/gobi-ss2025',
-  },
-  {
-    id: '2',
-    frameId: '02',
-    tag: 'Premium Cashmere',
-    title: 'FW 2025 - Gobi',
-    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=800&fit=crop&q=80',
-    href: '/archive/gobi-fw2025',
-  },
-  {
-    id: '3',
-    frameId: '03',
-    tag: 'Hand-Crafted Luxury',
-    title: 'SS 2025 - Goyol',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=800&fit=crop&q=80',
-    href: '/archive/goyol-ss2025',
-  },
-  {
-    id: '4',
-    frameId: '04',
-    tag: 'Timeless Meets Contemporary',
-    title: 'Emerging - Michel&Amazonka',
-    image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=800&fit=crop&q=80',
-    href: '/archive/michel-amazonka-ss2025',
-  },
-];
-
 const CollectionTile = ({
   frame,
   featured = false,
-  className = '',
+  className = "",
   dimmed,
   onEnter,
   onLeave,
@@ -68,7 +33,7 @@ const CollectionTile = ({
   <Link
     href={frame.href}
     className={`group flex min-h-0 flex-col overflow-hidden rounded-[18px] border border-black/10 bg-[#111] transition-all duration-500 ${
-      dimmed ? 'opacity-45' : 'opacity-100'
+      dimmed ? "opacity-45" : "opacity-100"
     } ${className}`}
     onMouseEnter={onEnter}
     onMouseLeave={onLeave}
@@ -86,8 +51,12 @@ const CollectionTile = ({
       </span>
     </div>
     <div className="min-h-[6rem] border-t border-white/[0.08] bg-[#12100E] p-4 md:p-5">
-      <p className="mb-2 truncate font-sans text-[8px] tracking-[0.2em] uppercase text-white/48">{frame.tag}</p>
-      <h3 className={`line-clamp-2 font-serif leading-[1.08] text-white ${featured ? 'text-2xl' : 'text-xl'}`}>
+      <p className="mb-2 truncate font-sans text-[8px] tracking-[0.2em] uppercase text-white/48">
+        {frame.tag}
+      </p>
+      <h3
+        className={`line-clamp-2 font-serif leading-[1.08] text-white ${featured ? "text-2xl" : "text-xl"}`}
+      >
         {frame.title}
       </h3>
     </div>
@@ -96,31 +65,30 @@ const CollectionTile = ({
 
 export const CollectionsGrid = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [frames, setFrames] = useState<CollectionFrame[]>(fallbackFrames);
+  const [frames, setFrames] = useState<CollectionFrame[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchCollections() {
       try {
-        console.log('Fetching collections from CouchDB...');
-        const repo = createContentRepository();
-        const collections = await repo.getCollections();
-        console.log('Collections found:', collections.length);
-        
+        console.log("Fetching collections...");
+        const collections = await fetchContentCollections();
+        console.log("Collections found:", collections.length);
+
         if (collections.length > 0) {
           const collectionFrames = collections.slice(0, 4).map((col, idx) => ({
             id: col.id,
-            frameId: String(idx + 1).padStart(2, '0'),
-            tag: `${col.designer_name || 'Designer'} ${col.season || ''} ${col.year || ''}`.trim(),
-            title: col.title || 'Untitled',
-            image: col.cover_image || col.coverImage || fallbackFrames[idx]?.image || '',
+            frameId: String(idx + 1).padStart(2, "0"),
+            tag: `${col.designer_name || "Designer"} ${col.season || ""} ${col.year || ""}`.trim(),
+            title: col.title || "Untitled",
+            image: col.cover_image || col.coverImage || "",
             href: `/archive/${col.slug}`,
           }));
           setFrames(collectionFrames);
         }
       } catch (err) {
-        console.error('Error fetching collections:', err);
-        // Keep using fallbackFrames on error
+        console.error("Error fetching collections:", err);
+        setFrames([]);
       } finally {
         setLoading(false);
       }
@@ -215,7 +183,7 @@ export const CollectionsGrid = () => {
           <Link
             href="/archive"
             className={`group relative flex min-h-[14rem] items-center justify-center overflow-hidden rounded-[18px] border border-white/[0.08] bg-[#0D0B09] transition-all duration-500 ${
-              hoveredId ? 'opacity-55' : 'opacity-100'
+              hoveredId ? "opacity-55" : "opacity-100"
             }`}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,201,184,0.13),transparent_62%)]" />

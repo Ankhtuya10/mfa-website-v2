@@ -25,15 +25,6 @@ type SearchResultItem = {
   seasonLabel?: string;
 };
 
-const TRENDING_TAGS = [
-  "cashmere",
-  "fw2025",
-  "gobi",
-  "ulaanbaatar",
-  "wool",
-  "emerald",
-  "winter",
-];
 const RECENT_HISTORY_KEY = "anoce_explore_recent_searches";
 const SYNONYM_MAP: Record<string, string[]> = {
   winter: ["fw", "fall winter", "autumn winter", "fall/winter"],
@@ -93,9 +84,6 @@ const expandQueryTerms = (query: string) => {
 
   return Array.from(expanded);
 };
-
-const exploreSpotlightFallback =
-  "https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920&q=80";
 
 const scoreResult = (item: SearchResultItem, query: string) => {
   const normalizedQuery = normalizeText(query);
@@ -299,6 +287,20 @@ export default function ExplorePage() {
     [searchIndex],
   );
 
+  const trendingTags = useMemo(() => {
+    const freq = new Map<string, number>();
+    for (const item of searchIndex) {
+      for (const tag of item.tags) {
+        const t = tag.toLowerCase().trim();
+        if (t) freq.set(t, (freq.get(t) || 0) + 1);
+      }
+    }
+    return Array.from(freq.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([tag]) => tag);
+  }, [searchIndex]);
+
   const spotlightItem =
     spotlightItems[spotlightIndex % Math.max(spotlightItems.length, 1)];
 
@@ -362,13 +364,6 @@ export default function ExplorePage() {
       <main className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth snap-container pt-[72px] md:pt-[88px]">
         <section className="snap-start relative h-screen w-full overflow-hidden bg-[#0A0A0A]">
           <div className="absolute inset-0">
-            <Image
-              src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920&q=80"
-              alt="Explore background"
-              fill
-              className="object-cover opacity-30"
-              priority
-            />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(214,191,159,0.22),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(154,181,201,0.12),transparent_22%),linear-gradient(180deg,rgba(10,10,10,0.9)_0%,rgba(10,10,10,0.78)_45%,rgba(10,10,10,1)_100%)]" />
           </div>
           <div className="pointer-events-none absolute inset-0 opacity-[0.05]">
@@ -429,7 +424,7 @@ export default function ExplorePage() {
                 </div>
 
                 <div className="mt-8 flex max-w-4xl flex-wrap gap-3 pr-4">
-                  {TRENDING_TAGS.map((tag) => (
+                  {trendingTags.map((tag) => (
                     <button
                       key={tag}
                       onClick={() => setQuery(tag)}
@@ -452,12 +447,16 @@ export default function ExplorePage() {
                     className="overflow-hidden rounded-[36px] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.11),rgba(255,255,255,0.035))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.26)] backdrop-blur-2xl md:p-6"
                   >
                     <div className="relative aspect-[1.08/1] overflow-hidden rounded-[28px]">
-                      <Image
-                        src={spotlightItem?.image || exploreSpotlightFallback}
-                        alt={spotlightItem?.title || "Spotlight"}
-                        fill
-                        className="object-cover"
-                      />
+                      {spotlightItem?.image ? (
+                        <Image
+                          src={spotlightItem.image}
+                          alt={spotlightItem?.title || "Spotlight"}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-[#1A1714]" />
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
                     </div>
                     <div className="min-w-0 px-1 pt-5">

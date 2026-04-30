@@ -1,150 +1,156 @@
-'use client'
+"use client";
 
-import { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Heart } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Heart } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface BookmarkButtonProps {
-  id: string
-  type: 'article' | 'look' | 'designer'
-  variant?: 'default' | 'dark'
+  id: string;
+  type: "article" | "look" | "designer" | "collection";
+  variant?: "default" | "dark";
 }
 
-export function BookmarkButton({ id, type, variant = 'default' }: BookmarkButtonProps) {
-  const supabase = useMemo(() => createClient(), [])
-  const storageKey = `anoce_saved_${type}_${id}`
-  const [isSaved, setIsSaved] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [showFeedback, setShowFeedback] = useState(false)
+export function BookmarkButton({
+  id,
+  type,
+  variant = "default",
+}: BookmarkButtonProps) {
+  const supabase = useMemo(() => createClient(), []);
+  const storageKey = `anoce_saved_${type}_${id}`;
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
-  const isDark = variant === 'dark'
+  const isDark = variant === "dark";
 
   useEffect(() => {
-    let active = true
+    let active = true;
 
     async function loadSavedState() {
-      const localSaved = localStorage.getItem(storageKey) === 'true'
-      if (active) setIsSaved(localSaved)
+      const localSaved = localStorage.getItem(storageKey) === "true";
+      if (active) setIsSaved(localSaved);
 
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!active) return
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!active) return;
 
-        if (!user) return
+        if (!user) return;
 
         const { data: existingBookmark, error } = await supabase
-          .from('bookmarks')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('content_id', id)
-          .eq('content_type', type)
-          .maybeSingle()
+          .from("bookmarks")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("content_id", id)
+          .eq("content_type", type)
+          .maybeSingle();
 
-        if (error) throw error
-        if (!active) return
+        if (error) throw error;
+        if (!active) return;
 
         if (existingBookmark) {
-          setIsSaved(true)
-          localStorage.setItem(storageKey, 'true')
-          return
+          setIsSaved(true);
+          localStorage.setItem(storageKey, "true");
+          return;
         }
 
         if (localSaved) {
           const { error: insertError } = await supabase
-            .from('bookmarks')
+            .from("bookmarks")
             .upsert(
               {
                 user_id: user.id,
                 content_id: id,
                 content_type: type,
               },
-              { onConflict: 'user_id,content_id,content_type' }
-            )
+              { onConflict: "user_id,content_id,content_type" },
+            );
 
           if (!insertError) {
-            setIsSaved(true)
-            localStorage.setItem(storageKey, 'true')
-            return
+            setIsSaved(true);
+            localStorage.setItem(storageKey, "true");
+            return;
           }
         }
 
-        setIsSaved(false)
-        localStorage.removeItem(storageKey)
+        setIsSaved(false);
+        localStorage.removeItem(storageKey);
       } catch (error) {
-        console.error('Error loading bookmark state:', error)
-        if (active) setIsSaved(localSaved)
+        console.error("Error loading bookmark state:", error);
+        if (active) setIsSaved(localSaved);
       }
     }
 
-    loadSavedState()
+    loadSavedState();
 
     return () => {
-      active = false
-    }
-  }, [id, storageKey, supabase, type])
+      active = false;
+    };
+  }, [id, storageKey, supabase, type]);
 
   const toggle = async () => {
-    if (isSaving) return
+    if (isSaving) return;
 
-    const previousState = isSaved
-    const newState = !previousState
+    const previousState = isSaved;
+    const newState = !previousState;
 
-    setIsSaved(newState)
-    setIsSaving(true)
+    setIsSaved(newState);
+    setIsSaving(true);
 
     if (newState) {
-      setShowFeedback(true)
-      setTimeout(() => setShowFeedback(false), 500)
+      setShowFeedback(true);
+      setTimeout(() => setShowFeedback(false), 500);
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (user) {
         if (newState) {
-          const { error } = await supabase
-            .from('bookmarks')
-            .upsert(
-              {
-                user_id: user.id,
-                content_id: id,
-                content_type: type,
-              },
-              { onConflict: 'user_id,content_id,content_type' }
-            )
+          const { error } = await supabase.from("bookmarks").upsert(
+            {
+              user_id: user.id,
+              content_id: id,
+              content_type: type,
+            },
+            { onConflict: "user_id,content_id,content_type" },
+          );
 
-          if (error) throw error
+          if (error) throw error;
         } else {
           const { error } = await supabase
-            .from('bookmarks')
+            .from("bookmarks")
             .delete()
-            .eq('user_id', user.id)
-            .eq('content_id', id)
-            .eq('content_type', type)
+            .eq("user_id", user.id)
+            .eq("content_id", id)
+            .eq("content_type", type);
 
-          if (error) throw error
+          if (error) throw error;
         }
       }
 
       if (newState) {
-        localStorage.setItem(storageKey, 'true')
+        localStorage.setItem(storageKey, "true");
       } else {
-        localStorage.removeItem(storageKey)
+        localStorage.removeItem(storageKey);
       }
     } catch (error) {
-      console.error('Error updating bookmark:', error)
-      setIsSaved(previousState)
+      console.error("Error updating bookmark:", error);
+      setIsSaved(previousState);
 
       if (previousState) {
-        localStorage.setItem(storageKey, 'true')
+        localStorage.setItem(storageKey, "true");
       } else {
-        localStorage.removeItem(storageKey)
+        localStorage.removeItem(storageKey);
       }
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
     <button
@@ -153,9 +159,9 @@ export function BookmarkButton({ id, type, variant = 'default' }: BookmarkButton
       aria-pressed={isSaved}
       aria-label={isSaved ? `Remove saved ${type}` : `Save ${type}`}
       className={`relative p-2 transition-colors hover:bg-black/5 disabled:cursor-wait disabled:opacity-60 ${
-        isDark 
-          ? 'rounded-full border border-white/20 bg-black/20 text-white/70 hover:text-white hover:border-white/40' 
-          : ''
+        isDark
+          ? "rounded-full border border-white/20 bg-black/20 text-white/70 hover:text-white hover:border-white/40"
+          : ""
       }`}
     >
       <motion.div
@@ -164,16 +170,16 @@ export function BookmarkButton({ id, type, variant = 'default' }: BookmarkButton
       >
         <Heart
           className={`h-5 w-5 transition-colors ${
-            isSaved 
-              ? isDark 
-                ? 'fill-white text-white' 
-                : 'fill-[#B7AEA9] text-[#B7AEA9]'
-              : isDark 
-                ? 'text-white/50' 
-                : 'text-[rgba(0,0,0,0.3)]'
+            isSaved
+              ? isDark
+                ? "fill-white text-white"
+                : "fill-[#B7AEA9] text-[#B7AEA9]"
+              : isDark
+                ? "text-white/50"
+                : "text-[rgba(0,0,0,0.3)]"
           }`}
         />
       </motion.div>
     </button>
-  )
+  );
 }
