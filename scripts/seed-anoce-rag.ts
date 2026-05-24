@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
@@ -75,6 +75,11 @@ type LiveArticle = {
   tags: string[] | null;
   read_time: number | null;
   published_at: string | null;
+};
+
+type GeneratedRagCandidate = AnoceRagDocumentMn & {
+  verificationNotes?: string[];
+  needsManualReview?: boolean;
 };
 
 function parseEnvValue(value: string) {
@@ -242,6 +247,84 @@ function toAnoceRagDocumentRow(
       sourceDataset: "curated-mongolian-rag",
     },
   };
+}
+
+function isSourceConfidence(value: unknown): value is SourceConfidence {
+  return value === "high" || value === "medium" || value === "low";
+}
+
+function isGeneratedRagCandidate(value: unknown): value is GeneratedRagCandidate {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<GeneratedRagCandidate>;
+
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.type === "string" &&
+    typeof candidate.title === "string" &&
+    typeof candidate.content === "string" &&
+    isSourceConfidence(candidate.sourceConfidence) &&
+    typeof candidate.url === "string" &&
+    Boolean(candidate.metadata) &&
+    typeof candidate.metadata === "object"
+  );
+}
+
+function loadGeneratedRagCandidateRows(): AnoceRagDocumentRow[] {
+  const candidatesDir = path.resolve(process.cwd(), "generated/rag-candidates");
+  if (!existsSync(candidatesDir)) return [];
+
+  const rows: AnoceRagDocumentRow[] = [];
+  const filenames = readdirSync(candidatesDir)
+    .filter((filename) => filename.endsWith(".json"))
+    .sort();
+
+  for (const filename of filenames) {
+    const filePath = path.join(candidatesDir, filename);
+
+    try {
+      const parsed = JSON.parse(readFileSync(filePath, "utf8")) as unknown;
+      if (!isGeneratedRagCandidate(parsed)) {
+        console.warn(`Skipping invalid generated RAG candidate: ${filename}`);
+        continue;
+      }
+
+      const row = toAnoceRagDocumentRow({
+        id: parsed.id,
+        type: parsed.type,
+        title: parsed.title,
+        content: parsed.content,
+        sourceConfidence: parsed.sourceConfidence,
+        url: parsed.url,
+        sourceUrls: parsed.sourceUrls,
+        metadata: parsed.metadata,
+      });
+
+      row.metadata = {
+        ...row.metadata,
+        sourceDataset: "generated-rag-candidate",
+        generatedCandidateFile: filename,
+        verificationNotes: parsed.verificationNotes ?? [],
+        needsManualReview: parsed.needsManualReview ?? true,
+      };
+
+      row.tags = uniqueStrings([
+        row.tags,
+        "generated_rag_candidate",
+        parsed.verificationNotes,
+        parsed.needsManualReview ? "needs_manual_review" : "reviewed",
+      ]);
+
+      rows.push(row);
+    } catch (error) {
+      console.warn(
+        `Skipping generated RAG candidate ${filename}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
+
+  return rows;
 }
 
 function getMockDesignerBySlug(slug: string) {
@@ -845,10 +928,12 @@ async function main() {
   });
 
   const curatedRows = anoceRagDocumentsMn.map(toAnoceRagDocumentRow);
+  const generatedCandidateRows = loadGeneratedRagCandidateRows();
   const localArchiveRows = buildLocalArchiveRows();
   const liveArchiveRows = await fetchLiveArchiveRows(supabase);
   const rows = dedupeRows([
     ...curatedRows,
+    ...generatedCandidateRows,
     ...localArchiveRows,
     ...liveArchiveRows,
   ]);
@@ -870,6 +955,7 @@ async function main() {
     `Inserted/updated ${data?.length ?? rows.length} Anoce RAG rows.`,
   );
   console.log(`Curated Mongolian docs: ${curatedRows.length}`);
+  console.log(`Generated RAG candidate docs: ${generatedCandidateRows.length}`);
   console.log(`Local archive/demo docs: ${localArchiveRows.length}`);
   console.log(`Live Supabase archive docs: ${liveArchiveRows.length}`);
 }

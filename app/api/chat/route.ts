@@ -121,38 +121,93 @@ function buildAnswerGuidance(message: string) {
 }
 
 function cleanFallbackExcerpt(content: string) {
-  return content
+  const lines = content
     .split("\n")
     .map((line) => line.trim())
-    .filter(Boolean)
-    .find((line) => !/^(Төрөл:|Tags:|Anoce URL:|Type:|Category:)/i.test(line))
-    ?.replace(/\s+/g, " ")
-    .slice(0, 200);
+    .filter(Boolean);
+
+  const preferred = lines.find((line) =>
+    /^(Тайлбар:|Товч:|Товч танилцуулга:|Body excerpt:|Агуулга:|Bio:|Дэлгэрэнгүй:)/i.test(
+      line,
+    ),
+  );
+
+  const fallback = lines.find(
+    (line) =>
+      !/^(Төрөл:|Нэр:|Гарчиг:|Slug:|Tier:|Ангилал:|Байршил:|Итгэлцлийн түвшин:|Keyword:|Tags:|Anoce URL:|Type:|Category:|Document ID:|Source confidence:|Brand slug:|Он:|Улирал:)/i.test(
+        line,
+      ),
+  );
+
+  return (preferred ?? fallback)
+    ?.replace(
+      /^(Тайлбар:|Товч:|Товч танилцуулга:|Body excerpt:|Агуулга:|Bio:|Дэлгэрэнгүй:)\s*/i,
+      "",
+    )
+    .replace(/\s+/g, " ")
+    .slice(0, 260);
+}
+
+function cleanLiveTitle(context: string) {
+  return (
+    context
+      .split("\n")
+      .map((line) => line.trim())
+      .find(Boolean)
+      ?.replace(/^\[[^\]]+\]\s*/, "") || "Архивын бичлэг"
+  );
+}
+
+function cleanLiveExcerpt(context: string) {
+  const lines = context
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const labeled = lines.find((line) =>
+    /^(Тайлбар:|Дэд гарчиг:|Товч:|Дэлгэрэнгүй:|Агуулга:)/i.test(line),
+  );
+
+  if (labeled?.toLowerCase().startsWith("агуулга:")) {
+    const index = lines.indexOf(labeled);
+    return (lines[index + 1] || labeled)
+      .replace(/^Агуулга:\s*/i, "")
+      .replace(/\s+/g, " ")
+      .slice(0, 260);
+  }
+
+  return labeled
+    ?.replace(/^(Тайлбар:|Дэд гарчиг:|Товч:|Дэлгэрэнгүй:)\s*/i, "")
+    .replace(/\s+/g, " ")
+    .slice(0, 260);
+}
+
+function cleanLiveUrl(context: string) {
+  return context.match(/(?:Линк|Anoce URL):\s*(\S+)/i)?.[1];
 }
 
 function buildFallbackAnswer(
   liveResults: Awaited<ReturnType<typeof searchLiveArchive>>,
   brandDocs: AnoceRagDocumentRow[],
 ) {
-  const lines = [
-    "AI model түр хариулах боломжгүй. Архивын өгөгдлөөс товчлоход:",
-  ];
+  const lines = ["Anoce archive дээр үндэслэвэл:"];
 
   if (liveResults.length > 0) {
-    lines.push("");
-    for (const [i, r] of liveResults.slice(0, 3).entries()) {
-      const firstLine = r.context.split("\n")[0] || "";
-      lines.push(`${i + 1}. ${firstLine}`);
+    for (const r of liveResults.slice(0, 2)) {
+      const title = cleanLiveTitle(r.context);
+      const excerpt = cleanLiveExcerpt(r.context);
+      const url = cleanLiveUrl(r.context);
+      lines.push(
+        `- ${title}${excerpt ? `: ${excerpt}` : ""}${url ? ` (${url})` : ""}`,
+      );
     }
   }
 
   if (brandDocs.length > 0) {
-    lines.push("");
-    for (const [i, doc] of brandDocs.slice(0, 2).entries()) {
+    for (const doc of brandDocs.slice(0, 3)) {
       const excerpt = cleanFallbackExcerpt(doc.content);
-      lines.push(
-        `${liveResults.length + i + 1}. ${doc.title}${excerpt ? " — " + excerpt : ""}`,
-      );
+      const url = doc.url ? ` (${doc.url})` : "";
+      lines.push(`- ${doc.title}${excerpt ? `: ${excerpt}` : ""}${url}`);
     }
   }
 
@@ -160,7 +215,10 @@ function buildFallbackAnswer(
     return ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN;
   }
 
-  lines.push("", "Дээрх нь архивын бичлэгүүд дээр үндэслэсэн товч хариу.");
+  lines.push(
+    "",
+    "Эдгээр нь архивт байгаа context-оос шууд нэгтгэсэн товч хариу тул байхгүй баримт нэмээгүй.",
+  );
   return lines.join("\n");
 }
 
@@ -169,17 +227,40 @@ function looksIncomplete(answer: string) {
   return !/[.!?\u3002\uff1f\uff01]$/.test(answer.trim());
 }
 
+function cleanModelAnswer(answer: string) {
+  return answer
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/^[\s\S]*?\.\.\.done thinking\.\s*/i, "")
+    .replace(/^Thinking\.\.\.[\s\S]*?(?:\n\s*)/i, "")
+    .replace(/^\s*(Final answer:|Хариулт:)\s*/i, "")
+    .trim();
+}
+
+function looksLowQualityAnswer(answer: string) {
+  const words = answer
+    .toLowerCase()
+    .match(/[\p{L}\p{N}]{3,}/gu);
+  if (!words || words.length < 18) return false;
+
+  const counts = new Map<string, number>();
+  for (const word of words) counts.set(word, (counts.get(word) ?? 0) + 1);
+  const maxCount = Math.max(...counts.values());
+  const uniqueRatio = counts.size / words.length;
+
+  return maxCount >= 6 || uniqueRatio < 0.35;
+}
+
 // ─── provider helpers ─────────────────────────────────────────────────────────
 
 function getProviderOrder(): Array<"gemini" | "ollama"> {
   const p = process.env.ANOCE_AI_PROVIDER?.trim().toLowerCase();
-  if (p === "ollama" || p === "local") return ["ollama"];
+  if (p === "ollama" || p === "local" || p === "gemma") return ["ollama"];
   if (p === "gemini" || p === "google") return ["gemini"];
   return ["gemini", "ollama"];
 }
 
 function getGeminiModel() {
-  return (process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash")
+  return (process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash")
     .replace(/^models\//i, "")
     .toLowerCase()
     .replace(/\s+/g, "-");
@@ -260,27 +341,30 @@ async function requestOllama(prompt: string): Promise<string> {
   const baseUrl = (
     process.env.OLLAMA_BASE_URL?.trim() || "http://127.0.0.1:11434"
   ).replace(/\/+$/, "");
-  const model = process.env.OLLAMA_MODEL?.trim() || "qwen2.5:7b-instruct";
+  const model = process.env.OLLAMA_MODEL?.trim() || "llama3.1:8b";
 
   const res = await fetch(`${baseUrl}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    signal: AbortSignal.timeout(45_000),
+    signal: AbortSignal.timeout(
+      Number(process.env.OLLAMA_TIMEOUT_MS?.trim() || 120_000),
+    ),
     body: JSON.stringify({
       model,
       stream: false,
+      think: false,
       messages: [
         { role: "system", content: ANOCE_CHATBOT_SYSTEM_PROMPT_MN },
         { role: "user", content: prompt },
       ],
-      options: { temperature: 0.25, top_p: 0.9, num_predict: 900 },
+      options: { temperature: 0.2, top_p: 0.85, num_predict: 700 },
     }),
   });
 
   const payload = (await res.json().catch(() => ({}))) as OllamaResponse;
   if (!res.ok)
     throw new Error(payload.error ?? `Ollama failed with ${res.status}`);
-  return payload.message?.content?.trim() || "";
+  return cleanModelAnswer(payload.message?.content ?? "");
 }
 
 async function generateOllama(
@@ -295,7 +379,7 @@ async function generateOllama(
   ].join("\n");
   const answer = await requestOllama(prompt);
 
-  if (!looksIncomplete(answer)) return answer;
+  if (!looksIncomplete(answer) && !looksLowQualityAnswer(answer)) return answer;
 
   console.warn("Ollama answer looked incomplete; retrying.");
   const retryPrompt = [
@@ -304,11 +388,13 @@ async function generateOllama(
     "[IMPORTANT] Өмнөх хариулт дутуу. Маш товч, бүрэн өгүүлбэрээр дуусган бич. Дээд тал нь 4 bullet.",
   ].join("\n");
 
-  return (
-    (await requestOllama(retryPrompt)) ||
-    answer ||
-    ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN
-  );
+  const retry = await requestOllama(retryPrompt);
+  if (retry && !looksIncomplete(retry) && !looksLowQualityAnswer(retry)) {
+    return retry;
+  }
+
+  console.warn("Ollama answer failed quality checks; using fallback summary.");
+  return "";
 }
 
 // ─── orchestrator ─────────────────────────────────────────────────────────────

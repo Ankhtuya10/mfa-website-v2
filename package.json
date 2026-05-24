@@ -8,10 +8,14 @@
     "build": "next build",
     "start": "next start",
     "seed:rag": "tsx scripts/seed-anoce-rag.ts",
+    "generate:rag-candidate": "tsx scripts/generate-anoce-rag-candidate.ts",
+    "ollama:rag-candidate": "bash scripts/gemma-rag-candidate.sh",
+    "gemma:rag-candidate": "bash scripts/gemma-rag-candidate.sh",
+    "validate:rag-demo": "tsx scripts/validate-anoce-rag-demo.ts",
     "couchdb:up": "docker compose -f docker-compose.couchdb.yml up -d",
     "seed:couchdb": "tsx scripts/seed-couchdb.ts",
     "test": "tsx --test \"**/*.test.ts\"",
-    "lint": "next lint"
+    "lint": "tsc --noEmit --incremental false"
   },
   "keywords": [],
   "author": "",

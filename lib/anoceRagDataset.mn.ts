@@ -502,6 +502,150 @@ function trendToContent(trend: AnoceTrendMn): string {
   ].join("\n");
 }
 
+export const anoceGuideDocumentsMn: AnoceRagDocumentMn[] = [
+  {
+    id: "rag-guide-anoce-platform-overview",
+    type: "guide",
+    title: "Anoce платформын товч танилцуулга",
+    sourceConfidence: "high",
+    url: "/",
+    metadata: {
+      keywords: [
+        "anoce",
+        "платформ",
+        "дижитал архив",
+        "fashion magazine",
+        "монгол загвар",
+        "диплом",
+      ],
+      moods: ["archive", "editorial"],
+      materials: [],
+    },
+    content: [
+      "Төрөл: Platform guide",
+      "Anoce нь Монголын загварын брэнд, дизайнер, collection, look, editorial нийтлэлүүдийг нэгтгэн харуулах digital fashion archive/editorial platform.",
+      "Платформын гол зорилго нь Монгол fashion content-ийг хайх, унших, хадгалах, брэнд/collection-оор судлах, AI туслахаар архивын мэдээлэл асуух боломж бүрдүүлэх.",
+      "Public талд home, archive, designers, editorial, journal, explore, profile болон chatbot entry point багтана.",
+      "Admin талд article, collection, designer, asset, calendar, user management зэрэг CMS workflow багтана.",
+      "Anoce AI туслах нь платформын live archive болон curated RAG dataset дээр тулгуурлан Монгол хэлээр товч, эх сурвалжтай, зохиомол фактгүй хариулах зориулалттай.",
+    ].join("\n"),
+  },
+  {
+    id: "rag-guide-anoce-rag-data-sources",
+    type: "guide",
+    title: "Anoce RAG chatbot-ийн ашигладаг өгөгдөл",
+    sourceConfidence: "high",
+    url: "/explore",
+    metadata: {
+      keywords: [
+        "rag",
+        "chatbot",
+        "өгөгдөл",
+        "dataset",
+        "supabase",
+        "couchdb",
+        "retrieval",
+      ],
+      moods: ["technical", "archive"],
+      materials: [],
+    },
+    content: [
+      "Төрөл: RAG data guide",
+      "Anoce chatbot нь training хийсэн model биш. Хэрэглэгчийн асуултад хариулахаасаа өмнө archive/RAG documents-оос тохирох context хайж авдаг retrieval-augmented generation бүтэцтэй.",
+      "Curated RAG dataset нь Монгол fashion брэнд, trend, guide record-уудыг агуулна.",
+      "Seed pipeline нь curated dataset, local demo archive, published article, designer profile, collection, look record-уудыг Supabase-ийн anoce_rag_documents хүснэгтэд оруулна.",
+      "Live content нь CouchDB repository-оос уншигдаж, chat API дээр context хэлбэрээр нэмэгдэнэ.",
+      "Record бүр id, type, title, content, category, tags, source_confidence, url, metadata талбартай тул хайлт болон хариулт нь topic, keyword, confidence, URL-аар grounding хийнэ.",
+    ].join("\n"),
+  },
+  {
+    id: "rag-guide-anoce-chatbot-safety",
+    type: "guide",
+    title: "Anoce chatbot-ийн хариултын дүрэм ба хязгаар",
+    sourceConfidence: "high",
+    url: "/explore",
+    metadata: {
+      keywords: [
+        "аюулгүй",
+        "hallucination",
+        "зохиохгүй",
+        "source confidence",
+        "context",
+        "хязгаар",
+      ],
+      moods: ["safety", "editorial"],
+      materials: [],
+    },
+    content: [
+      "Төрөл: Chatbot safety guide",
+      "Anoce chatbot context-д байхгүй founder, он, award, price, collaboration, stock status зэрэг баримтыг зохиож хэлэх ёсгүй.",
+      "Source confidence high бол харьцангуй баталгаатай public/source-backed record гэж үзнэ.",
+      "Source confidence medium бол demo эсвэл public мэдээлэлтэй боловч бүрэн баталгаажуулалт шаардлагатай record гэж үзнэ.",
+      "Source confidence low бол мэдээлэл хязгаарлагдмал тул 'Anoce dataset-д бүртгэгдсэнээр' эсвэл 'одоогоор public мэдээлэл хязгаарлагдмал' гэж болгоомжтой хэлнэ.",
+      "Context олдохгүй үед chatbot 'Anoce archive-д энэ талаар хангалттай мэдээлэл алга' гэж хэлээд ойролцоо keyword санал болгоно.",
+    ].join("\n"),
+  },
+  {
+    id: "rag-guide-anoce-demo-questions",
+    type: "guide",
+    title: "Defending day chatbot demo асуултууд",
+    sourceConfidence: "high",
+    url: "/explore",
+    metadata: {
+      keywords: [
+        "demo",
+        "defense",
+        "хамгаалалт",
+        "асуулт",
+        "жишээ",
+        "presentation",
+      ],
+      moods: ["demo", "presentation"],
+      materials: [],
+    },
+    content: [
+      "Төрөл: Defense demo guide",
+      "Хамгаалалтын өдөр chatbot-д асуухад тохиромжтой асуултууд:",
+      "1. Anoce гэж юу вэ?",
+      "2. Монгол fashion-д одоо ямар trend байна вэ?",
+      "3. Ноолуур ашигладаг Монгол брэндүүдийг санал болго.",
+      "4. Дээлэн silhouette болон heritage-modern стиль ашигладаг брэндүүд аль вэ?",
+      "5. Улаанбаатарын streetwear чиглэлийн брэндүүдийг харуул.",
+      "6. 2023 оны өвлийн ноолуур collection-ийн тухай хэл.",
+      "7. Захиалгат хувцас эсвэл made-to-order чиглэлтэй record байна уу?",
+      "8. Энэ chatbot мэдээлэл байхгүй үед яаж хариулдаг вэ?",
+      "Эдгээр асуулт нь brand, trend, archive collection, safety guide гэсэн олон төрлийн RAG document retrieval ажиллаж байгааг харуулахад зориулагдсан.",
+    ].join("\n"),
+  },
+  {
+    id: "rag-guide-anoce-user-workflows",
+    type: "guide",
+    title: "Anoce хэрэглэгчийн үндсэн workflow",
+    sourceConfidence: "high",
+    url: "/explore",
+    metadata: {
+      keywords: [
+        "workflow",
+        "хэрэглэгч",
+        "archive",
+        "bookmark",
+        "search",
+        "profile",
+      ],
+      moods: ["product", "guide"],
+      materials: [],
+    },
+    content: [
+      "Төрөл: Product workflow guide",
+      "Уншигч Anoce дээр archive collection үзэх, designer profile нээх, editorial article унших, search overlay ашиглах, profile хэсэгт хадгалсан content харах боломжтой.",
+      "Bookmark болон profile функц нь хэрэглэгчийн session/auth-тэй холбоотой.",
+      "Search overlay нь article, collection, designer зэрэг public content-ийг хурдан олох workflow-д зориулагдсан.",
+      "AI chatbot нь уншигч archive доторх брэнд, материал, trend, collection, look-ийн тухай natural language-аар асуухад туслах нэмэлт workflow юм.",
+      "Admin workflow нь editor/admin хэрэглэгчдэд content үүсгэх, засах, нийтлэх, asset удирдах, хэрэглэгчийн эрх шалгах боломж олгоно.",
+    ].join("\n"),
+  },
+];
+
 export const anoceRagDocumentsMn: AnoceRagDocumentMn[] = [
   ...anoceBrandsMn.map((brand) => ({
     id: `rag-${brand.id}`,
@@ -536,6 +680,7 @@ export const anoceRagDocumentsMn: AnoceRagDocumentMn[] = [
       relatedBrandIds: trend.relatedBrandIds,
     },
   })),
+  ...anoceGuideDocumentsMn,
   {
     id: "rag-guide-anoce-scope",
     type: "guide",

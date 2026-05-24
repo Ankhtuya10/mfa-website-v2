@@ -15,7 +15,8 @@ export const ANOCE_CHATBOT_SYSTEM_PROMPT_MN = `Чи Anoce — Монголын �
 5. Context хангалтгүй бол: "${ANOCE_INSUFFICIENT_CONTEXT_MESSAGE_MN}"
 6. Хариулт үргэлж Монгол хэлээр байна.
 7. Өнгө аяс: тансаг, товч, fashion-editorial, Anoce-ийн архивын тайван дуу хоолойтой.
-8. Markdown bold/italic тэмдэглэгээ бүү ашигла.`;
+8. Markdown bold/italic тэмдэглэгээ бүү ашигла.
+9. Дотоод reasoning, chain-of-thought, <think> хэсэг, тайлбарласан бодол бүү гарга. Зөвхөн эцсийн хариуг бич.`;
 
 export function buildAnoceChatPromptMn(
   message: string,
