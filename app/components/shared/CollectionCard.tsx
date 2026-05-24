@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getSeasonLabel } from "@/lib/localization";
 import { BookmarkButton } from "./BookmarkButton";
 
 interface Collection {
@@ -30,7 +31,7 @@ export function CollectionCard({
   const coverImage = collection.cover_image || collection.coverImage || "";
   const designerName =
     collection.designer_name || collection.designerName || "";
-  const season = collection.season || "";
+  const season = getSeasonLabel(collection.season);
   const year = collection.year || "";
   const looksCount = collection.looks?.length || 0;
 
@@ -68,11 +69,11 @@ export function CollectionCard({
             >
               <div className="mb-6">
                 <span className="font-sans text-xs tracking-[3px] uppercase text-white/70">
-                  {season} {year} · {looksCount} looks
+                  {season} {year} · {looksCount} төрх
                 </span>
               </div>
               <span className="font-sans font-bold text-sm tracking-[4px] uppercase text-white px-8 py-4 border border-white/50 rounded-full hover:bg-white hover:text-black transition-all">
-                View Collection
+                Цуглуулга үзэх
               </span>
             </motion.div>
           </div>

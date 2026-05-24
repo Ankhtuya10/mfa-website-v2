@@ -1,0 +1,29 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{entity}=[draw, rounded corners=4pt, minimum width=4.9cm, minimum height=2.15cm,
+    text width=4.45cm, align=left, font=\tiny]
+  \tikzstyle{rel}=[font=\tiny, fill=white, inner sep=1pt, align=center]
+
+  \node[entity] (designer) at (0,6.6) {\textbf{designer doc}\\PK \_id\\slug, name, tier\\bio, images};
+  \node[entity] (collection) at (6.2,6.6) {\textbf{collection doc}\\PK \_id\\slug, title\\designer\_slug\\season, year, looks[]};
+  \node[entity] (look) at (12.4,6.6) {\textbf{look object}\\id, number\\image, description\\materials[], tags[]};
+
+  \node[entity] (article) at (0,3.1) {\textbf{article doc}\\PK \_id\\slug, title\\category, status\\body, tags};
+  \node[entity] (asset) at (6.2,3.1) {\textbf{asset doc}\\PK \_id\\name, path\\folder, content\_type\\attachment};
+  \node[entity] (search) at (12.4,3.1) {\textbf{search index item}\\title, subtitle\\category, tags\\href, searchText};
+
+  \node[entity] (profile) at (0,-0.4) {\textbf{profiles}\\PK id\\email/name\\role};
+  \node[entity] (bookmark) at (6.2,-0.4) {\textbf{bookmarks}\\PK id\\FK user\_id\\content\_id\\content\_type};
+  \node[entity] (rag) at (12.4,-0.4) {\textbf{anoce\_rag\_documents}\\PK id\\type, title\\content, tags\\brand\_slug};
+
+  \draw[->] (designer) -- node[above,rel] {1:N} (collection);
+  \draw[->] (collection) -- node[above,rel] {1:N\\nested} (look);
+  \draw[->] (article) -- node[above,rel] {image} (asset);
+  \draw[->] (collection) -- node[right,rel] {cover\\look image} (asset);
+  \draw[->] (designer) -- node[left,rel] {profile\\cover} (asset);
+  \draw[->] (designer) -- (search);
+  \draw[->] (collection) -- (search);
+  \draw[->] (article) -- (search);
+  \draw[->] (profile) -- node[above,rel] {1:N} (bookmark);
+  \draw[->] (bookmark) -- node[right,rel] {content id} (search);
+  \draw[->] (rag) -- node[right,rel] {AI context} (search);
+\end{tikzpicture}

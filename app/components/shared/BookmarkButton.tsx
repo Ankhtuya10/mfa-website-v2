@@ -11,6 +11,13 @@ interface BookmarkButtonProps {
   variant?: "default" | "dark";
 }
 
+const typeLabels: Record<BookmarkButtonProps["type"], string> = {
+  article: "нийтлэл",
+  look: "төрх",
+  designer: "дизайнер",
+  collection: "цуглуулга",
+};
+
 export function BookmarkButton({
   id,
   type,
@@ -157,7 +164,11 @@ export function BookmarkButton({
       onClick={toggle}
       disabled={isSaving}
       aria-pressed={isSaved}
-      aria-label={isSaved ? `Remove saved ${type}` : `Save ${type}`}
+      aria-label={
+        isSaved
+          ? `Хадгалсан ${typeLabels[type]} хасах`
+          : `${typeLabels[type]} хадгалах`
+      }
       className={`relative p-2 transition-colors hover:bg-black/5 disabled:cursor-wait disabled:opacity-60 ${
         isDark
           ? "rounded-full border border-white/20 bg-black/20 text-white/70 hover:text-white hover:border-white/40"

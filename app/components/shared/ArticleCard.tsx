@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getArticleCategoryLabel } from "@/lib/localization";
 import { BookmarkButton } from "./BookmarkButton";
 
 interface Article {
@@ -31,23 +32,24 @@ interface ArticleCardProps {
 
 export function ArticleCard({ article, variant = "grid" }: ArticleCardProps) {
   const coverImage = article.cover_image || article.coverImage || "";
-  const author = article.author || article.author_name || "Unknown";
+  const author = article.author || article.author_name || "Тодорхойгүй";
   const publishedAt =
     article.publishedAt || article.published_at || new Date().toISOString();
   const readTime = article.readTime || article.read_time || 5;
+  const categoryLabel = getArticleCategoryLabel(article.category);
 
   if (variant === "minimal") {
     return (
       <Link href={`/editorial/${article.slug}`}>
         <div className="border-b border-[rgba(0,0,0,0.06)] pb-6 text-center">
           <span className="font-sans text-xs tracking-[3px] uppercase text-[#B7AEA9]">
-            {article.category}
+            {categoryLabel}
           </span>
           <h3 className="mt-3 font-serif text-2xl leading-tight text-[#2A2522] [overflow-wrap:anywhere]">
             {article.title}
           </h3>
           <span className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590] mt-3 block">
-            {new Date(publishedAt).toLocaleDateString("en-US", {
+            {new Date(publishedAt).toLocaleDateString("mn-MN", {
               month: "short",
               day: "numeric",
               year: "numeric",
@@ -77,7 +79,7 @@ export function ArticleCard({ article, variant = "grid" }: ArticleCardProps) {
           </div>
           <div className="p-12 lg:p-16 flex flex-col justify-center items-center text-center">
             <span className="mb-6 block font-sans text-xs tracking-[0.32em] uppercase text-[#9B9590]">
-              {article.category}
+              {categoryLabel}
             </span>
             <h2 className="mb-6 font-serif text-3xl leading-tight text-[#2A2522] [overflow-wrap:anywhere] lg:text-4xl xl:text-5xl">
               {article.title}
@@ -91,11 +93,11 @@ export function ArticleCard({ article, variant = "grid" }: ArticleCardProps) {
               </span>
               <span className="text-[#B7AEA9]">·</span>
               <span className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590]">
-                {readTime} min read
+                {readTime} мин уншина
               </span>
             </div>
             <span className="font-sans text-sm tracking-[3px] uppercase text-[#2A2522] inline-flex items-center gap-3 group">
-              Read Article
+              Нийтлэл унших
               <span className="w-8 h-px bg-[#2A2522] group-hover:w-16 transition-all duration-300" />
             </span>
           </div>
@@ -129,7 +131,7 @@ export function ArticleCard({ article, variant = "grid" }: ArticleCardProps) {
               />
             </motion.div>
             <span className="absolute top-4 left-1/2 -translate-x-1/2 font-sans text-xs tracking-[3px] uppercase text-white/80 bg-black/40 px-3 py-1.5 rounded-full">
-              {article.category}
+              {categoryLabel}
             </span>
           </div>
           <h3 className="mt-5 px-2 font-serif text-2xl leading-[1.2] text-[#2A2522] transition-colors [overflow-wrap:anywhere] group-hover:text-[#393931]">
@@ -141,7 +143,7 @@ export function ArticleCard({ article, variant = "grid" }: ArticleCardProps) {
             </span>
             <span className="text-[#B7AEA9]">·</span>
             <span className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590]">
-              {new Date(publishedAt).toLocaleDateString("en-US", {
+              {new Date(publishedAt).toLocaleDateString("mn-MN", {
                 month: "short",
                 day: "numeric",
               })}

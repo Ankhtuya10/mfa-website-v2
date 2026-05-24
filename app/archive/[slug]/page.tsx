@@ -9,6 +9,7 @@ import { StickyNavbar, Footer } from "@/app/components";
 import { Breadcrumb } from "@/app/components/shared/Breadcrumb";
 import { CollectionCard } from "@/app/components/shared/CollectionCard";
 import { BookmarkButton } from "@/app/components/shared/BookmarkButton";
+import { formatSeasonYear, getSeasonLabel } from "@/lib/localization";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -78,7 +79,7 @@ export default function CollectionPage({
         <StickyNavbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-pulse font-sans text-[#B7AEA9]">
-            Loading...
+            Ачаалж байна...
           </div>
         </div>
         <Footer />
@@ -92,7 +93,7 @@ export default function CollectionPage({
         <StickyNavbar />
         <div className="flex-1 flex items-center justify-center">
           <h1 className="font-serif text-4xl text-[#2A2522]">
-            Collection not found
+            Цуглуулга олдсонгүй
           </h1>
         </div>
         <Footer />
@@ -149,7 +150,7 @@ export default function CollectionPage({
               <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                 <div className="max-w-4xl">
                   <span className="font-sans text-[10px] tracking-[4.95px] uppercase text-white/70 block mb-2">
-                    {collection.season} {collection.year}
+                    {formatSeasonYear(collection.season, collection.year)}
                   </span>
                   <h1 className="font-serif text-white text-5xl leading-[1.05] [overflow-wrap:anywhere] md:text-6xl">
                     {collection.title}
@@ -163,7 +164,7 @@ export default function CollectionPage({
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="shrink-0 font-sans text-[11px] tracking-[2px] uppercase text-white/60">
-                    {collection.looks?.length || 0} Looks
+                    {collection.looks?.length || 0} төрх
                   </span>
                   <BookmarkButton
                     id={collection.id}
@@ -187,9 +188,9 @@ export default function CollectionPage({
           >
             <Breadcrumb
               items={[
-                { label: "Archive", href: "/archive" },
+                { label: "Архив", href: "/archive" },
                 {
-                  label: `${collection.season} ${collection.year}`,
+                  label: formatSeasonYear(collection.season, collection.year),
                   href: "/archive",
                 },
                 { label: collection.designer_name },
@@ -207,13 +208,13 @@ export default function CollectionPage({
                     href={`/designers/${collection.designer_slug}`}
                     className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] mt-4 inline-block hover:text-[#2A2522] transition-colors"
                   >
-                    View Designer Profile →
+                    Дизайнерын профайл үзэх →
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Year
+                      Он
                     </span>
                     <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
                       {collection.year}
@@ -221,15 +222,15 @@ export default function CollectionPage({
                   </div>
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Season
+                      Улирал
                     </span>
                     <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
-                      {collection.season}
+                      {getSeasonLabel(collection.season)}
                     </span>
                   </div>
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Looks
+                      Төрх
                     </span>
                     <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
                       {collection.looks?.length || 0}
@@ -237,10 +238,10 @@ export default function CollectionPage({
                   </div>
                   <div>
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Material
+                      Материал
                     </span>
                     <span className="font-serif text-3xl text-[#2A2522] [overflow-wrap:anywhere]">
-                      Cashmere
+                      Ноолуур
                     </span>
                   </div>
                 </div>
@@ -263,14 +264,14 @@ export default function CollectionPage({
                     <div className="relative aspect-[2/3] overflow-hidden">
                       <Image
                         src={look.image}
-                        alt={`Look ${look.number}`}
+                        alt={`Төрх ${look.number}`}
                         width={600}
                         height={900}
                         className="object-cover w-full transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                         <span className="font-sans text-[10px] tracking-[2px] uppercase text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                          Look {look.number}
+                          Төрх {look.number}
                         </span>
                       </div>
                     </div>
@@ -292,7 +293,7 @@ export default function CollectionPage({
               }}
             >
               <h2 className="font-display text-2xl text-[#2A2522] mb-10">
-                More from {collection.designer_name}
+                {collection.designer_name}-ийн бусад цуглуулга
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {otherCollections.map((col) => (
@@ -345,7 +346,7 @@ export default function CollectionPage({
               <div className="flex-1 relative">
                 <Image
                   src={collection.looks[currentLookIndex].image}
-                  alt={`Look ${collection.looks[currentLookIndex].number}`}
+                  alt={`Төрх ${collection.looks[currentLookIndex].number}`}
                   width={800}
                   height={1200}
                   className="object-contain max-h-[80vh] mx-auto"
@@ -354,7 +355,7 @@ export default function CollectionPage({
 
               <div className="w-72 bg-[#1a1a1a] p-6 text-white overflow-y-auto max-h-[80vh]">
                 <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#B7AEA9]">
-                  Look {collection.looks[currentLookIndex].number}
+                  Төрх {collection.looks[currentLookIndex].number}
                 </span>
                 <h3 className="font-serif text-xl mt-2 mb-4">
                   {collection.title}

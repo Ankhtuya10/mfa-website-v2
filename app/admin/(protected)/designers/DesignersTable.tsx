@@ -29,7 +29,7 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
   const [designers, setDesigners] = useState<Designer[]>(initialDesigners);
 
   async function deleteDesigner(id: string) {
-    if (!confirm("Delete this designer?")) return;
+    if (!confirm("Энэ дизайнерыг устгах уу?")) return;
     const response = await fetch(
       `/api/admin/content/designers/${encodeURIComponent(id)}`,
       {
@@ -37,7 +37,7 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
       },
     );
     if (!response.ok) {
-      alert("Failed to delete designer");
+      alert("Дизайнер устгаж чадсангүй");
       return;
     }
     setDesigners(designers.filter((d) => d.id !== id));
@@ -49,22 +49,22 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
         <thead>
           <tr className="border-b border-[rgba(0,0,0,0.1)] bg-[#F5F2ED]">
             <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-12">
-              Photo
+              Зураг
             </th>
             <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590]">
-              Name
+              Нэр
             </th>
             <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-36">
-              Tier
+              Ангилал
             </th>
             <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-24">
-              Founded
+              Үүссэн
             </th>
             <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-24 text-center">
-              Seasons
+              Улирал
             </th>
             <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-24">
-              Actions
+              Үйлдэл
             </th>
           </tr>
         </thead>
@@ -75,7 +75,7 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
                 colSpan={6}
                 className="py-12 text-center text-[#9B9590] font-sans text-sm"
               >
-                No designers found
+                Дизайнер олдсонгүй
               </td>
             </tr>
           ) : (
@@ -119,7 +119,7 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
                     <Link
                       href={`/admin/designers/${d.id}/edit`}
                       className="text-[#9B9590] hover:text-[#111111] transition-colors p-1"
-                      title="Edit designer"
+                      title="Дизайнер засах"
                     >
                       <Pencil className="w-4 h-4" />
                     </Link>

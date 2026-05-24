@@ -15,7 +15,7 @@ export async function GET(
   try {
     const { id } = await context.params;
     const collection = await createContentRepository().getCollectionById(id);
-    if (!collection) return NextResponse.json({ error: "Collection not found" }, { status: 404 });
+    if (!collection) return NextResponse.json({ error: "Цуглуулга олдсонгүй" }, { status: 404 });
     return NextResponse.json(collection);
   } catch (error) {
     return adminJsonError(error);
@@ -49,7 +49,7 @@ export async function DELETE(
   try {
     const { id } = await context.params;
     const deleted = await createContentRepository().deleteCollection(id);
-    if (!deleted) return NextResponse.json({ error: "Collection not found" }, { status: 404 });
+    if (!deleted) return NextResponse.json({ error: "Цуглуулга олдсонгүй" }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (error) {
     return adminJsonError(error);

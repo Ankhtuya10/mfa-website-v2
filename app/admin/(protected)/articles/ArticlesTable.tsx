@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Pencil, Eye, Trash2 } from 'lucide-react'
+import { ClipboardCheck, Pencil, Eye, Trash2 } from 'lucide-react'
+import { getArticleCategoryLabel } from '@/lib/localization'
 
 interface Article {
   id: string
@@ -16,10 +17,10 @@ interface Article {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string }> = {
-  published: { label: 'Published', dot: 'bg-emerald-400', badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' },
-  review:    { label: 'Review',    dot: 'bg-amber-400',   badge: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200' },
-  draft:     { label: 'Draft',     dot: 'bg-stone-300',   badge: 'bg-stone-100 text-stone-500 ring-1 ring-stone-200' },
-  archived:  { label: 'Archived',  dot: 'bg-red-300',     badge: 'bg-red-50 text-red-600 ring-1 ring-red-200' },
+  published: { label: 'Нийтлэгдсэн', dot: 'bg-emerald-400', badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' },
+  review:    { label: 'Хяналт',    dot: 'bg-amber-400',   badge: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200' },
+  draft:     { label: 'Ноорог',     dot: 'bg-stone-300',   badge: 'bg-stone-100 text-stone-500 ring-1 ring-stone-200' },
+  archived:  { label: 'Архивласан',  dot: 'bg-red-300',     badge: 'bg-red-50 text-red-600 ring-1 ring-red-200' },
 }
 
 const FILTERS = ['all', 'published', 'review', 'draft'] as const
@@ -39,12 +40,12 @@ export function ArticlesTable({ initialArticles }: { initialArticles: Article[] 
   }
 
   async function deleteArticle(id: string) {
-    if (!confirm('Delete this article? This cannot be undone.')) return
+    if (!confirm('Энэ нийтлэлийг устгах уу? Буцаах боломжгүй.')) return
     const response = await fetch(`/api/admin/content/articles/${encodeURIComponent(id)}`, {
       method: 'DELETE',
     })
     if (!response.ok) {
-      alert('Failed to delete article')
+      alert('Нийтлэл устгаж чадсангүй')
       return
     }
     setArticles(articles.filter(a => a.id !== id))
@@ -64,7 +65,7 @@ export function ArticlesTable({ initialArticles }: { initialArticles: Article[] 
                 : 'text-[#9E9B94] hover:text-[#1A1A18] hover:bg-[#ECEAE5]'
               }`}
           >
-            {f === 'all' ? 'All' : STATUS_CONFIG[f]?.label ?? f}
+            {f === 'all' ? 'Бүгд' : STATUS_CONFIG[f]?.label ?? f}
             <span className={`text-[9.5px] min-w-[16px] text-center tabular-nums ${
               filter === f ? 'text-white/40' : 'text-[#C0BCB5]'
             }`}>
@@ -79,11 +80,11 @@ export function ArticlesTable({ initialArticles }: { initialArticles: Article[] 
         <table className="w-full">
           <thead>
             <tr className="bg-[#FAFAF8] border-b border-[#EDEBE6]">
-              <th className="text-left py-3 px-6 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[38%]">Title</th>
-              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[13%]">Category</th>
-              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[14%]">Status</th>
-              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[18%]">Author</th>
-              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[10%]">Date</th>
+              <th className="text-left py-3 px-6 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[38%]">Гарчиг</th>
+              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[13%]">Ангилал</th>
+              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[14%]">Төлөв</th>
+              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[18%]">Зохиогч</th>
+              <th className="text-left py-3 px-4 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[10%]">Огноо</th>
               <th className="py-3 px-4 w-[7%]" />
             </tr>
           </thead>
@@ -91,7 +92,7 @@ export function ArticlesTable({ initialArticles }: { initialArticles: Article[] 
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-20 text-center text-[#C0BCB5] font-sans text-[13px]">
-                  No articles found
+                  Нийтлэл олдсонгүй
                 </td>
               </tr>
             ) : (
@@ -110,7 +111,7 @@ export function ArticlesTable({ initialArticles }: { initialArticles: Article[] 
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="font-sans text-[10.5px] tracking-[0.07em] uppercase text-[#7A776F]">
-                        {article.category || '—'}
+                        {getArticleCategoryLabel(article.category || undefined)}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
@@ -125,16 +126,23 @@ export function ArticlesTable({ initialArticles }: { initialArticles: Article[] 
                     <td className="py-3.5 px-4">
                       <span className="font-sans text-[11.5px] text-[#A09D96]">
                         {article.created_at
-                          ? new Date(article.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                          ? new Date(article.created_at).toLocaleDateString('mn-MN', { month: 'short', day: 'numeric' })
                           : '—'}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link
+                          href={`/admin/articles/${article.id}/review`}
+                          className="p-1.5 rounded-md text-[#9E9B94] hover:text-[#1A1A18] hover:bg-[#ECEAE5] transition-all"
+                          title="Хяналт"
+                        >
+                          <ClipboardCheck className="w-3.5 h-3.5" strokeWidth={1.6} />
+                        </Link>
+                        <Link
                           href={`/admin/articles/${article.id}/edit`}
                           className="p-1.5 rounded-md text-[#9E9B94] hover:text-[#1A1A18] hover:bg-[#ECEAE5] transition-all"
-                          title="Edit"
+                          title="Засах"
                         >
                           <Pencil className="w-3.5 h-3.5" strokeWidth={1.6} />
                         </Link>
@@ -142,14 +150,14 @@ export function ArticlesTable({ initialArticles }: { initialArticles: Article[] 
                           href={`/editorial/${article.slug}`}
                           target="_blank"
                           className="p-1.5 rounded-md text-[#9E9B94] hover:text-[#1A1A18] hover:bg-[#ECEAE5] transition-all"
-                          title="View live"
+                          title="Сайт дээр үзэх"
                         >
                           <Eye className="w-3.5 h-3.5" strokeWidth={1.6} />
                         </Link>
                         <button
                           onClick={() => deleteArticle(article.id)}
                           className="p-1.5 rounded-md text-[#9E9B94] hover:text-red-500 hover:bg-red-50 transition-all"
-                          title="Delete"
+                          title="Устгах"
                         >
                           <Trash2 className="w-3.5 h-3.5" strokeWidth={1.6} />
                         </button>

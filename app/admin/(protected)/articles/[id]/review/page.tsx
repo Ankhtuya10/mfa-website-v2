@@ -3,8 +3,9 @@
 import { use, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ExternalLink } from "lucide-react";
-import { fetchJson } from "@/lib/content/client";
+import { Check, ExternalLink, Loader2, RotateCcw } from "lucide-react";
+import { fetchJson, postJson } from "@/lib/content/client";
+import { getArticleCategoryLabel } from "@/lib/localization";
 
 type ReviewArticle = {
   id: string;
@@ -20,6 +21,9 @@ type ReviewArticle = {
   updated_at: string | null;
   published_at: string | null;
   status: string;
+  review_note?: string | null;
+  reviewed_at?: string | null;
+  reviewed_by?: string | null;
 };
 
 export default function ArticleReviewPage({
@@ -30,6 +34,9 @@ export default function ArticleReviewPage({
   const { id } = use(params);
   const [article, setArticle] = useState<ReviewArticle | null>(null);
   const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState("");
+  const [action, setAction] = useState<"approve" | "changes" | null>(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -41,6 +48,7 @@ export default function ArticleReviewPage({
         );
         if (!active) return;
         setArticle(data as ReviewArticle);
+        setFeedback(data.review_note || "");
       } catch {
         if (!active) return;
         setArticle(null);
@@ -57,38 +65,74 @@ export default function ArticleReviewPage({
     };
   }, [id]);
 
+  async function updateReview(nextStatus: "published" | "draft") {
+    if (!article || action) return;
+    const isApprove = nextStatus === "published";
+    setAction(isApprove ? "approve" : "changes");
+    setMessage("");
+
+    try {
+      const now = new Date().toISOString();
+      const updated = await postJson<ReviewArticle>(
+        `/api/admin/content/articles/${encodeURIComponent(article.id)}`,
+        {
+          ...article,
+          status: nextStatus,
+          published_at: isApprove ? article.published_at || now : article.published_at,
+          review_note: feedback.trim(),
+          reviewed_at: now,
+        },
+        "PUT",
+      );
+      setArticle(updated);
+      setMessage(
+        isApprove
+          ? "Нийтлэл зөвшөөрөгдөж, нийтлэгдсэн төлөвт шилжлээ."
+          : "Засварын хүсэлт хадгалагдаж, нийтлэл ноорог төлөвт буцлаа.",
+      );
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Хяналтын үйлдэл амжилтгүй боллоо. Дахин оролдоно уу.",
+      );
+    } finally {
+      setAction(null);
+    }
+  }
+
   const timeline = useMemo(() => {
     if (!article) return [];
 
     const items = [
       {
-        label: "Draft Created",
+        label: "Ноорог үүссэн",
         date: article.created_at,
-        actor: article.author_name || "Unknown",
+        actor: article.author_name || "Тодорхойгүй",
         done: true,
       },
       {
-        label: "Submitted for Review",
+        label: "Хяналтад илгээсэн",
         date:
           article.status === "review" || article.status === "published"
             ? article.updated_at || article.created_at
             : null,
-        actor: article.author_name || "Unknown",
+        actor: article.author_name || "Тодорхойгүй",
         done: article.status === "review" || article.status === "published",
       },
       {
-        label: "Under Review",
+        label: "Хянагдаж байна",
         date:
           article.status === "review" || article.status === "published"
             ? article.updated_at || article.created_at
             : null,
-        actor: "Editorial Team",
+        actor: "Редакцийн баг",
         done: article.status === "review" || article.status === "published",
       },
       {
-        label: "Published",
+        label: "Нийтлэгдсэн",
         date: article.published_at,
-        actor: "Editorial Team",
+        actor: "Редакцийн баг",
         done: article.status === "published",
       },
     ];
@@ -96,7 +140,7 @@ export default function ArticleReviewPage({
     return items.map((item) => ({
       ...item,
       dateLabel: item.date
-        ? new Date(item.date).toLocaleDateString("en-US", {
+        ? new Date(item.date).toLocaleDateString("mn-MN", {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -108,13 +152,13 @@ export default function ArticleReviewPage({
   if (loading) {
     return (
       <div className="p-8 font-sans text-sm text-[#9B9590]">
-        Loading review...
+        Хяналтын мэдээлэл ачаалж байна...
       </div>
     );
   }
 
   if (!article) {
-    return <div>Article not found</div>;
+    return <div>Нийтлэл олдсонгүй</div>;
   }
 
   return (
@@ -123,7 +167,7 @@ export default function ArticleReviewPage({
       <div className="flex-1 overflow-y-auto bg-[#F5F2ED] min-h-screen">
         <div className="sticky top-0 bg-[#030213] text-white px-6 py-3 text-center">
           <span className="font-sans text-[10px] tracking-[4px] uppercase">
-            Preview Mode
+            Урьдчилан харах горим
           </span>
         </div>
 
@@ -143,7 +187,7 @@ export default function ArticleReviewPage({
           </div>
 
           <span className="font-sans text-[10px] tracking-[4.95px] uppercase text-[#B7AEA9] block mb-4">
-            {article.category}
+            {getArticleCategoryLabel(article.category)}
           </span>
           <h1 className="font-serif text-4xl text-[#2A2522] mb-6">
             {article.title}
@@ -154,11 +198,11 @@ export default function ArticleReviewPage({
 
           <div className="flex items-center gap-4 mb-12 text-[#9B9590]">
             <span className="font-sans text-[11px] tracking-[2px] uppercase">
-              {article.author_name || "Unknown"}
+              {article.author_name || "Тодорхойгүй"}
             </span>
             <span>·</span>
             <span className="font-sans text-[11px] tracking-[2px] uppercase">
-              {article.read_time || 5} min read
+              {article.read_time || 5} мин уншина
             </span>
           </div>
 
@@ -185,8 +229,8 @@ export default function ArticleReviewPage({
             {article.title}
           </h2>
           <p className="font-sans text-[11px] text-[#9B9590]">
-            by {article.author_name || "Unknown"} · Submitted{" "}
-            {new Date(article.created_at).toLocaleDateString("en-US", {
+            Нийтэлсэн: {article.author_name || "Тодорхойгүй"} · Илгээсэн{" "}
+            {new Date(article.created_at).toLocaleDateString("mn-MN", {
               month: "short",
               day: "numeric",
             })}
@@ -224,17 +268,43 @@ export default function ArticleReviewPage({
           {/* Review form */}
           <div className="mt-8 space-y-4">
             <textarea
-              placeholder="Leave feedback..."
+              value={feedback}
+              onChange={(event) => setFeedback(event.target.value)}
+              placeholder="Санал хүсэлтээ бичнэ үү..."
               rows={4}
               className="w-full border border-[rgba(0,0,0,0.15)] p-4 font-inter text-[14px] outline-none focus:border-[#2A2522] resize-none"
             />
 
-            <button className="w-full bg-green-600 text-white py-4 font-sans font-bold text-[11px] tracking-[3px] uppercase hover:bg-green-700 transition-colors">
-              Approve
+            {message && (
+              <p className="rounded-md bg-[#F5F2ED] px-3 py-2 font-sans text-[11px] leading-relaxed text-[#6B6860]">
+                {message}
+              </p>
+            )}
+
+            <button
+              onClick={() => updateReview("published")}
+              disabled={action !== null}
+              className="flex w-full items-center justify-center gap-2 bg-green-600 text-white py-4 font-sans font-bold text-[11px] tracking-[3px] uppercase hover:bg-green-700 transition-colors disabled:cursor-wait disabled:opacity-60"
+            >
+              {action === "approve" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+              Зөвшөөрөх
             </button>
 
-            <button className="w-full border border-red-300 text-red-600 py-4 font-sans font-bold text-[11px] tracking-[3px] uppercase hover:bg-red-50 transition-colors">
-              Request Changes
+            <button
+              onClick={() => updateReview("draft")}
+              disabled={action !== null}
+              className="flex w-full items-center justify-center gap-2 border border-red-300 text-red-600 py-4 font-sans font-bold text-[11px] tracking-[3px] uppercase hover:bg-red-50 transition-colors disabled:cursor-wait disabled:opacity-60"
+            >
+              {action === "changes" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RotateCcw className="h-4 w-4" />
+              )}
+              Засвар хүсэх
             </button>
           </div>
 
@@ -244,7 +314,7 @@ export default function ArticleReviewPage({
             className="flex items-center justify-center gap-2 mt-6 text-[#9B9590] hover:text-[#2A2522] transition-colors"
           >
             <span className="font-sans text-[11px] tracking-[2px] uppercase">
-              Preview on site
+              Сайт дээр урьдчилан харах
             </span>
             <ExternalLink className="w-4 h-4" />
           </a>

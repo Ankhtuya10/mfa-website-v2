@@ -66,10 +66,10 @@ export function DesignerCard({
 
   const tierLabel =
     designer.tier === "high-end"
-      ? "High-End"
+      ? "Дээд зэрэглэл"
       : designer.tier === "contemporary"
-        ? "Contemporary"
-        : "Emerging";
+        ? "Орчин үеийн"
+        : "Шинэ үе";
 
   return (
     <div className="relative group">
@@ -109,7 +109,7 @@ export function DesignerCard({
               className="absolute inset-0 bg-black/36 flex items-center justify-center"
             >
               <span className="font-sans text-xs tracking-[3px] uppercase text-white border border-white px-4 py-2 rounded-full">
-                View Profile
+                Профайл үзэх
               </span>
             </motion.div>
           </div>
@@ -119,7 +119,7 @@ export function DesignerCard({
               {designer.name}
             </h3>
             <p className="font-sans text-xs tracking-[2px] uppercase text-[#9B9590] mt-1">
-              {designer.founded && `Est. ${designer.founded}`}
+              {designer.founded && `Үүс. ${designer.founded}`}
             </p>
           </div>
         </motion.article>

@@ -17,7 +17,7 @@ export async function fetchJson<T>(path: string, init?: RequestInit) {
 
   if (!response.ok) {
     const payload = await response.json().catch(() => null);
-    throw new Error(payload?.error || `Request failed with ${response.status}`);
+    throw new Error(payload?.error || `Хүсэлт амжилтгүй боллоо (${response.status}).`);
   }
 
   return (await response.json()) as T;

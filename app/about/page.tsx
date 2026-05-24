@@ -4,9 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { Footer, StickyNavbar } from "../components";
 
 export const metadata = {
-  title: "About ANOCE",
+  title: "ANOCE-ийн тухай",
   description:
-    "ANOCE is a living archive and editorial platform for Mongolian fashion, craft, and contemporary design.",
+    "ANOCE бол Монгол загвар, ур хийц, орчин үеийн дизайны амьд архив ба редакцийн платформ юм.",
 };
 
 const heroImageUrl =
@@ -14,26 +14,26 @@ const heroImageUrl =
 
 const pillars = [
   {
-    label: "Archive",
-    title: "Preserve the record",
-    body: "Collections, designers, materials, and stories stay connected so Mongolian fashion can be studied, searched, and remembered.",
+    label: "Архив",
+    title: "Түүхийг хадгалах",
+    body: "Цуглуулга, дизайнер, материал, өгүүлэмжийг хооронд нь холбож, Монгол загварыг судлах, хайх, санах боломжтой болгоно.",
   },
   {
-    label: "Craft",
-    title: "Honor the hand",
-    body: "Cashmere, felt, leather, embroidery, and tailoring are treated as living knowledge, not background texture.",
+    label: "Ур хийц",
+    title: "Гарын ур дүйг хүндэтгэх",
+    body: "Ноолуур, эсгий, арьс, хатгамал, эсгүүрийг зүгээр нэг чимэг бус амьд мэдлэг гэж авч үздэг.",
   },
   {
-    label: "Future",
-    title: "Make room for what is next",
-    body: "Emerging labels sit beside heritage houses, giving the next generation a place in the same conversation.",
+    label: "Ирээдүй",
+    title: "Дараагийн үеийн орон зайг нээх",
+    body: "Шинэ брэндүүд өв уламжлалт орднуудтай зэрэгцэн байрлаж, дараагийн үед нэг ярианд багтах боломж олгоно.",
   },
 ];
 
 const measures = [
-  { value: "01", label: "Designers and houses" },
-  { value: "02", label: "Collections and looks" },
-  { value: "03", label: "Editorial context" },
+  { value: "01", label: "Дизайнер ба загварын ордон" },
+  { value: "02", label: "Цуглуулга ба төрх" },
+  { value: "03", label: "Редакцийн тайлбар" },
 ];
 
 export default function AboutPage() {
@@ -53,27 +53,27 @@ export default function AboutPage() {
           <div className="safe-shell relative z-10 flex h-full w-full items-center">
             <div className="max-w-4xl">
               <span className="mb-6 block font-sans text-[10px] uppercase tracking-[0.32em] text-[#D4C9B8]/80">
-                About Anoce
+                Anoce-ийн тухай
               </span>
               <h1 className="max-w-[11ch] font-serif text-[clamp(3.25rem,8vw,8rem)] leading-[0.92] text-white [text-wrap:balance]">
-                The living archive for Mongolian fashion.
+                Монгол загварын амьд архив.
               </h1>
               <p className="mt-8 max-w-2xl font-sans text-base leading-8 text-white/68 md:text-lg">
-                ANOCE documents the designers, collections, materials, and stories shaping Mongolia's fashion language from heritage craft to contemporary runway.
+                ANOCE нь өв урлалаас орчин үеийн тайз хүртэл Монголын загварын хэлийг бүрдүүлж буй дизайнер, цуглуулга, материал, түүхийг баримтжуулдаг.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-6">
                 <Link
                   href="/archive"
                   className="group inline-flex items-center gap-3 border-b border-white/24 pb-1 font-sans text-[11px] uppercase tracking-[0.24em] text-white/82 transition-colors hover:text-white"
                 >
-                  Explore Archive
+                  Архив үзэх
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
                 <Link
                   href="/designers"
                   className="font-sans text-[11px] uppercase tracking-[0.24em] text-white/46 transition-colors hover:text-white/76"
                 >
-                  View Designers
+                  Дизайнер үзэх
                 </Link>
               </div>
             </div>
@@ -85,18 +85,18 @@ export default function AboutPage() {
             <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
               <div>
                 <span className="mb-5 block font-sans text-[10px] uppercase tracking-[0.32em] text-[#8A8178]">
-                  Why it exists
+                  Яагаад хэрэгтэй вэ
                 </span>
                 <h2 className="font-serif text-[clamp(2.6rem,5vw,5.5rem)] leading-[0.98] text-[#1F1B17]">
-                  Fashion needs memory to move forward.
+                  Загвар урагшлахын тулд ой санамжтай байх хэрэгтэй.
                 </h2>
               </div>
               <div className="space-y-7 border-l border-[#D7D1C9] pl-8">
                 <p className="font-sans text-lg leading-8 text-[#5F574F] md:text-xl md:leading-9">
-                  ANOCE brings archival structure to a scene often encountered through fragments: a lookbook, a runway image, a studio note, a material story.
+                  ANOCE нь лүүкбук, тайзны зураг, студийн тэмдэглэл, материалын түүх гэх мэт тасархай хэлбэрээр харагддаг орчинд архивын бүтэц өгдөг.
                 </p>
                 <p className="font-sans text-base leading-8 text-[#7A7168]">
-                  The platform is built for discovery and continuity. Each page gives designers, researchers, buyers, students, and curious readers a clearer way to understand what was made, who made it, and why it matters.
+                  Энэ платформ нээлт, үргэлжлэлд зориулагдсан. Хуудас бүр дизайнер, судлаач, худалдан авагч, оюутан, сонирхогч уншигчдад юу бүтээгдсэн, хэн бүтээсэн, яагаад үнэ цэнтэйг илүү тод ойлгуулна.
                 </p>
               </div>
             </div>
@@ -125,10 +125,10 @@ export default function AboutPage() {
           <div className="section-shell">
             <div className="mb-14 max-w-3xl">
               <span className="mb-5 block font-sans text-[10px] uppercase tracking-[0.32em] text-[#D4C9B8]/70">
-                Point of view
+                Харах өнцөг
               </span>
               <h2 className="font-serif text-[clamp(2.4rem,4.6vw,5rem)] leading-[1] text-white">
-                A quiet system for culture, craft, and contemporary design.
+                Соёл, ур хийц, орчин үеийн дизайнд зориулсан нам гүм систем.
               </h2>
             </div>
 
@@ -153,13 +153,13 @@ export default function AboutPage() {
 
             <div className="mt-14 flex flex-wrap items-center justify-between gap-8 border-t border-white/10 pt-8">
               <p className="max-w-2xl font-sans text-base leading-8 text-white/58">
-                ANOCE is built from Ulaanbaatar outward: local in attention, international in conversation, and precise about the work that deserves to last.
+                ANOCE Улаанбаатараас эхэлж, Монголд төвлөрсөн анхааралтай, олон улсын ярианд нээлттэй, үлдэх ёстой бүтээлийг нямбай тэмдэглэдэг.
               </p>
               <Link
                 href="/editorial"
                 className="group inline-flex items-center gap-3 border-b border-white/18 pb-1 font-sans text-[11px] uppercase tracking-[0.24em] text-white/72 transition-colors hover:text-white"
               >
-                Read Editorial
+                Нийтлэл унших
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>

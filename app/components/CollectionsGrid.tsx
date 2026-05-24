@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { fetchContentCollections } from "@/lib/content/client";
+import { formatSeasonYear } from "@/lib/localization";
 
 interface CollectionFrame {
   id: string;
@@ -71,16 +72,14 @@ export const CollectionsGrid = () => {
   useEffect(() => {
     async function fetchCollections() {
       try {
-        console.log("Fetching collections...");
         const collections = await fetchContentCollections();
-        console.log("Collections found:", collections.length);
 
         if (collections.length > 0) {
           const collectionFrames = collections.slice(0, 4).map((col, idx) => ({
             id: col.id,
             frameId: String(idx + 1).padStart(2, "0"),
-            tag: `${col.designer_name || "Designer"} ${col.season || ""} ${col.year || ""}`.trim(),
-            title: col.title || "Untitled",
+            tag: `${col.designer_name || "Дизайнер"} ${formatSeasonYear(col.season, col.year)}`.trim(),
+            title: col.title || "Гарчиггүй",
             image: col.cover_image || col.coverImage || "",
             href: `/archive/${col.slug}`,
           }));
@@ -105,10 +104,10 @@ export const CollectionsGrid = () => {
         <div className="mb-6 flex shrink-0 flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="mb-2 block font-sans text-[10px] tracking-[0.32em] uppercase text-[#7F756A]">
-              Featured Collections
+              Онцлох цуглуулгууд
             </span>
             <h2 className="font-serif text-4xl leading-none text-[#1E1B18] md:text-5xl">
-              Latest Collections
+              Шинэ цуглуулгууд
             </h2>
           </div>
         </div>
@@ -138,17 +137,17 @@ export const CollectionsGrid = () => {
       >
         <div>
           <span className="mb-2 block font-sans text-[10px] tracking-[0.32em] uppercase text-[#7F756A]">
-            Featured Collections
+            Онцлох цуглуулгууд
           </span>
           <h2 className="font-serif text-4xl leading-none text-[#1E1B18] md:text-5xl">
-            Latest Collections
+            Шинэ цуглуулгууд
           </h2>
         </div>
         <Link
           href="/archive"
           className="inline-flex w-fit items-center gap-3 font-sans text-[10px] tracking-[0.24em] uppercase text-[#7F756A] transition-colors duration-300 hover:text-[#1E1B18]"
         >
-          View All
+          Бүгдийг үзэх
           <span className="h-px w-8 bg-current" />
         </Link>
       </motion.div>
@@ -189,7 +188,7 @@ export const CollectionsGrid = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,201,184,0.13),transparent_62%)]" />
             <div className="relative z-10 text-center">
               <span className="mb-3 block font-sans text-[9px] tracking-[0.28em] uppercase text-white/32">
-                New Season
+                Шинэ улирал
               </span>
               <span className="block font-serif text-4xl font-bold leading-none text-[#EDE9E2] md:text-5xl">
                 SS 2026

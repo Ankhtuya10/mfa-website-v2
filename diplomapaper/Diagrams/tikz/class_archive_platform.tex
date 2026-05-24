@@ -1,0 +1,66 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \draw[rounded corners=4pt] (0,6.4) rectangle (4.8,9.3);
+  \node[font=\small\bfseries] at (2.4,8.95) {Designer};
+  \draw (0,8.55) -- (4.8,8.55);
+  \node[anchor=west,font=\scriptsize] at (0.2,8.20) {+ slug, name, brand};
+  \node[anchor=west,font=\scriptsize] at (0.2,7.85) {+ tier, bio, images};
+  \node[anchor=west,font=\scriptsize] at (0.2,7.50) {+ socialLinks};
+  \draw (0,7.15) -- (4.8,7.15);
+  \node[anchor=west,font=\scriptsize] at (0.2,6.82) {+ profile(), list()};
+
+  \draw[rounded corners=4pt] (5.8,6.4) rectangle (11.2,9.3);
+  \node[font=\small\bfseries] at (8.5,8.95) {Collection};
+  \draw (5.8,8.55) -- (11.2,8.55);
+  \node[anchor=west,font=\scriptsize] at (6.0,8.20) {+ slug, title};
+  \node[anchor=west,font=\scriptsize] at (6.0,7.85) {+ designerSlug};
+  \node[anchor=west,font=\scriptsize] at (6.0,7.50) {+ season, year, looks};
+  \draw (5.8,7.15) -- (11.2,7.15);
+  \node[anchor=west,font=\scriptsize] at (6.0,6.82) {+ filter(), detail()};
+
+  \draw[rounded corners=4pt] (12.2,6.4) rectangle (17.6,9.3);
+  \node[font=\small\bfseries] at (14.9,8.95) {Look};
+  \draw (12.2,8.55) -- (17.6,8.55);
+  \node[anchor=west,font=\scriptsize] at (12.4,8.20) {+ id, number};
+  \node[anchor=west,font=\scriptsize] at (12.4,7.85) {+ image, description};
+  \node[anchor=west,font=\scriptsize] at (12.4,7.50) {+ materials, tags};
+  \draw (12.2,7.15) -- (17.6,7.15);
+  \node[anchor=west,font=\scriptsize] at (12.4,6.82) {+ renderCard()};
+
+  \draw[rounded corners=4pt] (0.2,2.7) rectangle (5.4,5.6);
+  \node[font=\small\bfseries] at (2.8,5.25) {Article};
+  \draw (0.2,4.85) -- (5.4,4.85);
+  \node[anchor=west,font=\scriptsize] at (0.4,4.50) {+ slug, title, category};
+  \node[anchor=west,font=\scriptsize] at (0.4,4.15) {+ body, status, tags};
+  \node[anchor=west,font=\scriptsize] at (0.4,3.80) {+ coverImage, credits};
+  \draw (0.2,3.45) -- (5.4,3.45);
+  \node[anchor=west,font=\scriptsize] at (0.4,3.12) {+ publish(), review()};
+
+  \draw[rounded corners=4pt] (6.3,2.7) rectangle (11.6,5.6);
+  \node[font=\small\bfseries] at (8.95,5.25) {User/Profile};
+  \draw (6.3,4.85) -- (11.6,4.85);
+  \node[anchor=west,font=\scriptsize] at (6.5,4.50) {+ id, email};
+  \node[anchor=west,font=\scriptsize] at (6.5,4.15) {+ role};
+  \node[anchor=west,font=\scriptsize] at (6.5,3.80) {+ saved/followed};
+  \draw (6.3,3.45) -- (11.6,3.45);
+  \node[anchor=west,font=\scriptsize] at (6.5,3.12) {+ bookmark(), follow()};
+
+  \draw[rounded corners=4pt] (12.6,2.7) rectangle (18.4,5.6);
+  \node[font=\small\bfseries] at (15.5,5.25) {ChatContext};
+  \draw (12.6,4.85) -- (18.4,4.85);
+  \node[anchor=west,font=\scriptsize] at (12.8,4.50) {+ liveResults};
+  \node[anchor=west,font=\scriptsize] at (12.8,4.15) {+ ragDocs};
+  \node[anchor=west,font=\scriptsize] at (12.8,3.80) {+ provider};
+  \draw (12.6,3.45) -- (18.4,3.45);
+  \node[anchor=west,font=\scriptsize] at (12.8,3.12) {+ retrieve(), answer()};
+
+  \draw[->] (4.8,7.8) -- (5.8,7.8);
+  \node[font=\scriptsize, fill=white, inner sep=1pt] at (5.3,8.05) {owns};
+  \draw[->] (11.2,7.8) -- (12.2,7.8);
+  \node[font=\scriptsize, fill=white, inner sep=1pt] at (11.7,8.05) {has};
+  \draw[->] (2.8,5.6) -- (2.8,6.4);
+  \node[font=\scriptsize, fill=white, inner sep=1pt] at (3.5,6.0) {mentions};
+  \draw[->] (8.9,5.6) -- (8.6,6.4);
+  \node[font=\scriptsize, fill=white, inner sep=1pt] at (9.6,6.0) {saves};
+  \draw[->] (11.6,4.2) -- (12.6,4.2);
+  \node[font=\scriptsize, fill=white, inner sep=1pt] at (12.1,4.45) {asks};
+\end{tikzpicture}

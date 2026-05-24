@@ -7,15 +7,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const quotes = [
   {
-    text: '"Fashion is the armor to survive the reality of everyday life."',
+    text: '"Загвар бол өдөр тутмын бодит амьдралыг даван туулах хуяг юм."',
     author: "— Nomin D.",
   },
   {
-    text: '"The steppe taught us that beauty lives in restraint."',
+    text: '"Тал нутаг бидэнд гоо сайхан даруу намбанд оршдогийг заасан."',
     author: "— Goyol Studio",
   },
   {
-    text: '"Every thread carries the memory of the herd."',
+    text: '"Ширхэг бүрт сүргийн дурсамж хадгалагддаг."',
     author: "— Gobi Cashmere",
   },
 ];
@@ -39,15 +39,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { signIn, signUp, getUser } = await import("@/lib/supabase/auth");
-      const supabase = await import("@/lib/supabase/client").then((m) =>
-        m.createClient(),
-      );
+      const { signIn, signUp } = await import("@/lib/supabase/auth");
 
       if (isSignIn) {
-        console.log("[Login] Attempting sign in for:", email);
-        const data = await signIn(email, password);
-        console.log("[Login] Sign in success:", data);
+        await signIn(email, password);
 
         // Set localStorage for navbar
         localStorage.setItem("anoce_user", email);
@@ -56,22 +51,20 @@ export default function LoginPage() {
         // Always redirect to home from public login
         router.replace("/");
       } else {
-        console.log("[Login] Attempting sign up for:", email);
         const data = await signUp(email, password, name);
-        console.log("[Login] Sign up success:", data);
 
         if (data.session) {
           localStorage.setItem("anoce_user", email);
           localStorage.setItem("anoce_user_name", name);
           router.replace("/");
         } else {
-          setError("Please check your email to confirm your account");
+          setError("Бүртгэлээ баталгаажуулахын тулд имэйлээ шалгана уу.");
           setLoading(false);
         }
       }
     } catch (err: any) {
       console.error("[Login] Error:", err);
-      setError(err.message || "An error occurred");
+      setError(err.message || "Алдаа гарлаа.");
       setLoading(false);
     }
   };
@@ -81,12 +74,11 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { signInWithGoogle } = await import("@/lib/supabase/auth");
-      console.log("[Login] Starting Google sign in");
       await signInWithGoogle();
       // OAuth redirects automatically, so no need to wait here
     } catch (err: any) {
       console.error("[Login] Google sign in error:", err);
-      setError(err.message || "An error occurred");
+      setError(err.message || "Алдаа гарлаа.");
       setLoading(false);
     }
   };
@@ -107,7 +99,7 @@ export default function LoginPage() {
           <div>
             <span className="font-serif text-6xl text-white">Anoce</span>
             <p className="font-sans text-[11px] tracking-[2.5px] uppercase text-[#B7AEA9] mt-4">
-              The New Era of Mongolian Fashion
+              Монгол загварын шинэ үе
             </p>
           </div>
 
@@ -156,7 +148,7 @@ export default function LoginPage() {
                   : "text-[#B7AEA9]"
               }`}
             >
-              Sign In
+              Нэвтрэх
             </button>
             <button
               onClick={() => setIsSignIn(false)}
@@ -166,17 +158,17 @@ export default function LoginPage() {
                   : "text-[#B7AEA9]"
               }`}
             >
-              Create Account
+              Бүртгүүлэх
             </button>
           </div>
 
           {searchParams.get("error") === "use_admin_login" && (
             <div className="mb-6 p-4 bg-amber-50 border border-amber-200 font-sans text-[12px] text-amber-700">
-              Staff members should use the{" "}
+              Багийн гишүүд{" "}
               <a href="/admin/login" className="underline font-bold">
-                CMS login
+                CMS нэвтрэх
               </a>{" "}
-              instead.
+              хуудсаар орно уу.
             </div>
           )}
 
@@ -196,22 +188,22 @@ export default function LoginPage() {
                 transition={{ duration: 0.3 }}
               >
                 <h2 className="font-serif text-3xl text-[#2A2522] mb-2">
-                  Welcome back
+                  Тавтай морил
                 </h2>
                 <p className="font-sans text-[13px] text-[#B7AEA9] mb-10">
-                  Sign in to your archive
+                  Өөрийн архив руугаа нэвтэрнэ үү
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Email
+                      Имэйл
                     </label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
+                      placeholder="name@email.com"
                       required
                       className="w-full border-b border-[rgba(0,0,0,0.15)] bg-transparent py-3 font-sans text-[15px] text-[#2A2522] outline-none focus:border-[#2A2522] transition-colors placeholder:text-[#C8C4BE]"
                     />
@@ -220,13 +212,13 @@ export default function LoginPage() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590]">
-                        Password
+                        Нууц үг
                       </label>
                       <a
                         href="#"
                         className="font-sans text-[11px] text-[#B7AEA9] hover:text-[#2A2522] transition-colors"
                       >
-                        Forgot password?
+                        Нууц үгээ мартсан уу?
                       </a>
                     </div>
                     <div className="relative">
@@ -243,7 +235,7 @@ export default function LoginPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-0 top-1/2 -translate-y-1/2 text-[#B7AEA9] text-xs"
                       >
-                        {showPassword ? "HIDE" : "SHOW"}
+                        {showPassword ? "НУУХ" : "ХАРАХ"}
                       </button>
                     </div>
                   </div>
@@ -253,14 +245,14 @@ export default function LoginPage() {
                     disabled={loading}
                     className="w-full bg-[#393931] text-white py-4 font-sans font-bold text-[11px] tracking-[4px] uppercase hover:bg-[#2A2522] transition-colors disabled:opacity-50"
                   >
-                    {loading ? "Signing in..." : "Sign In"}
+                    {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
                   </button>
                 </form>
 
                 <div className="flex items-center gap-4 my-8">
                   <div className="flex-1 h-px bg-[rgba(0,0,0,0.08)]" />
                   <span className="font-sans text-[11px] text-[#B7AEA9]">
-                    or
+                    эсвэл
                   </span>
                   <div className="flex-1 h-px bg-[rgba(0,0,0,0.08)]" />
                 </div>
@@ -270,7 +262,7 @@ export default function LoginPage() {
                   disabled={loading}
                   className="w-full border border-[rgba(0,0,0,0.15)] py-3 font-sans text-[13px] text-[#2A2522] hover:bg-[#F5F2ED] transition-colors disabled:opacity-50"
                 >
-                  Continue with Google
+                  Google-ээр үргэлжлүүлэх
                 </button>
               </motion.div>
             ) : (
@@ -282,22 +274,22 @@ export default function LoginPage() {
                 transition={{ duration: 0.3 }}
               >
                 <h2 className="font-serif text-3xl text-[#2A2522] mb-2">
-                  Join the Archive
+                  Архивт нэгдэх
                 </h2>
                 <p className="font-sans text-[13px] text-[#B7AEA9] mb-10">
-                  Create your account
+                  Шинэ бүртгэл үүсгэнэ үү
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Full Name
+                      Овог нэр
                     </label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Your name"
+                      placeholder="Таны нэр"
                       required
                       className="w-full border-b border-[rgba(0,0,0,0.15)] bg-transparent py-3 font-sans text-[15px] text-[#2A2522] outline-none focus:border-[#2A2522] transition-colors placeholder:text-[#C8C4BE]"
                     />
@@ -305,13 +297,13 @@ export default function LoginPage() {
 
                   <div>
                     <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Email
+                      Имэйл
                     </label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
+                      placeholder="name@email.com"
                       required
                       className="w-full border-b border-[rgba(0,0,0,0.15)] bg-transparent py-3 font-sans text-[15px] text-[#2A2522] outline-none focus:border-[#2A2522] transition-colors placeholder:text-[#C8C4BE]"
                     />
@@ -319,7 +311,7 @@ export default function LoginPage() {
 
                   <div>
                     <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Password
+                      Нууц үг
                     </label>
                     <input
                       type="password"
@@ -337,7 +329,7 @@ export default function LoginPage() {
                     disabled={loading}
                     className="w-full bg-[#393931] text-white py-4 font-sans font-bold text-[11px] tracking-[4px] uppercase hover:bg-[#2A2522] transition-colors disabled:opacity-50"
                   >
-                    {loading ? "Creating account..." : "Create Account"}
+                    {loading ? "Бүртгэл үүсгэж байна..." : "Бүртгүүлэх"}
                   </button>
                 </form>
               </motion.div>

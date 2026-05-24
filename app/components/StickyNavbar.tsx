@@ -180,8 +180,8 @@ export const StickyNavbar = () => {
         setIsLoggedIn(true);
         const { data: profile } = await supabase
           .from('profiles').select('name, role').eq('id', user.id).single();
-        const name = profile?.name || user.email?.split('@')[0] || 'User';
-        setUserInitial(name[0]?.toUpperCase() || 'U');
+        const name = profile?.name || user.email?.split('@')[0] || 'Хэрэглэгч';
+        setUserInitial(name[0]?.toUpperCase() || 'Х');
         setUserRole(profile?.role || null);
       }
     }
@@ -218,7 +218,7 @@ export const StickyNavbar = () => {
               </Link>
 
               <ul className="hidden lg:flex items-center gap-9 font-sans text-[10px] tracking-[0.22em] uppercase text-white/50">
-                {[['Home', '/'], ['Collections', '/archive'], ['Editorial', '/editorial']].map(([label, href]) => (
+                {[['Нүүр', '/'], ['Цуглуулга', '/archive'], ['Нийтлэл', '/editorial']].map(([label, href]) => (
                   <li key={label}>
                     <Link href={href} className="relative group hover:text-white/90 transition-colors duration-300">
                       {label}
@@ -233,7 +233,7 @@ export const StickyNavbar = () => {
                     onClick={openSearch}
                     className="relative group hover:text-white/90 transition-colors duration-300"
                   >
-                    SEARCH
+                    ХАЙХ
                     <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-white/40 group-hover:w-full transition-all duration-300" />
                   </button>
                 </li>
@@ -245,7 +245,7 @@ export const StickyNavbar = () => {
                   onClick={openSearch}
                   className="lg:hidden font-sans text-[10px] tracking-[0.22em] uppercase text-white/50 hover:text-white/90 transition-colors duration-300"
                 >
-                  Search
+                  Хайх
                 </button>
                 {isLoggedIn ? (
                   <div ref={dropdownRef} className="relative">
@@ -265,13 +265,13 @@ export const StickyNavbar = () => {
                         >
                           <Link href="/profile">
                             <div className="px-4 py-2.5 hover:bg-white/5 transition-colors">
-                              <span className="font-sans text-[10px] tracking-[2px] uppercase text-white/60">Profile</span>
+                              <span className="font-sans text-[10px] tracking-[2px] uppercase text-white/60">Профайл</span>
                             </div>
                           </Link>
                           {(userRole === 'admin' || userRole === 'editor') && (
                             <Link href="/admin/dashboard">
                               <div className="px-4 py-2.5 hover:bg-white/5 transition-colors">
-                                <span className="font-sans text-[10px] tracking-[2px] uppercase text-white/60">Admin</span>
+                                <span className="font-sans text-[10px] tracking-[2px] uppercase text-white/60">Админ</span>
                               </div>
                             </Link>
                           )}
@@ -286,7 +286,7 @@ export const StickyNavbar = () => {
                               }}
                               className="w-full text-left px-4 py-2.5 hover:bg-white/5 transition-colors"
                             >
-                              <span className="font-sans text-[10px] tracking-[2px] uppercase text-white/30">Sign Out</span>
+                              <span className="font-sans text-[10px] tracking-[2px] uppercase text-white/30">Гарах</span>
                             </button>
                           </div>
                         </motion.div>
@@ -295,7 +295,7 @@ export const StickyNavbar = () => {
                   </div>
                 ) : (
                   <Link href="/login" className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/50 hover:text-white/90 transition-colors duration-300 relative group">
-                    Login
+                    Нэвтрэх
                     <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-white/40 group-hover:w-full transition-all duration-300" />
                   </Link>
                 )}

@@ -5,3 +5,17 @@ node_modules/
 *.log
 .DS_Store
 .worktrees/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+*.aux
+*.fls
+*.fdb_latexmk
+*.xdv
+*.run.xml
+*.blg
+*.bbl
+*.bcf
+*.toc
+*.lof
+*.lot
+Thumbs.db

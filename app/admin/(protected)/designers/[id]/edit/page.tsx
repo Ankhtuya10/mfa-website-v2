@@ -9,9 +9,9 @@ import { fetchJson, postJson, uploadContentAsset } from '@/lib/content/client'
 type Tier = 'high-end' | 'contemporary' | 'emerging'
 
 const TIERS: { value: Tier; label: string }[] = [
-  { value: 'high-end', label: 'High-End' },
-  { value: 'contemporary', label: 'Contemporary' },
-  { value: 'emerging', label: 'Emerging' },
+  { value: 'high-end', label: 'Дээд зэрэглэл' },
+  { value: 'contemporary', label: 'Орчин үеийн' },
+  { value: 'emerging', label: 'Шинэ үе' },
 ]
 
 export default function EditDesignerPage() {
@@ -87,10 +87,10 @@ export default function EditDesignerPage() {
 
   function validate(): boolean {
     const next: Record<string, string> = {}
-    if (!formData.name.trim()) next.name = 'Name is required'
-    if (!formData.slug.trim()) next.slug = 'Slug is required'
-    if (!formData.tier) next.tier = 'Tier is required'
-    if (!formData.short_bio.trim()) next.short_bio = 'Short bio is required'
+    if (!formData.name.trim()) next.name = 'Нэр оруулна уу'
+    if (!formData.slug.trim()) next.slug = 'Slug оруулна уу'
+    if (!formData.tier) next.tier = 'Түвшин сонгоно уу'
+    if (!formData.short_bio.trim()) next.short_bio = 'Товч танилцуулга оруулна уу'
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -121,7 +121,7 @@ export default function EditDesignerPage() {
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } catch (err: any) {
-      setSaveError(err?.message || 'Failed to update designer. Please try again.')
+      setSaveError(err?.message || 'Дизайнерын мэдээллийг шинэчилж чадсангүй. Дахин оролдоно уу.')
     } finally {
       setLoading(false)
     }
@@ -150,7 +150,7 @@ export default function EditDesignerPage() {
     } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        profile_image: `Upload failed: ${err.message || 'Unknown error'}`,
+        profile_image: `Зураг оруулж чадсангүй: ${err.message || 'тодорхойгүй алдаа'}`,
       }))
       const existing = formData.profile_image
       setProfilePreview(existing ? `${existing}?v=${Date.now()}` : null)
@@ -183,7 +183,7 @@ export default function EditDesignerPage() {
     } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        cover_image: `Upload failed: ${err.message || 'Unknown error'}`,
+        cover_image: `Зураг оруулж чадсангүй: ${err.message || 'тодорхойгүй алдаа'}`,
       }))
       const existing = formData.cover_image
       setCoverPreview(existing ? `${existing}?v=${Date.now()}` : null)
@@ -210,12 +210,12 @@ export default function EditDesignerPage() {
   if (notFound) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="font-sans text-[13px] text-[#9B9590]">Designer not found.</p>
+        <p className="font-sans text-[13px] text-[#9B9590]">Дизайнер олдсонгүй.</p>
         <Link
           href="/admin/designers"
           className="font-sans text-[11px] uppercase tracking-[2px] text-[#2A2522] underline"
         >
-          Back to Designers
+          Дизайнерууд руу буцах
         </Link>
       </div>
     )
@@ -233,7 +233,7 @@ export default function EditDesignerPage() {
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <h1 className="font-sans text-[11px] uppercase tracking-[2px] text-[#2A2522]">
-            Edit Designer
+            Дизайнер засах
           </h1>
         </div>
         <button
@@ -245,10 +245,10 @@ export default function EditDesignerPage() {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : saved ? (
             <>
-              <Check className="h-4 w-4" /> Saved
+              <Check className="h-4 w-4" /> Хадгалсан
             </>
           ) : (
-            'Save Changes'
+            'Өөрчлөлт хадгалах'
           )}
         </button>
       </header>
@@ -274,7 +274,7 @@ export default function EditDesignerPage() {
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
                 if (e.target.value.trim()) setErrors((prev) => ({ ...prev, name: '' }))
               }}
-              placeholder="Designer name..."
+              placeholder="Дизайнерын нэр..."
               className={`w-full bg-transparent font-serif text-4xl text-[#2A2522] outline-none placeholder:text-[#B7AEA9] ${
                 errors.name ? 'border-b-2 border-red-400' : ''
               }`}
@@ -317,7 +317,7 @@ export default function EditDesignerPage() {
           {/* Short Bio */}
           <div className="mb-6">
             <label className="mb-2 block font-sans text-[10px] uppercase tracking-[1px] text-[#9B9590]">
-              Short Bio *
+              Товч танилцуулга *
             </label>
             <textarea
               value={formData.short_bio}
@@ -326,7 +326,7 @@ export default function EditDesignerPage() {
                 if (e.target.value.trim())
                   setErrors((prev) => ({ ...prev, short_bio: '' }))
               }}
-              placeholder="A brief, punchy introduction for listings and cards..."
+              placeholder="Жагсаалт болон карт дээр харагдах товч, тод танилцуулга..."
               className={`w-full min-h-[120px] resize-none bg-transparent font-sans text-[15px] leading-[1.8] text-[#3A3530] outline-none placeholder:text-[#B7AEA9] ${
                 errors.short_bio ? 'border-b-2 border-red-400 pb-1' : ''
               }`}
@@ -342,12 +342,12 @@ export default function EditDesignerPage() {
           {/* Full Bio */}
           <div>
             <label className="mb-2 block font-sans text-[10px] uppercase tracking-[1px] text-[#9B9590]">
-              Full Bio
+              Дэлгэрэнгүй танилцуулга
             </label>
             <textarea
               value={formData.bio}
               onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
-              placeholder="Full designer biography, history, and context..."
+              placeholder="Дизайнерын намтар, түүх, дэлгэрэнгүй агуулга..."
               className="w-full min-h-[300px] resize-none bg-transparent font-sans text-[15px] leading-[1.8] text-[#3A3530] outline-none placeholder:text-[#B7AEA9]"
             />
           </div>
@@ -358,7 +358,7 @@ export default function EditDesignerPage() {
           {/* ── Tier ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Tier *
+              Түвшин *
             </h3>
             <div className="space-y-2">
               {TIERS.map((t) => (
@@ -390,7 +390,7 @@ export default function EditDesignerPage() {
           {/* ── Founded ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Founded
+              Байгуулагдсан он
             </h3>
             <input
               type="number"
@@ -403,7 +403,7 @@ export default function EditDesignerPage() {
                   founded: e.target.value ? parseInt(e.target.value, 10) : '',
                 }))
               }
-              placeholder="e.g. 1995"
+              placeholder="ж. 1995"
               className="w-full border border-[rgba(0,0,0,0.15)] bg-transparent px-3 py-2 font-sans text-[12px] outline-none placeholder:text-[#B7AEA9]"
             />
           </div>
@@ -411,13 +411,13 @@ export default function EditDesignerPage() {
           {/* ── Profile Image ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Profile Image
+              Профайл зураг
             </h3>
             {profileSrc ? (
               <div className="relative aspect-square overflow-hidden rounded-full bg-[#F0EDE8]">
                 <img
                   src={profileSrc}
-                  alt="Profile"
+                  alt="Профайл зураг"
                   className="h-full w-full object-cover"
                 />
                 {profileUploading && (
@@ -437,7 +437,7 @@ export default function EditDesignerPage() {
                     }}
                     className="absolute right-2 top-2 rounded bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
                   >
-                    Remove
+                    Устгах
                   </button>
                 )}
               </div>
@@ -450,10 +450,10 @@ export default function EditDesignerPage() {
                     <>
                       <Upload className="mb-2 h-5 w-5 text-[#9B9590]" />
                       <span className="font-sans text-[11px] text-[#9B9590]">
-                        Click to upload
+                        Зураг оруулах
                       </span>
                       <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
-                        Square recommended
+                        Дөрвөлжин зураг тохиромжтой
                       </span>
                     </>
                   )}
@@ -478,13 +478,13 @@ export default function EditDesignerPage() {
           {/* ── Cover Image ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Cover Image
+              Нүүр зураг
             </h3>
             {coverSrc ? (
               <div className="relative aspect-video overflow-hidden bg-[#F0EDE8]">
                 <img
                   src={coverSrc}
-                  alt="Cover"
+                  alt="Нүүр зураг"
                   className="h-full w-full object-cover"
                 />
                 {coverUploading && (
@@ -504,7 +504,7 @@ export default function EditDesignerPage() {
                     }}
                     className="absolute right-2 top-2 bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
                   >
-                    Remove
+                    Устгах
                   </button>
                 )}
               </div>
@@ -517,10 +517,10 @@ export default function EditDesignerPage() {
                     <>
                       <Upload className="mb-2 h-5 w-5 text-[#9B9590]" />
                       <span className="font-sans text-[11px] text-[#9B9590]">
-                        Click to upload
+                        Зураг оруулах
                       </span>
                       <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
-                        16:9 recommended
+                        16:9 харьцаа тохиромжтой
                       </span>
                     </>
                   )}
@@ -551,7 +551,7 @@ export default function EditDesignerPage() {
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Save Changes'
+              'Өөрчлөлт хадгалах'
             )}
           </button>
         </div>

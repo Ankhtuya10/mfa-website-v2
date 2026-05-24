@@ -1,0 +1,30 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{block}=[draw, rounded corners=5pt, minimum width=4.8cm, minimum height=0.9cm, align=center, font=\scriptsize]
+  \tikzstyle{decision}=[draw, diamond, aspect=2.35, align=center, font=\scriptsize]
+
+  \node[circle,draw,minimum size=0.55cm,fill=black] (start) at (0,0) {};
+  \node[block] (login) at (0,-1.25) {Редактор / админ нэвтрэх};
+  \node[decision] (role) at (0,-2.85) {Эрх\\зөв үү?};
+  \node[block] (deny) at (-4.8,-4.25) {403 / access denied\\харуулах};
+  \node[block] (form) at (0,-4.65) {Article form нээх};
+  \node[block] (fill) at (0,-5.95) {Гарчиг, ангилал, body, tag\\болон cover image оруулах};
+  \node[block] (save) at (0,-7.25) {Draft эсвэл review төлөвөөр хадгалах};
+  \node[decision] (approve) at (0,-8.95) {Нийтлэхэд\\бэлэн үү?};
+  \node[block] (review) at (-4.8,-10.35) {Review queue-д үлдээх};
+  \node[block] (publish) at (0,-10.65) {Published status оноох};
+  \node[block] (show) at (0,-11.95) {Editorial хуудас болон\\search index-д харагдах};
+  \node[circle,draw,minimum size=0.55cm,fill=black] (end) at (0,-13.25) {};
+
+  \draw[->] (start) -- (login);
+  \draw[->] (login) -- (role);
+  \draw[->] (role) -- node[above,font=\scriptsize] {Үгүй} (deny);
+  \draw[->] (role) -- node[right,font=\scriptsize] {Тийм} (form);
+  \draw[->] (form) -- (fill);
+  \draw[->] (fill) -- (save);
+  \draw[->] (save) -- (approve);
+  \draw[->] (approve) -- node[above,font=\scriptsize] {Үгүй} (review);
+  \draw[->] (approve) -- node[right,font=\scriptsize] {Тийм} (publish);
+  \draw[->] (review.south) |- (save.west);
+  \draw[->] (publish) -- (show);
+  \draw[->] (show) -- (end);
+\end{tikzpicture}

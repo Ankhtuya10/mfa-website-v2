@@ -29,8 +29,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Anoce — The New Era of Mongolian Fashion",
-  description: "Luxury fashion rooted in Mongolian heritage",
+  title: "Anoce — Монгол загварын шинэ үе",
+  description: "Монгол өв соёлоос ургасан орчин үеийн тансаг загвар",
 };
 
 export default function RootLayout({
@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="mn">
       <body className={`${cormorant.variable} ${jost.variable} ${playfair.variable} ${inter.variable}`}>
         {children}
         <AnoceChatWidget />

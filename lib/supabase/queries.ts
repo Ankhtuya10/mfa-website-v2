@@ -39,7 +39,7 @@ export async function getArticleBySlug(slug: string) {
 
 export async function getAllArticlesAdmin() {
   const response = await fetch('/api/admin/content/articles', { cache: 'no-store' })
-  if (!response.ok) throw new Error('Failed to load admin articles')
+  if (!response.ok) throw new Error('Админ нийтлэлүүдийг ачаалж чадсангүй')
   return response.json()
 }
 

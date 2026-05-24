@@ -23,13 +23,30 @@ export async function POST(request: Request) {
 
   try {
     const body = (await request.json()) as Record<string, unknown>;
+    const isAdmin = auth.profile?.role === "admin";
+
+    if (!isAdmin && body.status === "published") {
+      return NextResponse.json(
+        { error: "Нийтлэл нийтлэх эрх зөвхөн админд байна." },
+        { status: 403 },
+      );
+    }
+
+    const articleInput = { ...body };
+    if (!isAdmin) {
+      delete articleInput.published_at;
+      delete articleInput.review_note;
+      delete articleInput.reviewed_at;
+      delete articleInput.reviewed_by;
+    }
+
     const article = await createContentRepository().upsertArticle({
-      ...body,
-      author_id: body.author_id || auth.user?.id || null,
+      ...articleInput,
+      author_id: articleInput.author_id || auth.user?.id || null,
       author_name:
-        body.author_name ||
+        articleInput.author_name ||
         auth.user?.email?.split("@")[0] ||
-        "Admin",
+        (isAdmin ? "Админ" : "Редактор"),
     });
     return NextResponse.json(article, { status: 201 });
   } catch (error) {

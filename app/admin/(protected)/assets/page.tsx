@@ -70,7 +70,7 @@ export default function AssetsPage() {
       .map((r) => r.value);
 
     const failed = results.filter((r) => r.status === "rejected").length;
-    if (failed > 0) console.error(`${failed} file(s) failed to upload`);
+    if (failed > 0) console.error(`${failed} файл оруулж чадсангүй`);
 
     if (uploaded.length > 0) {
       setAssets((prev) => [...uploaded, ...prev]);
@@ -84,7 +84,7 @@ export default function AssetsPage() {
     return (
       <div className="w-full">
         <header className="flex justify-between items-center mb-8 w-full">
-          <h1 className="font-serif text-2xl text-[#111111]">Asset Library</h1>
+          <h1 className="font-serif text-2xl text-[#111111]">Медиа сан</h1>
         </header>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -98,7 +98,7 @@ export default function AssetsPage() {
   return (
     <div className="w-full">
       <header className="flex justify-between items-center mb-8 w-full">
-        <h1 className="font-serif text-2xl text-[#111111]">Asset Library</h1>
+        <h1 className="font-serif text-2xl text-[#111111]">Медиа сан</h1>
         <div>
           <input
             type="file"
@@ -115,8 +115,8 @@ export default function AssetsPage() {
           >
             <Upload className="w-4 h-4" />
             {uploadProgress
-              ? `Uploading ${uploadProgress.done}/${uploadProgress.total}…`
-              : "Upload"}
+              ? `Оруулж байна ${uploadProgress.done}/${uploadProgress.total}…`
+              : "Оруулах"}
           </button>
         </div>
       </header>
@@ -129,10 +129,10 @@ export default function AssetsPage() {
                 <Upload className="w-10 h-10 text-[#9B9590]" />
               </div>
               <h3 className="font-serif text-xl text-[#111111] mb-2">
-                No assets uploaded yet
+                Одоогоор медиа оруулаагүй байна
               </h3>
               <p className="font-sans text-[#9B9590] mb-6">
-                Upload images to build your media library
+                Медиа сангаа бүрдүүлэхийн тулд зураг оруулна уу
               </p>
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -140,8 +140,8 @@ export default function AssetsPage() {
                 className="bg-[#111111] text-white font-sans font-bold text-[10px] tracking-[2.5px] uppercase px-5 py-2.5 hover:bg-[#333] transition-colors disabled:opacity-50"
               >
                 {uploadProgress
-                  ? `Uploading ${uploadProgress.done}/${uploadProgress.total}…`
-                  : "Upload Assets"}
+                  ? `Оруулж байна ${uploadProgress.done}/${uploadProgress.total}…`
+                  : "Медиа оруулах"}
               </button>
             </div>
           ) : (
@@ -198,7 +198,7 @@ export default function AssetsPage() {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590]">
-                      Size
+                      Хэмжээ
                     </span>
                     <span className="font-inter text-[12px] text-[#555555]">
                       {selectedAsset.size
@@ -217,7 +217,7 @@ export default function AssetsPage() {
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
-                  {copied ? "Copied!" : "Copy URL"}
+                  {copied ? "Хуулагдлаа!" : "URL хуулах"}
                 </button>
               </div>
 

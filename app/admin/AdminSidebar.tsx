@@ -10,14 +10,20 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard',   href: '/admin/dashboard' },
-  { icon: FileText,        label: 'Articles',    href: '/admin/articles' },
-  { icon: Grid,            label: 'Collections', href: '/admin/collections' },
-  { icon: Users,           label: 'Designers',   href: '/admin/designers' },
-  { icon: Image,           label: 'Assets',      href: '/admin/assets' },
-  { icon: Calendar,        label: 'Calendar',    href: '/admin/calendar' },
-  { icon: Shield,          label: 'Users',       href: '/admin/users' },
+  { icon: LayoutDashboard, label: 'Хянах самбар',   href: '/admin/dashboard' },
+  { icon: FileText,        label: 'Нийтлэл',    href: '/admin/articles' },
+  { icon: Grid,            label: 'Цуглуулга', href: '/admin/collections' },
+  { icon: Users,           label: 'Дизайнер',   href: '/admin/designers' },
+  { icon: Image,           label: 'Медиа',      href: '/admin/assets' },
+  { icon: Calendar,        label: 'Календарь',    href: '/admin/calendar' },
+  { icon: Shield,          label: 'Хэрэглэгч',       href: '/admin/users', adminOnly: true },
 ]
+
+const roleLabels: Record<string, string> = {
+  admin: 'Админ',
+  editor: 'Редактор',
+  viewer: 'Уншигч',
+}
 
 export function AdminSidebar({ user }: { user: { id: string; email?: string } | null }) {
   const pathname = usePathname()
@@ -33,8 +39,9 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
     fetchProfile()
   }, [user])
 
-  const userName = profile?.name || user?.email?.split('@')[0] || 'User'
+  const userName = profile?.name || user?.email?.split('@')[0] || 'Хэрэглэгч'
   const userRole = profile?.role || 'viewer'
+  const visibleNavItems = navItems.filter((item) => !item.adminOnly || userRole === 'admin')
 
   return (
     <aside className="w-[210px] shrink-0 h-screen sticky top-0 flex flex-col bg-[#0C0C0B]">
@@ -49,7 +56,7 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           return (
             <Link key={item.href} href={item.href}>
@@ -82,7 +89,7 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
           className="flex items-center gap-2.5 px-3 py-[8px] rounded-[7px] text-white/20 hover:text-white/50 hover:bg-white/[0.04] transition-all"
         >
           <ArrowUpRight className="w-[13px] h-[13px]" strokeWidth={1.6} />
-          <span className="text-[10.5px] tracking-[0.07em] uppercase font-sans">Back to site</span>
+          <span className="text-[10.5px] tracking-[0.07em] uppercase font-sans">Сайт руу буцах</span>
         </Link>
 
         {/* User */}
@@ -94,7 +101,9 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11.5px] text-white/65 font-medium font-sans leading-tight truncate">{userName}</p>
-            <p className="text-[8.5px] tracking-[0.13em] uppercase text-white/22 font-sans mt-0.5">{userRole}</p>
+            <p className="text-[8.5px] tracking-[0.13em] uppercase text-white/22 font-sans mt-0.5">
+              {roleLabels[userRole] || 'Уншигч'}
+            </p>
           </div>
         </div>
 
@@ -109,7 +118,7 @@ export function AdminSidebar({ user }: { user: { id: string; email?: string } | 
           className="flex items-center gap-2.5 px-3 py-[8px] rounded-[7px] text-white/18 hover:text-white/45 hover:bg-white/[0.04] transition-all w-full"
         >
           <LogOut className="w-[13px] h-[13px]" strokeWidth={1.6} />
-          <span className="text-[10.5px] tracking-[0.07em] uppercase font-sans">Sign out</span>
+          <span className="text-[10.5px] tracking-[0.07em] uppercase font-sans">Гарах</span>
         </button>
       </div>
     </aside>

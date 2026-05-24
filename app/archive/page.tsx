@@ -7,13 +7,14 @@ import { motion } from "framer-motion";
 import { StickyNavbar, Footer } from "@/app/components";
 import { EmptyState } from "@/app/components/shared/EmptyState";
 import { getCollections, getDesigners } from "@/lib/supabase/queries";
+import { getSeasonLabel } from "@/lib/localization";
 
 const canonicalSeasons = ["SS", "FW", "Pre-Fall", "Resort"] as const;
 
 const categoryKeywords: Record<string, string[]> = {
-  Outerwear: ["outerwear", "coat", "jacket", "parka", "trench", "bomber"],
-  Knitwear: ["knit", "knitwear", "cardigan", "sweater", "turtleneck"],
-  Accessories: [
+  "Гадуур хувцас": ["outerwear", "coat", "jacket", "parka", "trench", "bomber"],
+  "Сүлжмэл": ["knit", "knitwear", "cardigan", "sweater", "turtleneck"],
+  "Аксессуар": [
     "accessory",
     "bag",
     "belt",
@@ -22,7 +23,7 @@ const categoryKeywords: Record<string, string[]> = {
     "jewelry",
     "jewellery",
   ],
-  Footwear: [
+  "Гутал": [
     "footwear",
     "shoe",
     "boot",
@@ -34,17 +35,17 @@ const categoryKeywords: Record<string, string[]> = {
 };
 
 const materialKeywords: Record<string, string[]> = {
-  Cashmere: ["cashmere"],
-  Silk: ["silk"],
-  "Technical Nylon": ["nylon", "technical"],
-  "Distressed Denim": ["denim", "distressed"],
-  Wool: ["wool"],
-  Leather: ["leather"],
+  "Ноолуур": ["cashmere"],
+  "Торго": ["silk"],
+  "Техник нейлон": ["nylon", "technical"],
+  "Элэгдүүлсэн деним": ["denim", "distressed"],
+  "Ноос": ["wool"],
+  "Арьс": ["leather"],
 };
 
 const getDesignerName = (collection: any) =>
   String(
-    collection.designer_name || collection.designerName || "Unknown Brand",
+    collection.designer_name || collection.designerName || "Тодорхойгүй брэнд",
   );
 
 const normalizeSeason = (value: string) => {
@@ -145,13 +146,13 @@ const getCollectionCoverImage = (collection: any) => {
 };
 
 const getSeasonAndYearLabel = (item: CollectionMeta) => {
-  const seasonLabel = item.season || "Season";
+  const seasonLabel = getSeasonLabel(item.season) || "Улирал";
   return item.year ? `${seasonLabel} ${item.year}` : seasonLabel;
 };
 
 const ArchiveCollectionCard = ({ item }: { item: CollectionMeta }) => {
   const collectionTitle = String(
-    item.collection.title || item.designer || "Collection",
+    item.collection.title || item.designer || "Цуглуулга",
   );
   const coverImage = getCollectionCoverImage(item.collection);
 
@@ -183,7 +184,7 @@ const ArchiveCollectionCard = ({ item }: { item: CollectionMeta }) => {
             {collectionTitle}
           </h3>
           <span className="mt-auto pt-3 font-sans text-[9px] tracking-[0.22em] uppercase text-white/34">
-            View Collection
+            Цуглуулга үзэх
           </span>
         </div>
       </article>
@@ -411,7 +412,7 @@ export default function ArchivePage() {
       </p>
       <div className="flex flex-wrap gap-2">
         {values.length === 0 ? (
-          <span className="font-sans text-xs text-white/32">No options</span>
+          <span className="font-sans text-xs text-white/32">Сонголт алга</span>
         ) : (
           values.map((value) => {
             const isSelected = selected.includes(value);
@@ -426,7 +427,7 @@ export default function ArchivePage() {
                     : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/24 hover:bg-white/[0.07] hover:text-white/82"
                 }`}
               >
-                {String(value)}
+                {label === "Улирал" ? getSeasonLabel(String(value)) : String(value)}
               </button>
             );
           })
@@ -475,14 +476,13 @@ export default function ArchivePage() {
               className="mx-auto max-w-5xl text-center"
             >
               <span className="mb-5 block font-sans text-[10px] tracking-[0.36em] uppercase text-white/58">
-                Mongolian Fashion Archive
+                Монгол загварын архив
               </span>
               <h1 className="mb-5 font-serif text-6xl leading-none text-white md:text-7xl lg:text-8xl">
-                The Archive
+                Архив
               </h1>
               <p className="mx-auto max-w-2xl font-sans text-base leading-relaxed text-white/62 md:text-lg">
-                Every season, every collection, every look preserved in one
-                editorial index.
+                Улирал бүр, цуглуулга бүр, төрх бүр нэг редакцийн индексэд хадгалагдана.
               </p>
             </motion.div>
           </div>
@@ -494,7 +494,7 @@ export default function ArchivePage() {
             className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
           >
             <span className="font-sans text-[9px] uppercase tracking-[3.6px] text-white/58">
-              Scroll
+              Доош
             </span>
             <div className="h-[42px] w-px bg-gradient-to-b from-white/58 to-white/10" />
           </motion.div>
@@ -516,31 +516,31 @@ export default function ArchivePage() {
             <aside className="flex min-h-0 max-h-[30vh] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.035] shadow-[0_24px_90px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:max-h-none">
               <div className="shrink-0 border-b border-white/[0.07] px-8 py-5">
                 <span className="mb-2 block pl-1 font-sans text-[10px] tracking-[0.24em] uppercase text-white/38">
-                  Archive Index
+                  Архивын индекс
                 </span>
                 <h2 className="pl-1 font-serif text-[24px] leading-none text-white">
-                  Filter Archive
+                  Архив шүүх
                 </h2>
                 <p className="mt-2 font-sans text-[13px] leading-relaxed text-white/50">
-                  Narrow by season, brand, and material.
+                  Улирал, брэнд, материалаар нарийвчлан шүүнэ үү.
                 </p>
               </div>
 
               <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-8 py-5">
                 <FilterGroup
-                  label="Year"
+                  label="Он"
                   values={yearOptions}
                   selected={selectedYears}
                   onToggle={(year) => toggleValue(year, setSelectedYears)}
                 />
                 <FilterGroup
-                  label="Season"
+                  label="Улирал"
                   values={seasonOptions}
                   selected={selectedSeasons}
                   onToggle={(season) => toggleValue(season, setSelectedSeasons)}
                 />
                 <FilterGroup
-                  label="Designer / Brand"
+                  label="Дизайнер / Брэнд"
                   values={designerOptions}
                   selected={selectedDesigners}
                   onToggle={(designer) =>
@@ -548,7 +548,7 @@ export default function ArchivePage() {
                   }
                 />
                 <FilterGroup
-                  label="Category"
+                  label="Төрөл"
                   values={categoryOptions}
                   selected={selectedCategories}
                   onToggle={(category) =>
@@ -556,7 +556,7 @@ export default function ArchivePage() {
                   }
                 />
                 <FilterGroup
-                  label="Material"
+                  label="Материал"
                   values={materialOptions}
                   selected={selectedMaterials}
                   onToggle={(material) =>
@@ -572,7 +572,7 @@ export default function ArchivePage() {
                     onClick={clearAllFilters}
                     className="w-full rounded-full border border-white/14 bg-white/[0.04] px-4 py-2.5 font-sans text-[10px] tracking-[0.18em] uppercase text-white/68 transition-all hover:border-white/28 hover:bg-white/[0.08] hover:text-white"
                   >
-                    Clear filters
+                    Шүүлтүүр арилгах
                   </button>
                 </div>
               )}
@@ -583,20 +583,20 @@ export default function ArchivePage() {
                 <div className="flex shrink-0 flex-col gap-3 border-b border-white/[0.08] px-9 py-4 md:flex-row md:items-end md:justify-between">
                   <div>
                     <span className="mb-1.5 block pl-1 font-sans text-[10px] tracking-[0.28em] uppercase text-white/34">
-                      Collection Snapshot
+                      Цуглуулгын тойм
                     </span>
                     <h3 className="pl-1 font-serif text-[32px] leading-none text-white md:text-[38px]">
-                      Archive Results
+                      Архивын үр дүн
                     </h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 font-sans text-[10px] leading-none tracking-[0.16em] uppercase text-white/68">
-                      {filteredMeta.length} collections
+                      {filteredMeta.length} цуглуулга
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-2 font-sans text-[10px] leading-none tracking-[0.16em] uppercase text-white/46">
                       {activeFilterCount > 0
-                        ? `${activeFilterCount} active`
-                        : "Unfiltered"}
+                        ? `${activeFilterCount} идэвхтэй`
+                        : "Шүүлтүүргүй"}
                     </span>
                   </div>
                 </div>
@@ -605,16 +605,16 @@ export default function ArchivePage() {
                   {loading ? (
                     <div className="flex h-full items-center justify-center">
                       <span className="font-sans text-sm tracking-[0.22em] uppercase text-[#B7AEA9]">
-                        Loading...
+                        Ачаалж байна...
                       </span>
                     </div>
                   ) : filteredMeta.length === 0 ? (
                     <div className="flex h-full items-center justify-center">
                       <EmptyState
-                        title="No collections found"
-                        subtitle="Try changing your filters to widen the archive search."
-                        ghostText="EMPTY"
-                        action={{ label: "Clear Filters", href: "/archive" }}
+                        title="Цуглуулга олдсонгүй"
+                        subtitle="Архивын хайлтаа өргөжүүлэхийн тулд шүүлтүүрээ өөрчилж үзнэ үү."
+                        ghostText="ХООСОН"
+                        action={{ label: "Шүүлтүүр арилгах", href: "/archive" }}
                       />
                     </div>
                   ) : (
@@ -667,11 +667,11 @@ export default function ArchivePage() {
                   transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <span className="mb-4 block font-sans text-[10px] tracking-[0.36em] uppercase text-white/46">
-                    Season in Focus
+                    Онцлох улирал
                   </span>
                   <p className="mb-3 font-sans text-[11px] tracking-[0.26em] uppercase text-[#C4A882]">
                     {getDesignerName(featuredCollection)} ·{" "}
-                    {String(featuredCollection.season || "")}{" "}
+                    {getSeasonLabel(String(featuredCollection.season || ""))}{" "}
                     {String(featuredCollection.year || "")}
                   </p>
                   <h2 className="mb-6 font-serif text-5xl leading-[1.02] text-white md:text-6xl lg:text-[5.5rem]">
@@ -686,7 +686,7 @@ export default function ArchivePage() {
                   <div className="mb-10 flex gap-8">
                     <div>
                       <span className="block font-sans text-[10px] tracking-[0.22em] uppercase text-white/38">
-                        Looks
+                        Төрх
                       </span>
                       <span className="font-serif text-3xl text-white">
                         {(featuredCollection.looks || []).length}
@@ -694,15 +694,15 @@ export default function ArchivePage() {
                     </div>
                     <div>
                       <span className="block font-sans text-[10px] tracking-[0.22em] uppercase text-white/38">
-                        Season
+                        Улирал
                       </span>
                       <span className="font-serif text-3xl text-white">
-                        {String(featuredCollection.season || "–")}
+                        {getSeasonLabel(String(featuredCollection.season || "–"))}
                       </span>
                     </div>
                     <div>
                       <span className="block font-sans text-[10px] tracking-[0.22em] uppercase text-white/38">
-                        Year
+                        Он
                       </span>
                       <span className="font-serif text-3xl text-white">
                         {String(featuredCollection.year || "–")}
@@ -713,7 +713,7 @@ export default function ArchivePage() {
                     href={`/archive/${featuredCollection.slug}`}
                     className="inline-flex items-center gap-3 border border-[#C4A882]/50 bg-[#C4A882]/10 px-7 py-3.5 font-sans text-[11px] tracking-[0.28em] uppercase text-[#C4A882] transition-all hover:bg-[#C4A882]/20 hover:border-[#C4A882]"
                   >
-                    View Collection
+                    Цуглуулга үзэх
                     <span className="h-px w-6 bg-current" />
                   </Link>
                 </motion.div>
@@ -756,7 +756,7 @@ export default function ArchivePage() {
                           {look.image ? (
                             <Image
                               src={look.image}
-                              alt={`Look ${look.number}`}
+                              alt={`Төрх ${look.number}`}
                               fill
                               className="object-cover"
                             />
@@ -796,17 +796,17 @@ export default function ArchivePage() {
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               >
                 <span className="mb-2 block font-sans text-[10px] tracking-[0.36em] uppercase text-white/40">
-                  Behind the Collections
+                  Цуглуулгын ард
                 </span>
                 <h2 className="font-serif text-4xl leading-none text-white md:text-5xl">
-                  The Houses
+                  Загварын орднууд
                 </h2>
               </motion.div>
               <Link
                 href="/designers"
                 className="hidden font-sans text-[10px] tracking-[0.28em] uppercase text-white/40 transition-colors hover:text-white/80 md:block"
               >
-                All Designers →
+                Бүх дизайнер →
               </Link>
             </div>
 
@@ -828,9 +828,9 @@ export default function ArchivePage() {
                   emerging: "#B4C4A8",
                 };
                 const tierLabel: Record<string, string> = {
-                  "high-end": "High-End",
-                  contemporary: "Contemporary",
-                  emerging: "Emerging",
+                  "high-end": "Дээд зэрэглэл",
+                  contemporary: "Орчин үеийн",
+                  emerging: "Шинэ үе",
                 };
                 const accentColor = tierColors[d.tier] || "#C4A882";
                 return (
@@ -886,18 +886,18 @@ export default function ArchivePage() {
                               {dCollections.length}
                             </span>{" "}
                             {dCollections.length === 1
-                              ? "collection"
-                              : "collections"}
+                              ? "цуглуулга"
+                              : "цуглуулга"}
                           </span>
                           <span className="font-sans text-[11px] text-white/50">
                             <span className="font-serif text-lg text-white/80">
                               {totalDLooks}
                             </span>{" "}
-                            looks
+                            төрх
                           </span>
                           {d.founded && (
                             <span className="font-sans text-[11px] text-white/40">
-                              Est. {d.founded}
+                              Үүс. {d.founded}
                             </span>
                           )}
                         </div>
@@ -908,7 +908,7 @@ export default function ArchivePage() {
                             color: accentColor + "99",
                           }}
                         >
-                          View Profile
+                          Профайл үзэх
                           <span className="h-px w-4 bg-current transition-all group-hover:w-6" />
                         </span>
                       </div>
@@ -941,14 +941,14 @@ export default function ArchivePage() {
               >
                 <div>
                   <span className="mb-2 block font-sans text-[10px] tracking-[0.36em] uppercase text-white/38">
-                    Lookbook Index
+                    Төрхийн индекс
                   </span>
                   <h2 className="font-serif text-4xl leading-none text-white md:text-5xl">
-                    Every Look
+                    Бүх төрх
                   </h2>
                 </div>
                 <span className="font-sans text-[11px] tracking-[0.2em] uppercase text-white/32">
-                  {totalLooks} total
+                  Нийт {totalLooks}
                 </span>
               </motion.div>
 
@@ -970,7 +970,7 @@ export default function ArchivePage() {
                           {look.image ? (
                             <Image
                               src={look.image}
-                              alt={`Look ${look.number}`}
+                              alt={`Төрх ${look.number}`}
                               fill
                               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 17vw"
                               className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -981,7 +981,7 @@ export default function ArchivePage() {
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 p-3">
                             <p className="font-mono text-[9px] tracking-[0.18em] uppercase text-white/60">
-                              Look {look.number}
+                              Төрх {look.number}
                             </p>
                             <p className="truncate font-sans text-[10px] text-white/80 leading-tight">
                               {look.collectionTitle}
@@ -1018,29 +1018,29 @@ export default function ArchivePage() {
               className="w-full max-w-5xl"
             >
               <span className="mb-6 block font-sans text-[10px] tracking-[0.4em] uppercase text-white/38">
-                The Archive in Numbers
+                Архив тоогоор
               </span>
               <h2 className="mb-16 font-serif text-5xl leading-none text-white md:text-6xl">
-                By the Numbers
+                Тоон үзүүлэлт
               </h2>
 
               <div className="grid grid-cols-2 gap-px border border-white/8 bg-white/8 lg:grid-cols-4">
                 {[
                   {
                     value: totalCollections,
-                    label: "Collections",
-                    sub: "in the archive",
+                    label: "Цуглуулга",
+                    sub: "архивт",
                   },
-                  { value: totalLooks, label: "Looks", sub: "documented" },
+                  { value: totalLooks, label: "Төрх", sub: "баримтжсан" },
                   {
                     value: totalDesigners,
-                    label: "Designers",
-                    sub: "represented",
+                    label: "Дизайнер",
+                    sub: "төлөөлөгдсөн",
                   },
                   {
                     value: yearsActive,
-                    label: "Years",
-                    sub: "of fashion history",
+                    label: "Он жил",
+                    sub: "загварын түүх",
                   },
                 ].map(({ value, label, sub }, i) => (
                   <motion.div
@@ -1077,9 +1077,8 @@ export default function ArchivePage() {
               </div>
 
               <p className="mx-auto mt-14 max-w-2xl font-sans text-base leading-relaxed text-white/42">
-                The Mongolian Fashion Archive preserves every season, every
-                look, and every story from Mongolia&apos;s most important
-                fashion houses — documented for the generation that comes next.
+                Монголын загварын архив нь чухал загварын орднуудын улирал бүр,
+                төрх бүр, түүх бүрийг дараагийн үед зориулан баримтжуулж хадгалдаг.
               </p>
 
               <div className="mt-10 flex items-center justify-center gap-6">
@@ -1087,14 +1086,14 @@ export default function ArchivePage() {
                   href="/editorial"
                   className="border-b border-white/24 pb-1 font-sans text-[11px] tracking-[0.28em] uppercase text-white/60 transition-colors hover:border-white/60 hover:text-white"
                 >
-                  Read Editorial
+                  Нийтлэл унших
                 </Link>
                 <span className="text-white/20">·</span>
                 <Link
                   href="/designers"
                   className="border-b border-white/24 pb-1 font-sans text-[11px] tracking-[0.28em] uppercase text-white/60 transition-colors hover:border-white/60 hover:text-white"
                 >
-                  Meet the Designers
+                  Дизайнеруудтай танилцах
                 </Link>
               </div>
             </motion.div>

@@ -11,8 +11,9 @@ import {
   getArticles,
 } from "@/lib/supabase/queries";
 import { StickyNavbar, Footer } from "@/app/components";
+import { formatSeasonYear, getArticleCategoryLabel } from "@/lib/localization";
 
-const TABS = ["Collections", "Press", "All Looks"] as const;
+const TABS = ["Цуглуулга", "Хэвлэл", "Бүх төрх"] as const;
 type Tab = (typeof TABS)[number];
 
 interface Designer {
@@ -43,7 +44,7 @@ export default function DesignerPage({
   const [designerCollections, setDesignerCollections] = useState<any[]>([]);
   const [designerArticles, setDesignerArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<Tab>("Collections");
+  const [activeTab, setActiveTab] = useState<Tab>("Цуглуулга");
 
   useEffect(() => {
     async function loadData() {
@@ -95,7 +96,7 @@ export default function DesignerPage({
   if (!designer) {
     return (
       <div className="min-h-screen bg-[#080604] flex items-center justify-center">
-        <h1 className="font-serif text-4xl text-white">Designer not found</h1>
+        <h1 className="font-serif text-4xl text-white">Дизайнер олдсонгүй</h1>
       </div>
     );
   }
@@ -129,15 +130,15 @@ export default function DesignerPage({
   };
 
   const tierLabels: Record<Designer["tier"], string> = {
-    "high-end": "High-End",
-    contemporary: "Contemporary",
-    emerging: "Emerging",
+    "high-end": "Дээд зэрэглэл",
+    contemporary: "Орчин үеийн",
+    emerging: "Шинэ үе",
   };
 
   const tabCounts: Record<Tab, number> = {
-    Collections: designerCollections.length,
-    Press: designerArticles.length,
-    "All Looks": allLooks.length,
+    Цуглуулга: designerCollections.length,
+    Хэвлэл: designerArticles.length,
+    "Бүх төрх": allLooks.length,
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -203,7 +204,7 @@ export default function DesignerPage({
                 {designer.founded > 0 && (
                   <div>
                     <span className="font-sans text-[9px] tracking-[2px] uppercase text-white/35 block mb-0.5">
-                      Founded
+                      Үүссэн
                     </span>
                     <span className="font-serif text-white text-[1.35rem]">
                       {designer.founded}
@@ -212,7 +213,7 @@ export default function DesignerPage({
                 )}
                 <div>
                   <span className="font-sans text-[9px] tracking-[2px] uppercase text-white/35 block mb-0.5">
-                    Collections
+                    Цуглуулга
                   </span>
                   <span className="font-serif text-white text-[1.35rem]">
                     {designerCollections.length}
@@ -220,7 +221,7 @@ export default function DesignerPage({
                 </div>
                 <div>
                   <span className="font-sans text-[9px] tracking-[2px] uppercase text-white/35 block mb-0.5">
-                    Looks
+                    Төрх
                   </span>
                   <span className="font-serif text-white text-[1.35rem]">
                     {totalLooks}
@@ -262,13 +263,13 @@ export default function DesignerPage({
         <div className="max-w-6xl mx-auto flex items-stretch overflow-x-auto">
           {(
             [
-              { label: "Founded", value: designer.founded || "—" },
-              { label: "Active Seasons", value: activeSeasons || "—" },
-              { label: "Collections", value: designerCollections.length },
-              { label: "Looks", value: totalLooks },
+              { label: "Үүссэн", value: designer.founded || "—" },
+              { label: "Идэвхтэй улирал", value: activeSeasons || "—" },
+              { label: "Цуглуулга", value: designerCollections.length },
+              { label: "Төрх", value: totalLooks },
               {
-                label: "Nationality",
-                value: designer.nationality || "Mongolian",
+                label: "Харьяалал",
+                value: designer.nationality || "Монгол",
               },
             ] as { label: string; value: string | number }[]
           ).map((stat, i, arr) => (
@@ -334,7 +335,7 @@ export default function DesignerPage({
                 <span className="w-8 h-8 rounded-full border border-white/20 group-hover:border-white/50 flex items-center justify-center transition-colors text-base leading-none">
                   ↗
                 </span>
-                Official Website
+                Албан ёсны сайт
               </Link>
             )}
           </div>
@@ -371,7 +372,7 @@ export default function DesignerPage({
       <div className="max-w-6xl mx-auto px-8 py-16 min-h-[40vh]">
         <AnimatePresence mode="wait">
           {/* ── Collections ── */}
-          {activeTab === "Collections" && (
+          {activeTab === "Цуглуулга" && (
             <motion.div
               key="collections"
               initial={{ opacity: 0 }}
@@ -383,7 +384,7 @@ export default function DesignerPage({
               {designerCollections.length === 0 ? (
                 <div className="flex items-center justify-center py-24">
                   <span className="font-sans text-[9px] tracking-[3px] uppercase text-white/20">
-                    No collections yet
+                    Одоогоор цуглуулга алга
                   </span>
                 </div>
               ) : (
@@ -429,7 +430,7 @@ export default function DesignerPage({
                             {/* Right side metadata */}
                             <div className="flex flex-col justify-center gap-2 p-6 min-w-0">
                               <span className="font-sans text-[10px] tracking-[2px] uppercase text-white/35">
-                                {collection.season} {collection.year}
+                                {formatSeasonYear(collection.season, collection.year)}
                               </span>
                               <h3 className="font-serif text-white text-xl leading-tight [overflow-wrap:anywhere]">
                                 {collection.title}
@@ -443,7 +444,7 @@ export default function DesignerPage({
                                 href={`/archive/${collection.slug}`}
                                 className="font-sans text-[11px] tracking-[1px] text-white/30 group-hover:text-white/60 transition-colors mt-1 w-fit"
                               >
-                                View Collection →
+                                Цуглуулга үзэх →
                               </Link>
                             </div>
                           </div>
@@ -456,7 +457,7 @@ export default function DesignerPage({
           )}
 
           {/* ── Press ── */}
-          {activeTab === "Press" && (
+          {activeTab === "Хэвлэл" && (
             <motion.div
               key="press"
               initial={{ opacity: 0 }}
@@ -467,7 +468,7 @@ export default function DesignerPage({
               {designerArticles.length === 0 ? (
                 <div className="flex items-center justify-center py-24">
                   <span className="font-sans text-[9px] tracking-[3px] uppercase text-white/20">
-                    No press coverage yet
+                    Одоогоор хэвлэлийн нийтлэл алга
                   </span>
                 </div>
               ) : (
@@ -498,7 +499,7 @@ export default function DesignerPage({
 
                         {article.category && (
                           <span className="font-sans text-[9px] tracking-[2px] uppercase text-white/35 mb-2 block">
-                            {article.category}
+                            {getArticleCategoryLabel(article.category)}
                           </span>
                         )}
 
@@ -507,7 +508,7 @@ export default function DesignerPage({
                         </h3>
 
                         <span className="font-sans text-[11px] text-white/30">
-                          {article.read_time ?? article.readTime} min read
+                          {article.read_time ?? article.readTime} мин уншина
                         </span>
                       </Link>
                     </motion.div>
@@ -518,7 +519,7 @@ export default function DesignerPage({
           )}
 
           {/* ── All Looks ── */}
-          {activeTab === "All Looks" && (
+          {activeTab === "Бүх төрх" && (
             <motion.div
               key="looks"
               initial={{ opacity: 0 }}
@@ -529,7 +530,7 @@ export default function DesignerPage({
               {allLooks.length === 0 ? (
                 <div className="flex items-center justify-center py-24">
                   <span className="font-sans text-[9px] tracking-[3px] uppercase text-white/20">
-                    No looks available
+                    Одоогоор төрх алга
                   </span>
                 </div>
               ) : (
@@ -548,7 +549,7 @@ export default function DesignerPage({
                       {look.image && (
                         <Image
                           src={look.image}
-                          alt={`Look ${look.number}`}
+                          alt={`Төрх ${look.number}`}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-700"
                         />

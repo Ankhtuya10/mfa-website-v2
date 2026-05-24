@@ -108,13 +108,13 @@ export default function EditCollectionPage() {
 
   function validate(): boolean {
     const next: Record<string, string> = {};
-    if (!formData.title.trim()) next.title = "Title is required";
+    if (!formData.title.trim()) next.title = "Гарчиг оруулна уу";
     if (!formData.designer_name.trim())
-      next.designer_name = "Designer is required";
-    if (!formData.season) next.season = "Season is required";
+      next.designer_name = "Дизайнер сонгоно уу";
+    if (!formData.season) next.season = "Улирал сонгоно уу";
     const yr = Number(formData.year);
     if (!yr || yr < 2000 || yr > 2030)
-      next.year = "Year must be between 2000 and 2030";
+      next.year = "Он 2000-2030 хооронд байх ёстой";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -149,7 +149,7 @@ export default function EditCollectionPage() {
       setTimeout(() => setSaved(false), 2500);
     } catch (err: any) {
       setSaveError(
-        err?.message || "Failed to update collection. Please try again.",
+        err?.message || "Цуглуулга шинэчилж чадсангүй. Дахин оролдоно уу.",
       );
     } finally {
       setLoading(false);
@@ -180,7 +180,7 @@ export default function EditCollectionPage() {
     } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        coverImage: "Image upload failed. Please try again.",
+        coverImage: "Зураг оруулж чадсангүй. Дахин оролдоно уу.",
       }));
       setCoverPreview(coverImage ? `${coverImage}?v=${Date.now()}` : null);
     } finally {
@@ -205,13 +205,13 @@ export default function EditCollectionPage() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <p className="font-sans text-[13px] text-[#9B9590]">
-          Collection not found.
+          Цуглуулга олдсонгүй.
         </p>
         <Link
           href="/admin/collections"
           className="font-sans text-[11px] uppercase tracking-[2px] text-[#2A2522] underline"
         >
-          Back to Collections
+          Цуглуулга руу буцах
         </Link>
       </div>
     );
@@ -229,7 +229,7 @@ export default function EditCollectionPage() {
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <h1 className="font-sans text-[11px] uppercase tracking-[2px] text-[#2A2522]">
-            Edit Collection
+            Цуглуулга засах
           </h1>
         </div>
         <button
@@ -241,10 +241,10 @@ export default function EditCollectionPage() {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : saved ? (
             <>
-              <Check className="h-4 w-4" /> Saved
+              <Check className="h-4 w-4" /> Хадгалсан
             </>
           ) : (
-            "Save Changes"
+            "Өөрчлөлт хадгалах"
           )}
         </button>
       </header>
@@ -271,7 +271,7 @@ export default function EditCollectionPage() {
                 if (e.target.value.trim())
                   setErrors((prev) => ({ ...prev, title: "" }));
               }}
-              placeholder="Collection title..."
+              placeholder="Цуглуулгын гарчиг..."
               className={`w-full bg-transparent font-serif text-4xl text-[#2A2522] outline-none placeholder:text-[#B7AEA9] ${
                 errors.title ? "border-b-2 border-red-400" : ""
               }`}
@@ -298,7 +298,7 @@ export default function EditCollectionPage() {
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, description: e.target.value }))
             }
-            placeholder="Collection description..."
+            placeholder="Цуглуулгын тайлбар..."
             className="w-full min-h-[200px] resize-none bg-transparent font-sans text-[15px] leading-[1.8] text-[#3A3530] outline-none placeholder:text-[#B7AEA9]"
           />
         </div>
@@ -308,20 +308,20 @@ export default function EditCollectionPage() {
           {/* ── Details ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Details
+              Дэлгэрэнгүй
             </h3>
             <div className="space-y-3">
               {/* Designer select */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Designer *
+                  Дизайнер *
                 </label>
                 <select
                   value={selectedDesignerId}
                   onChange={handleDesignerSelect}
                   className="w-full border border-[rgba(0,0,0,0.15)] bg-white px-3 py-2 font-sans text-[12px] outline-none"
                 >
-                  <option value="">— Select designer —</option>
+                  <option value="">— Дизайнер сонгох —</option>
                   {designers.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}
@@ -333,7 +333,7 @@ export default function EditCollectionPage() {
               {/* Manual designer name */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Designer Name *
+                  Дизайнерын нэр *
                 </label>
                 <input
                   type="text"
@@ -346,7 +346,7 @@ export default function EditCollectionPage() {
                     if (e.target.value.trim())
                       setErrors((prev) => ({ ...prev, designer_name: "" }));
                   }}
-                  placeholder="or type manually"
+                  placeholder="эсвэл гараар бичих"
                   className={`w-full border px-3 py-2 font-sans text-[12px] bg-transparent outline-none ${
                     errors.designer_name
                       ? "border-red-400"
@@ -364,7 +364,7 @@ export default function EditCollectionPage() {
               {/* Designer slug */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Designer Slug
+                  Дизайнерын slug
                 </label>
                 <input
                   type="text"
@@ -375,7 +375,7 @@ export default function EditCollectionPage() {
                       designer_slug: e.target.value,
                     }))
                   }
-                  placeholder="auto-filled from select"
+                  placeholder="сонголтоос автоматаар бөглөгдөнө"
                   className="w-full border border-[rgba(0,0,0,0.15)] bg-transparent px-3 py-2 font-sans text-[12px] outline-none"
                 />
               </div>
@@ -383,7 +383,7 @@ export default function EditCollectionPage() {
               {/* Season */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Season *
+                  Улирал *
                 </label>
                 <select
                   value={formData.season}
@@ -400,8 +400,8 @@ export default function EditCollectionPage() {
                       : "border-[rgba(0,0,0,0.15)]"
                   }`}
                 >
-                  <option value="SS">SS — Spring/Summer</option>
-                  <option value="FW">FW — Fall/Winter</option>
+                  <option value="SS">SS — Хавар/Зун</option>
+                  <option value="FW">FW — Намар/Өвөл</option>
                 </select>
                 {errors.season && (
                   <p className="mt-1 flex items-center gap-1 font-sans text-[10px] text-red-500">
@@ -414,7 +414,7 @@ export default function EditCollectionPage() {
               {/* Year */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Year *
+                  Он *
                 </label>
                 <input
                   type="number"
@@ -447,14 +447,14 @@ export default function EditCollectionPage() {
           {/* ── Cover Image ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Cover Image
+              Нүүр зураг
             </h3>
 
             {coverSrc ? (
               <div className="relative aspect-[3/4] overflow-hidden bg-[#F0EDE8]">
                 <img
                   src={coverSrc}
-                  alt="Cover"
+                  alt="Нүүр зураг"
                   className="h-full w-full object-cover"
                 />
                 {uploading && (
@@ -474,7 +474,7 @@ export default function EditCollectionPage() {
                     }}
                     className="absolute right-2 top-2 bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
                   >
-                    Remove
+                    Устгах
                   </button>
                 )}
               </div>
@@ -493,7 +493,7 @@ export default function EditCollectionPage() {
                     <>
                       <Upload className="mb-2 h-6 w-6 text-[#9B9590]" />
                       <span className="font-sans text-[11px] text-[#9B9590]">
-                        Click to upload
+                        Зураг оруулах
                       </span>
                       <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
                         JPG, PNG, WebP
@@ -527,7 +527,7 @@ export default function EditCollectionPage() {
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              "Save Changes"
+              "Өөрчлөлт хадгалах"
             )}
           </button>
         </div>

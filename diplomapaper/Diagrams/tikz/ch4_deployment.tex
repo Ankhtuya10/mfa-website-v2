@@ -1,0 +1,23 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{nodebox}=[draw, rounded corners=5pt, minimum width=4.4cm, minimum height=1.1cm,
+    text width=3.8cm, align=center, font=\scriptsize]
+  \tikzstyle{store}=[draw, cylinder, shape border rotate=90, aspect=0.25, minimum height=1.2cm,
+    minimum width=2.4cm, text width=2.5cm, align=center, font=\scriptsize]
+  \tikzstyle{flow}=[font=\tiny, fill=white, inner sep=1pt, align=center]
+
+  \node[nodebox, fill=blue!8] (browser) at (0,0) {Browser\\Reader/Admin};
+  \node[nodebox, fill=green!8] (next) at (6,0) {Next.js App\\Pages + Components};
+  \node[nodebox, fill=yellow!10] (api) at (6,-2.4) {Next.js API Routes\\Content, Admin, Chat};
+  \node[store, fill=orange!10] (supabase) at (12,0) {Supabase\\Auth + Profiles + RAG};
+  \node[store, fill=gray!14] (rag) at (12,-2.4) {CouchDB\\Content + Assets};
+  \node[nodebox, fill=purple!8] (llm) at (12,-4.8) {LLM Provider\\Gemini / Ollama};
+
+  \draw[->] (browser) -- node[above,flow] {HTTPS UI} (next);
+  \draw[->] (next) -- node[above,flow] {Auth/RAG\\bookmarks} (supabase);
+  \draw[->] (next) -- node[right,flow] {Chat API} (api);
+  \draw[->] (api) -- node[above,flow] {Content\\read/write} (rag);
+  \draw[->] (api) -- node[right,flow] {Prompt\\context} (llm);
+  \draw[->] (llm) -- node[left,flow] {Answer} (api);
+  \draw[->] (api) -- node[left,flow] {Answer\\sources} (next);
+  \draw[->] (api) -- node[above,flow] {Role\\RAG query} (supabase);
+\end{tikzpicture}

@@ -70,13 +70,13 @@ export default function BrandsPage() {
         >
           <div className="w-full max-w-5xl mx-auto px-8 text-center">
             <span className="font-sans text-xs tracking-[0.32em] uppercase text-[#B7AEA9] block mb-6">
-              Mongolian Fashion
+              Монгол загвар
             </span>
             <h1 className="font-serif text-white text-5xl md:text-6xl lg:text-7xl leading-[1.1] mb-6 [overflow-wrap:anywhere]">
-              The Brands
+              Брэндүүд
             </h1>
             <p className="font-sans text-[#B7AEA9] text-lg max-w-xl mx-auto">
-              From heritage cashmere houses to the voices of a new generation
+              Өв уламжлалт ноолуурын ордноос шинэ үеийн дуу хоолой хүртэл
             </p>
           </div>
         </section>
@@ -87,14 +87,14 @@ export default function BrandsPage() {
             <div className="flex items-center justify-center gap-6 mb-12">
               <div className="h-px w-16 bg-[rgba(0,0,0,0.08)]" />
               <span className="font-sans text-xs tracking-[4px] uppercase text-[#9B9590]">
-                High-End
+                Дээд зэрэглэл
               </span>
               <div className="h-px w-16 bg-[rgba(0,0,0,0.08)]" />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {!loading && highEnd.length === 0 && (
                 <p className="font-sans text-[#9B9590]">
-                  No high-end brands found.
+                  Дээд зэрэглэлийн брэнд олдсонгүй.
                 </p>
               )}
               {highEnd.map((designer, i) => (
@@ -120,19 +120,19 @@ export default function BrandsPage() {
                     </div>
                     <div className="p-8 flex flex-col justify-center text-center">
                       <span className="font-sans text-xs tracking-[3px] uppercase text-[#9B9590] mb-2 block">
-                        High-End
+                        Дээд зэрэглэл
                       </span>
                       <h3 className="font-serif text-2xl text-[#2A2522] mb-2">
                         {designer.name}
                       </h3>
                       <span className="font-sans text-xs tracking-[3px] uppercase text-[#9B9590] mb-3 block">
-                        Est. {designer.founded}
+                        Үүс. {designer.founded}
                       </span>
                       <p className="font-sans text-sm text-[#7A7470] leading-relaxed line-clamp-2 mb-4">
                         {designer.short_bio}
                       </p>
                       <span className="font-sans text-xs tracking-[3px] uppercase text-[#2A2522] group-hover:text-[#393931] transition-colors">
-                        Explore →
+                        Үзэх →
                       </span>
                     </div>
                   </motion.article>
@@ -148,14 +148,14 @@ export default function BrandsPage() {
             <div className="flex items-center justify-center gap-6 mb-12">
               <div className="h-px w-16 bg-[rgba(0,0,0,0.08)]" />
               <span className="font-sans text-xs tracking-[4px] uppercase text-[#9B9590]">
-                Contemporary
+                Орчин үеийн
               </span>
               <div className="h-px w-16 bg-[rgba(0,0,0,0.08)]" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {!loading && contemporary.length === 0 && (
                 <p className="font-sans text-[#9B9590]">
-                  No contemporary brands found.
+                  Орчин үеийн брэнд олдсонгүй.
                 </p>
               )}
               {contemporary.map((designer, i) => (
@@ -184,7 +184,7 @@ export default function BrandsPage() {
                         {designer.name}
                       </h3>
                       <span className="font-sans text-xs tracking-[3px] uppercase text-[#9B9590]">
-                        Est. {designer.founded}
+                        Үүс. {designer.founded}
                       </span>
                       <p className="font-sans text-sm text-[#7A7470] mt-3 leading-relaxed">
                         {designer.short_bio}
@@ -203,14 +203,14 @@ export default function BrandsPage() {
             <div className="flex items-center justify-center gap-6 mb-12">
               <div className="h-px w-16 bg-[rgba(0,0,0,0.08)]" />
               <span className="font-sans text-xs tracking-[4px] uppercase text-[#9B9590]">
-                Emerging Talent
+                Шинэ үеийн авьяас
               </span>
               <div className="h-px w-16 bg-[rgba(0,0,0,0.08)]" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {!loading && emerging.length === 0 && (
                 <p className="font-sans text-[#9B9590]">
-                  No emerging brands found.
+                  Шинэ үеийн брэнд олдсонгүй.
                 </p>
               )}
               {emerging.map((designer, i) => (
@@ -239,7 +239,7 @@ export default function BrandsPage() {
                         {designer.name}
                       </h3>
                       <span className="font-sans text-xs tracking-[3px] uppercase text-[#9B9590]">
-                        Est. {designer.founded}
+                        Үүс. {designer.founded}
                       </span>
                     </div>
                   </motion.article>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createContentRepository } from "@/lib/couchdb/repository";
+import { formatSeasonYear } from "@/lib/localization";
 import { jsonError } from "../utils";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ export async function GET() {
       image: article.cover_image || article.coverImage || "",
       href: `/editorial/${article.slug}`,
       category: "articles",
-      meta: `${article.author_name || article.author || "Editorial"} · ${article.read_time || article.readTime || 5} min read`,
+      meta: `${article.author_name || article.author || "Редакц"} · ${article.read_time || article.readTime || 5} мин уншина`,
       searchText: [
         article.title,
         article.subtitle,
@@ -48,7 +49,7 @@ export async function GET() {
         image: collection.cover_image || collection.coverImage || "",
         href: `/archive/${collection.slug}`,
         category: "collections",
-        meta: `${collection.designer_name || collection.designerName || "Unknown"} · ${collection.season || ""} ${collection.year || ""}`.trim(),
+        meta: `${collection.designer_name || collection.designerName || "Тодорхойгүй"} · ${formatSeasonYear(collection.season, collection.year)}`.trim(),
         searchText: [
           collection.title,
           collection.description,
@@ -85,7 +86,7 @@ export async function GET() {
       image: designer.cover_image || designer.coverImage || "",
       href: `/designers/${designer.slug}`,
       category: "brands",
-      meta: `${designer.name} · Founded ${designer.founded || "-"}`,
+      meta: `${designer.name} · Үүс. ${designer.founded || "-"}`,
       searchText: [designer.name, designer.bio, designer.short_bio || designer.shortBio].join(" "),
       tags: [designer.tier || ""],
     }));

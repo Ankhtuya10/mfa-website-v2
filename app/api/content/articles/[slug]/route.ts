@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { slug } = await context.params;
     const article = await createContentRepository().getArticleBySlug(decodeURIComponent(slug));
-    if (!article) return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    if (!article) return NextResponse.json({ error: "Нийтлэл олдсонгүй" }, { status: 404 });
     return NextResponse.json(article);
   } catch (error) {
     return jsonError(error);

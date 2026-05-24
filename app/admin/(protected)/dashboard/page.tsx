@@ -5,10 +5,10 @@ import { createContentRepository } from '@/lib/couchdb/repository'
 export const dynamic = 'force-dynamic'
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; badge: string }> = {
-  published: { label: 'Published', dot: 'bg-emerald-400', badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' },
-  review:    { label: 'Review',    dot: 'bg-amber-400',   badge: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200' },
-  draft:     { label: 'Draft',     dot: 'bg-stone-300',   badge: 'bg-stone-100 text-stone-500 ring-1 ring-stone-200' },
-  archived:  { label: 'Archived',  dot: 'bg-red-300',     badge: 'bg-red-50 text-red-600 ring-1 ring-red-200' },
+  published: { label: 'Нийтлэгдсэн', dot: 'bg-emerald-400', badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' },
+  review:    { label: 'Хяналт',    dot: 'bg-amber-400',   badge: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200' },
+  draft:     { label: 'Ноорог',     dot: 'bg-stone-300',   badge: 'bg-stone-100 text-stone-500 ring-1 ring-stone-200' },
+  archived:  { label: 'Архивласан',  dot: 'bg-red-300',     badge: 'bg-red-50 text-red-600 ring-1 ring-red-200' },
 }
 
 export default async function DashboardPage() {
@@ -17,13 +17,13 @@ export default async function DashboardPage() {
     const then = new Date(dateValue).getTime()
     const diffHours = Math.max(1, Math.floor((now - then) / (1000 * 60 * 60)))
 
-    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffHours < 24) return `${diffHours} цагийн өмнө`
     const diffDays = Math.floor(diffHours / 24)
-    if (diffDays < 7) return `${diffDays}d ago`
+    if (diffDays < 7) return `${diffDays} өдрийн өмнө`
     const diffWeeks = Math.floor(diffDays / 7)
-    if (diffWeeks < 5) return `${diffWeeks}w ago`
+    if (diffWeeks < 5) return `${diffWeeks} долоо хоногийн өмнө`
     const diffMonths = Math.floor(diffDays / 30)
-    return `${diffMonths}mo ago`
+    return `${diffMonths} сарын өмнө`
   }
 
   let allArticles: any[] = []
@@ -61,11 +61,11 @@ export default async function DashboardPage() {
     ...(recentArticles || []).map((article) => ({
       action:
         article.status === 'published'
-          ? 'Article published'
+          ? 'Нийтлэл нийтлэгдсэн'
           : article.status === 'review'
-          ? 'Submitted for review'
-          : 'Article drafted',
-      item: article.title || 'Untitled article',
+          ? 'Хяналтад илгээсэн'
+          : 'Нийтлэлийн ноорог үүссэн',
+      item: article.title || 'Гарчиггүй нийтлэл',
       time: article.published_at || article.created_at,
       type:
         article.status === 'published'
@@ -75,14 +75,14 @@ export default async function DashboardPage() {
           : 'article',
     })),
     ...(recentDesigners || []).map((designer) => ({
-      action: 'Designer added',
-      item: designer.name || 'Unnamed designer',
+      action: 'Дизайнер нэмэгдсэн',
+      item: designer.name || 'Нэргүй дизайнер',
       time: designer.created_at,
       type: 'designer',
     })),
     ...(recentCollections || []).map((collection) => ({
-      action: 'Collection added',
-      item: collection.title || 'Untitled collection',
+      action: 'Цуглуулга нэмэгдсэн',
+      item: collection.title || 'Гарчиггүй цуглуулга',
       time: collection.created_at,
       type: 'collection',
     })),
@@ -91,36 +91,36 @@ export default async function DashboardPage() {
     .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
     .slice(0, 4)
 
-  const dateStr = new Date().toLocaleDateString('en-US', {
+  const dateStr = new Date().toLocaleDateString('mn-MN', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
   })
 
   const stats = [
     {
       value: publishedCount ?? 0,
-      label: 'Published',
-      sub: '+2 this month',
+      label: 'Нийтлэгдсэн',
+      sub: '+2 энэ сард',
       subColor: 'text-emerald-600',
       icon: TrendingUp,
     },
     {
       value: reviewCount ?? 0,
-      label: 'In Review',
-      sub: reviewCount ? 'Needs attention' : 'All clear',
+      label: 'Хяналт',
+      sub: reviewCount ? 'Анхаарах хэрэгтэй' : 'Бүгд хэвийн',
       subColor: reviewCount ? 'text-amber-600' : 'text-stone-400',
       icon: Clock,
     },
     {
       value: designerCount ?? 0,
-      label: 'Designers',
-      sub: 'Across all tiers',
+      label: 'Дизайнер',
+      sub: 'Бүх ангиллаар',
       subColor: 'text-stone-400',
       icon: null,
     },
     {
       value: collectionCount ?? 0,
-      label: 'Collections',
-      sub: '+2 this month',
+      label: 'Цуглуулга',
+      sub: '+2 энэ сард',
       subColor: 'text-emerald-600',
       icon: null,
     },
@@ -133,13 +133,13 @@ export default async function DashboardPage() {
       <div className="flex items-end justify-between pt-1">
         <div>
           <p className="font-sans text-[10.5px] tracking-[0.12em] uppercase text-[#A09D96] mb-1.5">{dateStr}</p>
-          <h1 className="font-serif text-[32px] text-[#1A1A18] leading-none tracking-tight">Dashboard</h1>
+          <h1 className="font-serif text-[32px] text-[#1A1A18] leading-none tracking-tight">Хянах самбар</h1>
         </div>
         <Link
           href="/admin/articles/new"
           className="flex items-center gap-2 bg-[#0E0E0D] text-white font-sans text-[10.5px] tracking-[0.12em] uppercase font-medium px-5 py-2.5 rounded-lg hover:bg-[#2a2a28] transition-colors"
         >
-          <span className="text-white/40 text-[15px] leading-none">+</span> New Article
+          <span className="text-white/40 text-[15px] leading-none">+</span> Шинэ нийтлэл
         </Link>
       </div>
 
@@ -172,24 +172,24 @@ export default async function DashboardPage() {
         <div className="bg-white rounded-xl border border-[#E8E4DD] overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-[#EDEBE6]">
             <h2 className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94] font-medium">
-              Recent Articles
+              Сүүлийн нийтлэлүүд
             </h2>
             <Link
               href="/admin/articles"
               className="flex items-center gap-1 font-sans text-[10px] tracking-[0.08em] uppercase text-[#B0ACA4] hover:text-[#1A1A18] transition-colors"
             >
-              View all <ArrowRight className="w-3 h-3" />
+              Бүгдийг үзэх <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           <table className="w-full">
             <thead>
               <tr className="bg-[#FAFAF8]">
-                <th className="text-left px-6 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[38%]">Title</th>
-                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[14%]">Category</th>
-                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[14%]">Status</th>
-                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[18%]">Author</th>
-                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[10%]">Date</th>
+                <th className="text-left px-6 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[38%]">Гарчиг</th>
+                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[14%]">Ангилал</th>
+                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[14%]">Төлөв</th>
+                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[18%]">Зохиогч</th>
+                <th className="text-left px-4 py-3 font-sans text-[10px] tracking-[0.1em] uppercase text-[#B0ACA4] font-medium w-[10%]">Огноо</th>
                 <th className="py-3 px-4 w-[6%]" />
               </tr>
             </thead>
@@ -223,7 +223,7 @@ export default async function DashboardPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <p className="font-sans text-[11.5px] text-[#A09D96] whitespace-nowrap">
-                        {new Date(article.published_at || article.created_at).toLocaleDateString('en-US', {
+                        {new Date(article.published_at || article.created_at).toLocaleDateString('mn-MN', {
                           month: 'short', day: 'numeric',
                         })}
                       </p>
@@ -253,14 +253,14 @@ export default async function DashboardPage() {
           {/* Quick Actions */}
           <div className="bg-white rounded-xl border border-[#E8E4DD] overflow-hidden">
             <div className="px-5 py-4 border-b border-[#EDEBE6]">
-              <h2 className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94] font-medium">Quick Actions</h2>
+              <h2 className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94] font-medium">Шуурхай үйлдэл</h2>
             </div>
             <div className="p-3 flex flex-col gap-1">
               {[
-                { label: 'New Article', href: '/admin/articles/new', accent: true },
-                { label: 'Manage Designers', href: '/admin/designers', accent: false },
-                { label: 'View Calendar', href: '/admin/calendar', accent: false },
-                { label: 'Upload Assets', href: '/admin/assets', accent: false },
+                { label: 'Шинэ нийтлэл', href: '/admin/articles/new', accent: true },
+                { label: 'Дизайнер удирдах', href: '/admin/designers', accent: false },
+                { label: 'Календарь харах', href: '/admin/calendar', accent: false },
+                { label: 'Медиа оруулах', href: '/admin/assets', accent: false },
               ].map((action) => (
                 <Link
                   key={action.href}
@@ -281,7 +281,7 @@ export default async function DashboardPage() {
           {/* Recent Activity */}
           <div className="bg-white rounded-xl border border-[#E8E4DD] overflow-hidden flex-1">
             <div className="px-5 py-4 border-b border-[#EDEBE6]">
-              <h2 className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94] font-medium">Recent Activity</h2>
+              <h2 className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94] font-medium">Сүүлийн үйлдэл</h2>
             </div>
             <div className="px-5 py-3 divide-y divide-[#F0EDE8]">
               {recentActivity.map((activity, i) => (
@@ -299,7 +299,7 @@ export default async function DashboardPage() {
                 </div>
               ))}
               {recentActivity.length === 0 && (
-                <p className="py-3 font-sans text-[12px] text-[#A09D96]">No recent activity yet.</p>
+                <p className="py-3 font-sans text-[12px] text-[#A09D96]">Одоогоор үйлдэл алга.</p>
               )}
             </div>
           </div>

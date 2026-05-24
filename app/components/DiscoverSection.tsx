@@ -5,14 +5,15 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { fetchContentCollections } from "@/lib/content/client";
+import { formatSeasonYear } from "@/lib/localization";
 import { Button } from "./shared";
 
 const VIDEO_URL =
   "https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennieklunklun.mp4";
 
-const FALLBACK_LABEL = "New Collection";
+const FALLBACK_LABEL = "Шинэ цуглуулга";
 const FALLBACK_DESCRIPTION =
-  "Timeless design rooted in the Mongolian steppe, refined for modern living.";
+  "Монгол тал нутгийн өвөөс ундран, орчин үеийн амьдралд нийцүүлэн боловсруулсан цаглашгүй загвар.";
 
 type Collection = {
   season: string;
@@ -36,7 +37,7 @@ export const DiscoverSection = () => {
   }, []);
 
   const label = collection
-    ? `${collection.season} ${collection.year}`
+    ? formatSeasonYear(collection.season, collection.year)
     : FALLBACK_LABEL;
   const description = collection?.description ?? FALLBACK_DESCRIPTION;
 
@@ -76,7 +77,7 @@ export const DiscoverSection = () => {
                   WebkitTextStroke: "0.5px rgba(255,255,255,0.28)",
                 }}
               >
-                Beauty of
+                Монгол
               </span>
               <span
                 className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
@@ -85,7 +86,7 @@ export const DiscoverSection = () => {
                   WebkitTextStroke: "0.6px rgba(255,255,255,0.24)",
                 }}
               >
-                Mongolian
+                ноолуурын
               </span>
               <span
                 className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
@@ -94,7 +95,7 @@ export const DiscoverSection = () => {
                   WebkitTextStroke: "0.6px rgba(255,255,255,0.24)",
                 }}
               >
-                Cashmere
+                гоо сайхан
               </span>
             </h2>
           </div>
@@ -104,13 +105,13 @@ export const DiscoverSection = () => {
           </p>
 
           <div className="relative z-10 flex items-center gap-5">
-            <Button href="/archive">View Collection</Button>
+            <Button href="/archive">Цуглуулга үзэх</Button>
             <span className="text-xs text-white/40">/</span>
             <Link
               href="/editorial"
               className="border-b border-[#F4EEE8]/40 pb-1 font-sans text-[11px] font-semibold uppercase tracking-[3.5px] text-[#F4EEE8]/90 transition-all duration-300 hover:border-[#F4EEE8] hover:text-[#F4EEE8]"
             >
-              Read Story
+              Нийтлэл унших
             </Link>
           </div>
         </motion.div>
@@ -122,7 +123,7 @@ export const DiscoverSection = () => {
         className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
       >
         <span className="font-sans text-[9px] uppercase tracking-[3.6px] text-[#F4EEE8]/76">
-          Scroll
+          Доош
         </span>
         <div className="h-[42px] w-px bg-gradient-to-b from-[#F4EEE8]/76 to-[#F4EEE8]/20" />
       </motion.div>

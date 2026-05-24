@@ -1,0 +1,27 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{layer}=[draw, rounded corners=5pt, minimum width=13.5cm, minimum height=1.05cm,
+    text width=12.6cm, align=center, font=\scriptsize]
+  \tikzstyle{side}=[draw, rounded corners=4pt, minimum width=3.5cm, minimum height=0.8cm,
+    text width=3.1cm, align=center, font=\scriptsize]
+
+  \node[layer, fill=blue!8] (ui) at (0,0) {\textbf{Presentation Layer}\\Next.js pages, React components, Tailwind UI, archive/editorial/admin interfaces};
+  \node[layer, fill=green!8] (app) at (0,-1.8) {\textbf{Application Layer}\\Search state, filters, forms, auth role flow, admin workflow};
+  \node[layer, fill=yellow!10] (api) at (0,-3.6) {\textbf{API, Search and AI Layer}\\Content API, admin API, search index, RAG retrieval, provider fallback};
+  \node[layer, fill=orange!10] (data) at (0,-5.4) {\textbf{Content and User Data Layer}\\CouchDB documents, Supabase Auth, bookmarks, profiles, RAG documents};
+  \node[layer, fill=gray!14] (assets) at (0,-7.2) {\textbf{Seed and Dataset Layer}\\Seed content, asset attachments, curated fashion RAG data, import scripts};
+
+  \draw[->] (ui) -- (app);
+  \draw[->] (app) -- (api);
+  \draw[->] (api) -- (data);
+  \draw[->] (data) -- (assets);
+
+  \node[side, fill=purple!8] (student) at (-9.0,-0.9) {Хэрэглэгч};
+  \node[side, fill=purple!8] (admin) at (9.0,-0.9) {Админ};
+  \node[side, fill=cyan!8] (llm) at (9.0,-3.6) {LLM Provider};
+  \node[side, fill=cyan!8] (supabase) at (9.0,-5.4) {CouchDB + Supabase};
+
+  \draw[->] (student) -- (ui.west);
+  \draw[->] (admin) -- (ui.east);
+  \draw[->] (api.east) -- (llm);
+  \draw[->] (data.east) -- (supabase);
+\end{tikzpicture}

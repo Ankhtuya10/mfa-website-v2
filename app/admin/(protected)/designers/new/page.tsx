@@ -9,9 +9,9 @@ import { postJson, uploadContentAsset } from '@/lib/content/client'
 type Tier = 'high-end' | 'contemporary' | 'emerging'
 
 const TIERS: { value: Tier; label: string }[] = [
-  { value: 'high-end', label: 'High-End' },
-  { value: 'contemporary', label: 'Contemporary' },
-  { value: 'emerging', label: 'Emerging' },
+  { value: 'high-end', label: 'Дээд зэрэглэл' },
+  { value: 'contemporary', label: 'Орчин үеийн' },
+  { value: 'emerging', label: 'Шинэ үе' },
 ]
 
 export default function NewDesignerPage() {
@@ -69,10 +69,10 @@ export default function NewDesignerPage() {
 
   function validate(): boolean {
     const next: Record<string, string> = {}
-    if (!formData.name.trim()) next.name = 'Name is required'
-    if (!formData.slug.trim()) next.slug = 'Slug is required'
-    if (!formData.tier) next.tier = 'Tier is required'
-    if (!formData.short_bio.trim()) next.short_bio = 'Short bio is required'
+    if (!formData.name.trim()) next.name = 'Нэр оруулна уу'
+    if (!formData.slug.trim()) next.slug = 'Slug шаардлагатай'
+    if (!formData.tier) next.tier = 'Ангилал сонгоно уу'
+    if (!formData.short_bio.trim()) next.short_bio = 'Товч танилцуулга оруулна уу'
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -99,7 +99,7 @@ export default function NewDesignerPage() {
       setSaved(true)
       router.push('/admin/designers')
     } catch (err: any) {
-      setSaveError(err.message || 'Failed to save designer. Please try again.')
+      setSaveError(err.message || 'Дизайнер хадгалж чадсангүй. Дахин оролдоно уу.')
     } finally {
       setLoading(false)
     }
@@ -128,7 +128,7 @@ export default function NewDesignerPage() {
     } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        profile_image: `Upload failed: ${err.message || 'Unknown error'}`,
+        profile_image: `Оруулж чадсангүй: ${err.message || 'Тодорхойгүй алдаа'}`,
       }))
       setProfilePreview(null)
     } finally {
@@ -160,7 +160,7 @@ export default function NewDesignerPage() {
     } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        cover_image: `Upload failed: ${err.message || 'Unknown error'}`,
+        cover_image: `Оруулж чадсангүй: ${err.message || 'Тодорхойгүй алдаа'}`,
       }))
       setCoverPreview(null)
     } finally {
@@ -185,7 +185,7 @@ export default function NewDesignerPage() {
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <h1 className="font-sans text-[11px] uppercase tracking-[2px] text-[#2A2522]">
-            New Designer
+            Шинэ дизайнер
           </h1>
         </div>
         <button
@@ -197,10 +197,10 @@ export default function NewDesignerPage() {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : saved ? (
             <>
-              <Check className="h-4 w-4" /> Saved
+              <Check className="h-4 w-4" /> Хадгалсан
             </>
           ) : (
-            'Save'
+            'Хадгалах'
           )}
         </button>
       </header>
@@ -223,7 +223,7 @@ export default function NewDesignerPage() {
               type="text"
               value={formData.name}
               onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="Designer name..."
+              placeholder="Дизайнерын нэр..."
               className={`w-full bg-transparent font-serif text-4xl text-[#2A2522] outline-none placeholder:text-[#B7AEA9] ${
                 errors.name ? 'border-b-2 border-red-400' : ''
               }`}
@@ -239,7 +239,7 @@ export default function NewDesignerPage() {
           {/* Slug preview */}
           <div className="mb-8 flex flex-wrap items-center gap-x-3 gap-y-1">
             <p className="font-sans text-[11px] text-[#9B9590]">
-              anoce.mn/designers/{displaySlug || 'designer-slug'}
+              anoce.mn/designers/{displaySlug || 'slug'}
             </p>
             {errors.slug && (
               <p className="flex items-center gap-1 font-sans text-[11px] text-red-500">
@@ -255,7 +255,7 @@ export default function NewDesignerPage() {
           {/* Short Bio */}
           <div className="mb-6">
             <label className="mb-2 block font-sans text-[10px] uppercase tracking-[1px] text-[#9B9590]">
-              Short Bio *
+              Товч танилцуулга *
             </label>
             <textarea
               value={formData.short_bio}
@@ -264,7 +264,7 @@ export default function NewDesignerPage() {
                 if (e.target.value.trim())
                   setErrors((prev) => ({ ...prev, short_bio: '' }))
               }}
-              placeholder="A brief, punchy introduction for listings and cards..."
+              placeholder="Жагсаалт болон карт дээр харагдах товч, тод танилцуулга..."
               className={`w-full min-h-[120px] resize-none bg-transparent font-sans text-[15px] leading-[1.8] text-[#3A3530] outline-none placeholder:text-[#B7AEA9] ${
                 errors.short_bio ? 'border-b-2 border-red-400 pb-1' : ''
               }`}
@@ -280,12 +280,12 @@ export default function NewDesignerPage() {
           {/* Full Bio */}
           <div>
             <label className="mb-2 block font-sans text-[10px] uppercase tracking-[1px] text-[#9B9590]">
-              Full Bio
+              Дэлгэрэнгүй танилцуулга
             </label>
             <textarea
               value={formData.bio}
               onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
-              placeholder="Full designer biography, history, and context..."
+              placeholder="Дизайнерын намтар, түүх, дэлгэрэнгүй агуулга..."
               className="w-full min-h-[300px] resize-none bg-transparent font-sans text-[15px] leading-[1.8] text-[#3A3530] outline-none placeholder:text-[#B7AEA9]"
             />
           </div>
@@ -296,7 +296,7 @@ export default function NewDesignerPage() {
           {/* ── Tier ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Tier *
+              Ангилал *
             </h3>
             <div className="space-y-2">
               {TIERS.map((t) => (
@@ -328,7 +328,7 @@ export default function NewDesignerPage() {
           {/* ── Founded ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Founded
+              Үүссэн он
             </h3>
             <input
               type="number"
@@ -341,7 +341,7 @@ export default function NewDesignerPage() {
                   founded: e.target.value ? parseInt(e.target.value, 10) : '',
                 }))
               }
-              placeholder="e.g. 1995"
+              placeholder="ж. 1995"
               className="w-full border border-[rgba(0,0,0,0.15)] bg-transparent px-3 py-2 font-sans text-[12px] outline-none placeholder:text-[#B7AEA9]"
             />
           </div>
@@ -349,13 +349,13 @@ export default function NewDesignerPage() {
           {/* ── Profile Image ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Profile Image
+              Профайл зураг
             </h3>
             {profileSrc ? (
               <div className="relative aspect-square overflow-hidden rounded-full bg-[#F0EDE8]">
                 <img
                   src={profileSrc}
-                  alt="Profile preview"
+                  alt="Профайл зургийн урьдчилсан харагдац"
                   className="h-full w-full object-cover"
                 />
                 {profileUploading && (
@@ -375,7 +375,7 @@ export default function NewDesignerPage() {
                     }}
                     className="absolute right-2 top-2 rounded bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
                   >
-                    Remove
+                    Устгах
                   </button>
                 )}
               </div>
@@ -388,10 +388,10 @@ export default function NewDesignerPage() {
                     <>
                       <Upload className="mb-2 h-5 w-5 text-[#9B9590]" />
                       <span className="font-sans text-[11px] text-[#9B9590]">
-                        Click to upload
+                        Зураг оруулах
                       </span>
                       <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
-                        Square recommended
+                        Дөрвөлжин зураг тохиромжтой
                       </span>
                     </>
                   )}
@@ -416,13 +416,13 @@ export default function NewDesignerPage() {
           {/* ── Cover Image ── */}
           <div>
             <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Cover Image
+              Нүүр зураг
             </h3>
             {coverSrc ? (
               <div className="relative aspect-video overflow-hidden bg-[#F0EDE8]">
                 <img
                   src={coverSrc}
-                  alt="Cover preview"
+                  alt="Нүүр зургийн урьдчилсан харагдац"
                   className="h-full w-full object-cover"
                 />
                 {coverUploading && (
@@ -442,7 +442,7 @@ export default function NewDesignerPage() {
                     }}
                     className="absolute right-2 top-2 bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
                   >
-                    Remove
+                    Устгах
                   </button>
                 )}
               </div>
@@ -455,10 +455,10 @@ export default function NewDesignerPage() {
                     <>
                       <Upload className="mb-2 h-5 w-5 text-[#9B9590]" />
                       <span className="font-sans text-[11px] text-[#9B9590]">
-                        Click to upload
+                        Зураг оруулах
                       </span>
                       <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
-                        16:9 recommended
+                        16:9 харьцаа тохиромжтой
                       </span>
                     </>
                   )}
@@ -489,7 +489,7 @@ export default function NewDesignerPage() {
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Save Designer'
+              'Дизайнер хадгалах'
             )}
           </button>
         </div>

@@ -21,9 +21,9 @@ export default async function CollectionsPage() {
   return (
     <div className="w-full">
       <header className="flex justify-between items-center mb-8 w-full">
-        <h1 className="font-serif text-2xl text-[#111111]">Collections</h1>
+        <h1 className="font-serif text-2xl text-[#111111]">Цуглуулгууд</h1>
         <Link href="/admin/collections/new" className="bg-[#111111] text-white font-sans font-bold text-[10px] tracking-[2.5px] uppercase px-5 py-2.5 hover:bg-[#333] transition-colors">
-          Add Collection
+          Цуглуулга нэмэх
         </Link>
       </header>
 

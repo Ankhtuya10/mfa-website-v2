@@ -1,0 +1,25 @@
+\documentclass[12pt]{article}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,automata}
+\begin{document}
+
+\section*{TikZ Diagram Preview}
+
+\subsection*{Use case}
+\centering
+\resizebox{\textwidth}{!}{\input{tikz/usecase_admin_reader.tex}}
+
+\newpage
+\subsection*{ER Diagram}
+\centering
+\resizebox{\textwidth}{!}{\input{tikz/er_core_schema.tex}}
+
+\newpage
+\subsection*{Sequence Diagram}
+\centering
+\resizebox{\textwidth}{!}{\input{tikz/sequence_collection_publish.tex}}
+
+\end{document}

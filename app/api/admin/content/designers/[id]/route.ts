@@ -15,7 +15,7 @@ export async function GET(
   try {
     const { id } = await context.params;
     const designer = await createContentRepository().getDesignerById(id);
-    if (!designer) return NextResponse.json({ error: "Designer not found" }, { status: 404 });
+    if (!designer) return NextResponse.json({ error: "Дизайнер олдсонгүй" }, { status: 404 });
     return NextResponse.json(designer);
   } catch (error) {
     return adminJsonError(error);
@@ -49,7 +49,7 @@ export async function DELETE(
   try {
     const { id } = await context.params;
     const deleted = await createContentRepository().deleteDesigner(id);
-    if (!deleted) return NextResponse.json({ error: "Designer not found" }, { status: 404 });
+    if (!deleted) return NextResponse.json({ error: "Дизайнер олдсонгүй" }, { status: 404 });
     return NextResponse.json({ ok: true });
   } catch (error) {
     return adminJsonError(error);

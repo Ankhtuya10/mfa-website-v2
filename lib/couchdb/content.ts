@@ -65,6 +65,9 @@ export type CouchArticleDoc = CouchBaseDoc & {
   tags: string[];
   read_time: number;
   published_at?: string | null;
+  review_note?: string;
+  reviewed_at?: string | null;
+  reviewed_by?: string | null;
   credits?: {
     photographer?: string;
     stylist?: string;
@@ -140,7 +143,7 @@ export const toCouchDesigner = (
     cover_image: String(input.cover_image || input.coverImage || ""),
     founded: Number(input.founded) || undefined,
     active_seasons: Number(input.active_seasons || input.activeSeasons) || undefined,
-    nationality: String(input.nationality || "Mongolian"),
+    nationality: String(input.nationality || "Монгол"),
     social_links:
       (input.social_links as CouchDesignerDoc["social_links"]) ||
       (input.socialLinks as CouchDesignerDoc["social_links"]) ||
@@ -167,7 +170,7 @@ export const fromCouchDesigner = (doc: CouchDesignerDoc) => ({
   coverImage: doc.cover_image || "",
   activeSeasons: doc.active_seasons || 0,
   active_seasons: doc.active_seasons || 0,
-  nationality: doc.nationality || "Mongolian",
+  nationality: doc.nationality || "Монгол",
   founded: doc.founded || 0,
   socialLinks: doc.social_links || {},
   created_at: doc.created_at,
@@ -247,7 +250,7 @@ export const toCouchArticle = (
     subtitle: String(input.subtitle || ""),
     category: (input.category as CouchArticleDoc["category"]) || "features",
     author_id: typeof input.author_id === "string" ? input.author_id : null,
-    author_name: String(input.author_name || input.author || "Editorial"),
+    author_name: String(input.author_name || input.author || "Редакц"),
     cover_image: String(input.cover_image || input.coverImage || ""),
     cover_image_vertical: String(input.cover_image_vertical || input.coverImageVertical || ""),
     body: String(input.body || ""),
@@ -265,6 +268,19 @@ export const toCouchArticle = (
         ? publishedAt
         : status === "published"
           ? nowIso()
+          : null,
+    review_note: String(input.review_note || input.reviewNote || ""),
+    reviewed_at:
+      typeof input.reviewed_at === "string"
+        ? input.reviewed_at
+        : typeof input.reviewedAt === "string"
+          ? input.reviewedAt
+          : null,
+    reviewed_by:
+      typeof input.reviewed_by === "string"
+        ? input.reviewed_by
+        : typeof input.reviewedBy === "string"
+          ? input.reviewedBy
           : null,
     credits: input.credits as CouchArticleDoc["credits"],
     related_looks:
@@ -289,6 +305,12 @@ export const fromCouchArticle = (doc: CouchArticleDoc) => ({
   author_id: doc.author_id || null,
   publishedAt: doc.published_at || "",
   published_at: doc.published_at || null,
+  review_note: doc.review_note || "",
+  reviewNote: doc.review_note || "",
+  reviewed_at: doc.reviewed_at || null,
+  reviewedAt: doc.reviewed_at || null,
+  reviewed_by: doc.reviewed_by || null,
+  reviewedBy: doc.reviewed_by || null,
   coverImage: doc.cover_image || "",
   cover_image: doc.cover_image || "",
   coverImageVertical: doc.cover_image_vertical || "",

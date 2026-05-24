@@ -33,13 +33,13 @@ export function CollectionsTable({
   );
 
   async function deleteCollection(id: string) {
-    if (!confirm("Delete this collection? All looks will also be deleted."))
+    if (!confirm("Энэ цуглуулгыг устгах уу? Бүх төрх хамт устах болно."))
       return;
     const response = await fetch(`/api/admin/content/collections/${encodeURIComponent(id)}`, {
       method: "DELETE",
     });
     if (!response.ok) {
-      alert("Failed to delete collection");
+      alert("Цуглуулга устгаж чадсангүй");
       return;
     }
     setCollections(collections.filter((c) => c.id !== id));
@@ -58,7 +58,7 @@ export function CollectionsTable({
                 : "border-[rgba(0,0,0,0.15)] text-[#9B9590] hover:border-[#111111]"
             }`}
           >
-            {s === "all" ? "All" : s}
+            {s === "all" ? "Бүгд" : s}
           </button>
         ))}
       </div>
@@ -68,22 +68,22 @@ export function CollectionsTable({
           <thead>
             <tr className="border-b border-[rgba(0,0,0,0.1)] bg-[#F5F2ED]">
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-16">
-                Cover
+                Зураг
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590]">
-                Title
+                Гарчиг
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-40">
-                Designer
+                Дизайнер
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-28">
-                Season
+                Улирал
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-20 text-center">
-                Looks
+                Төрх
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-24">
-                Actions
+                Үйлдэл
               </th>
             </tr>
           </thead>
@@ -94,7 +94,7 @@ export function CollectionsTable({
                   colSpan={6}
                   className="py-12 text-center text-[#9B9590] font-sans text-sm"
                 >
-                  No collections found
+                  Цуглуулга олдсонгүй
                 </td>
               </tr>
             ) : (
@@ -134,7 +134,7 @@ export function CollectionsTable({
                       <Link
                         href={`/admin/collections/${col.id}/edit`}
                         className="text-[#9B9590] hover:text-[#111111] transition-colors p-1"
-                        title="Edit collection"
+                        title="Цуглуулга засах"
                       >
                         <Pencil className="w-4 h-4" />
                       </Link>

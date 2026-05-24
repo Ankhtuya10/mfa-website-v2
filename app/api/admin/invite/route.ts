@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const role = VALID_ROLES.has(requestedRole) ? requestedRole : 'viewer'
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: 'Valid email is required' }, { status: 400 })
+      return NextResponse.json({ error: 'Зөв имэйл хаяг оруулна уу.' }, { status: 400 })
     }
 
     const supabase = await createClient()
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Нэвтрэх шаардлагатай.' }, { status: 401 })
     }
 
     const { data: profile } = await supabase
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       .single()
 
     if (!profile || profile.role !== 'admin') {
-      return NextResponse.json({ error: 'Only admins can invite members' }, { status: 403 })
+      return NextResponse.json({ error: 'Зөвхөн админ багийн гишүүн урих боломжтой.' }, { status: 403 })
     }
 
     const adminSupabase = createAdminClient()
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
     const invitedUserId = inviteData.user?.id
     if (!invitedUserId) {
-      return NextResponse.json({ error: 'Invite sent but no user record was returned' }, { status: 500 })
+      return NextResponse.json({ error: 'Урилга илгээгдсэн ч хэрэглэгчийн бүртгэл буцаж ирсэнгүй.' }, { status: 500 })
     }
 
     await adminSupabase
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       },
     })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unexpected server error'
+    const message = error instanceof Error ? error.message : 'Сервер дээр алдаа гарлаа.'
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

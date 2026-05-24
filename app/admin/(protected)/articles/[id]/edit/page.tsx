@@ -54,7 +54,7 @@ export default function EditArticlePage() {
       ).catch(() => null);
 
       if (!data) {
-        setSaveError("Article not found.");
+        setSaveError("Нийтлэл олдсонгүй.");
         router.push("/admin/articles");
         return;
       }
@@ -89,14 +89,14 @@ export default function EditArticlePage() {
   function validate(forPublish: boolean): boolean {
     const next: Record<string, string> = {};
 
-    if (!formData.title.trim()) next.title = "Title is required";
-    if (!formData.subtitle.trim()) next.subtitle = "Subtitle is required";
-    if (!formData.body.trim()) next.body = "Body is required";
-    if (!formData.category) next.category = "Category is required";
+    if (!formData.title.trim()) next.title = "Гарчиг оруулна уу";
+    if (!formData.subtitle.trim()) next.subtitle = "Дэд гарчиг оруулна уу";
+    if (!formData.body.trim()) next.body = "Нийтлэлийн агуулга оруулна уу";
+    if (!formData.category) next.category = "Ангилал сонгоно уу";
     if (!formData.read_time || formData.read_time < 1)
-      next.read_time = "Read time must be at least 1 minute";
+      next.read_time = "Унших хугацаа хамгийн багадаа 1 минут байна";
     if (forPublish && !coverImage)
-      next.coverImage = "Cover image is required to publish";
+      next.coverImage = "Нийтлэхийн тулд нүүр зураг шаардлагатай";
 
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -106,7 +106,7 @@ export default function EditArticlePage() {
   async function handleSave(publish = false) {
     setSaveError("");
     if (!validate(publish)) {
-      setSaveError("Please fix the highlighted fields before saving.");
+      setSaveError("Хадгалахын өмнө тэмдэглэсэн талбаруудыг засна уу.");
       return;
     }
 
@@ -141,7 +141,7 @@ export default function EditArticlePage() {
       if (publish) router.push("/admin/articles");
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Failed to save article.";
+        err instanceof Error ? err.message : "Нийтлэл хадгалж чадсангүй.";
       setSaveError(msg);
     } finally {
       setLoading(false);
@@ -163,7 +163,7 @@ export default function EditArticlePage() {
         return copy;
       });
     } catch {
-      setSaveError("Image upload failed. Please try again.");
+      setSaveError("Зураг оруулж чадсангүй. Дахин оролдоно уу.");
     } finally {
       setUploading(false);
     }
@@ -239,7 +239,7 @@ export default function EditArticlePage() {
           </Link>
           <div className="w-px h-4 bg-[#E8E4DD]" />
           <span className="font-sans text-[10.5px] tracking-[0.1em] uppercase text-[#9E9B94]">
-            Edit Article
+            Нийтлэл засах
           </span>
         </div>
 
@@ -253,10 +253,10 @@ export default function EditArticlePage() {
             {saved ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-emerald-600">Saved</span>
+                <span className="text-emerald-600">Хадгалсан</span>
               </>
             ) : (
-              "Save Draft"
+              "Ноорог хадгалах"
             )}
           </button>
 
@@ -267,7 +267,7 @@ export default function EditArticlePage() {
             className="flex items-center gap-2 bg-[#0E0E0D] text-white font-sans text-[10.5px] tracking-[0.1em] uppercase font-medium px-5 py-2.5 rounded-lg hover:bg-[#2a2a28] transition-colors disabled:opacity-50"
           >
             {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {isPublished ? "Update" : "Publish"}
+            {isPublished ? "Шинэчлэх" : "Нийтлэх"}
           </button>
         </div>
       </header>
@@ -292,7 +292,7 @@ export default function EditArticlePage() {
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              placeholder="Article title…"
+              placeholder="Нийтлэлийн гарчиг…"
               className={titleCls}
             />
             {errors.title && (
@@ -302,7 +302,7 @@ export default function EditArticlePage() {
 
           {/* Slug preview */}
           <p className="font-sans text-[10.5px] text-[#B0ACA4] mb-7 tracking-[0.04em]">
-            anoce.mn/editorial/{slug || "your-slug"}
+            anoce.mn/editorial/{slug || "niitliin-slug"}
           </p>
 
           {/* Divider */}
@@ -316,7 +316,7 @@ export default function EditArticlePage() {
               onChange={(e) =>
                 setFormData({ ...formData, subtitle: e.target.value })
               }
-              placeholder="Subtitle…"
+              placeholder="Дэд гарчиг…"
               className={subtitleCls}
             />
             {errors.subtitle && (
@@ -331,7 +331,7 @@ export default function EditArticlePage() {
               onChange={(e) =>
                 setFormData({ ...formData, body: e.target.value })
               }
-              placeholder="Start writing your story…"
+              placeholder="Нийтлэлээ эндээс эхлүүлнэ үү…"
               className={bodyCls}
             />
             {errors.body && (
@@ -346,7 +346,7 @@ export default function EditArticlePage() {
             {/* ── Status ─────────────────────────────────────────────── */}
             <section>
               <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
-                Status
+                Төлөв
               </p>
               <select
                 value={formData.status}
@@ -355,9 +355,9 @@ export default function EditArticlePage() {
                 }
                 className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors appearance-none cursor-pointer"
               >
-                <option value="draft">Draft</option>
-                <option value="review">In Review</option>
-                <option value="published">Published</option>
+                <option value="draft">Ноорог</option>
+                <option value="review">Хяналтад</option>
+                <option value="published">Нийтлэгдсэн</option>
               </select>
 
               {/* Update / Publish button */}
@@ -369,9 +369,9 @@ export default function EditArticlePage() {
                 {loading ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : isPublished ? (
-                  "Update"
+                  "Шинэчлэх"
                 ) : (
-                  "Publish"
+                  "Нийтлэх"
                 )}
               </button>
 
@@ -382,7 +382,7 @@ export default function EditArticlePage() {
                   target="_blank"
                   className="mt-2 w-full border border-[#E8E4DD] rounded-lg py-2.5 font-sans text-[10.5px] tracking-[0.08em] uppercase text-[#6B6860] text-center block hover:bg-[#F5F2ED] transition-colors"
                 >
-                  View live →
+                  Нийтлэлийг харах →
                 </Link>
               )}
             </section>
@@ -392,13 +392,13 @@ export default function EditArticlePage() {
             {/* ── Taxonomy ───────────────────────────────────────────── */}
             <section>
               <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
-                Taxonomy
+                Ангилал
               </p>
               <div className="space-y-2.5">
                 {/* Category */}
                 <div>
                   <label className="block font-sans text-[10px] text-[#9E9B94] mb-1">
-                    Category <span className="text-red-400">*</span>
+                    Ангилал <span className="text-red-400">*</span>
                   </label>
                   <select
                     value={formData.category}
@@ -407,10 +407,10 @@ export default function EditArticlePage() {
                     }
                     className={selectCls("category")}
                   >
-                    <option value="features">Features</option>
-                    <option value="interviews">Interviews</option>
-                    <option value="news">News</option>
-                    <option value="trends">Trends</option>
+                    <option value="features">Онцлох</option>
+                    <option value="interviews">Ярилцлага</option>
+                    <option value="news">Мэдээ</option>
+                    <option value="trends">Чиг хандлага</option>
                   </select>
                   {errors.category && (
                     <p className="text-red-500 text-[11px] mt-1">
@@ -422,7 +422,7 @@ export default function EditArticlePage() {
                 {/* Tags */}
                 <div>
                   <label className="block font-sans text-[10px] text-[#9E9B94] mb-1">
-                    Tags
+                    Шошго
                   </label>
                   <input
                     type="text"
@@ -430,7 +430,7 @@ export default function EditArticlePage() {
                     onChange={(e) =>
                       setFormData({ ...formData, tags: e.target.value })
                     }
-                    placeholder="fashion, design, …"
+                    placeholder="загвар, дизайн, …"
                     className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors placeholder:text-[#C8C4BC]"
                   />
                 </div>
@@ -438,7 +438,7 @@ export default function EditArticlePage() {
                 {/* Designer */}
                 <div>
                   <label className="block font-sans text-[10px] text-[#9E9B94] mb-1">
-                    Designer
+                    Дизайнер
                   </label>
                   <select
                     value={formData.designer_slug}
@@ -450,7 +450,7 @@ export default function EditArticlePage() {
                     }
                     className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors appearance-none cursor-pointer"
                   >
-                    <option value="">None</option>
+                    <option value="">Байхгүй</option>
                     {designers.map((d) => (
                       <option key={d.id} value={d.slug}>
                         {d.name}
@@ -462,7 +462,7 @@ export default function EditArticlePage() {
                 {/* Read time */}
                 <div>
                   <label className="block font-sans text-[10px] text-[#9E9B94] mb-1">
-                    Read time <span className="text-red-400">*</span>
+                    Унших хугацаа <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -478,7 +478,7 @@ export default function EditArticlePage() {
                       className={numInputCls("read_time")}
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 font-sans text-[11px] text-[#C0BCB5] pointer-events-none">
-                      min
+                      мин
                     </span>
                   </div>
                   {errors.read_time && (
@@ -495,21 +495,21 @@ export default function EditArticlePage() {
             {/* ── Cover Image ────────────────────────────────────────── */}
             <section>
               <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
-                Cover Image
+                Нүүр зураг
               </p>
 
               {coverImage ? (
                 <div className="relative rounded-lg overflow-hidden aspect-video bg-[#F0EDE8]">
                   <img
                     src={coverImage}
-                    alt="Cover"
+                    alt="Нүүр зураг"
                     className="w-full h-full object-cover"
                   />
                   <button
                     onClick={() => setCoverImage(null)}
                     className="absolute top-2 right-2 bg-black/60 text-white font-sans text-[9.5px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-md hover:bg-black/80 transition-colors"
                   >
-                    Remove
+                    Устгах
                   </button>
                 </div>
               ) : (
@@ -531,7 +531,7 @@ export default function EditArticlePage() {
                           strokeWidth={1.6}
                         />
                         <span className="font-sans text-[11px] text-[#B0ACA4]">
-                          Click to upload
+                          Зураг оруулах
                         </span>
                       </>
                     )}
@@ -559,18 +559,18 @@ export default function EditArticlePage() {
             {/* ── SEO Preview ────────────────────────────────────────── */}
             <section>
               <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
-                SEO Preview
+                SEO харагдац
               </p>
               <div className="bg-[#F5F2ED] rounded-lg p-4">
                 <p className="font-sans text-[10px] text-[#B0ACA4] mb-1 truncate">
                   anoce.mn/editorial/{slug || "…"}
                 </p>
                 <p className="font-sans text-[13px] text-blue-700 leading-snug mb-1 line-clamp-1">
-                  {formData.title || "Article Title"}
+                  {formData.title || "Нийтлэлийн гарчиг"}
                 </p>
                 <p className="font-sans text-[11px] text-[#5A5A5A] line-clamp-2 leading-relaxed">
                   {formData.subtitle ||
-                    "Your article subtitle will appear here as the meta description…"}
+                    "Таны дэд гарчиг meta description хэлбэрээр энд харагдана…"}
                 </p>
               </div>
             </section>

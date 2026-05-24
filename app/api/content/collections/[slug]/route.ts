@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { slug } = await context.params;
     const collection = await createContentRepository().getCollectionBySlug(decodeURIComponent(slug));
-    if (!collection) return NextResponse.json({ error: "Collection not found" }, { status: 404 });
+    if (!collection) return NextResponse.json({ error: "Цуглуулга олдсонгүй" }, { status: 404 });
     return NextResponse.json(collection);
   } catch (error) {
     return jsonError(error);

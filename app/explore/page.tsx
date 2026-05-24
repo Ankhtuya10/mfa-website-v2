@@ -25,6 +25,14 @@ type SearchResultItem = {
   seasonLabel?: string;
 };
 
+const categoryLabels: Record<"all" | SearchCategory, string> = {
+  all: "Бүгд",
+  articles: "Нийтлэл",
+  collections: "Цуглуулга",
+  designers: "Дизайнер",
+  brands: "Брэнд",
+};
+
 const RECENT_HISTORY_KEY = "anoce_explore_recent_searches";
 const SYNONYM_MAP: Record<string, string[]> = {
   winter: ["fw", "fall winter", "autumn winter", "fall/winter"],
@@ -40,7 +48,7 @@ const SYNONYM_MAP: Record<string, string[]> = {
 const normalizeText = (value: string) =>
   value
     .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -169,7 +177,7 @@ function ResultCard({
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/18 to-transparent" />
             <div className="absolute left-4 top-4">
               <span className="rounded-full border border-white/40 bg-white/78 px-2.5 py-1 font-sans text-[9px] tracking-[0.22em] uppercase text-[#0A0A0A] backdrop-blur-sm">
-                {item.category.slice(0, -1) || item.category}
+                {categoryLabels[item.category]}
               </span>
             </div>
           </div>
@@ -376,14 +384,13 @@ export default function ExplorePage() {
               <div className="min-w-0 overflow-hidden xl:col-span-7">
                 <span className="mb-6 inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.32em] uppercase text-[#B7AEA9]">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Explore the Archive
+                  Архиваар аялах
                 </span>
                 <h1 className="max-w-[11ch] font-serif text-[clamp(2.2rem,6.5vw,6.8rem)] leading-[0.92] tracking-[-0.03em] text-white [text-wrap:balance]">
-                  Search fashion memory with a sharper editorial lens.
+                  Загварын ой санамжийг илүү тод редакцийн өнцгөөс хай.
                 </h1>
                 <p className="mt-6 max-w-xl font-sans text-lg leading-relaxed text-white/64 md:text-xl">
-                  Search collections, articles, designers, brands, materials,
-                  colors, and seasonal terms with live grouped results.
+                  Цуглуулга, нийтлэл, дизайнер, брэнд, материал, өнгө, улирлын нэр томъёог шууд ангилсан үр дүнгээр хайна.
                 </p>
 
                 <div className="mt-10 overflow-hidden rounded-[36px] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
@@ -393,18 +400,18 @@ export default function ExplorePage() {
                       ref={inputRef}
                       value={query}
                       onChange={(event) => setQuery(event.target.value)}
-                      placeholder="Search cashmere, FW2025, emerald wool, Gobi..."
+                      placeholder="Ноолуур, FW2025, ногоон ноос, Gobi гэж хайх..."
                       className="min-w-0 flex-1 truncate bg-transparent font-serif text-xl leading-tight text-white outline-none placeholder:text-white/25 md:text-[1.8rem] xl:text-[2.05rem]"
                     />
                   </div>
                   <div className="flex flex-wrap items-center gap-2.5 border-t border-white/[0.08] bg-black/10 px-5 py-4 md:px-7">
                     <span className="min-w-[5rem] font-sans text-[10px] tracking-[0.26em] uppercase text-white/30">
-                      Season
+                      Улирал
                     </span>
                     {[
-                      { label: "All", value: "all" },
-                      { label: "Current Season", value: "current" },
-                      { label: "Past Archives", value: "archive" },
+                      { label: "Бүгд", value: "all" },
+                      { label: "Одоогийн улирал", value: "current" },
+                      { label: "Өмнөх архив", value: "archive" },
                     ].map((option) => (
                       <button
                         key={option.value}
@@ -450,7 +457,7 @@ export default function ExplorePage() {
                       {spotlightItem?.image ? (
                         <Image
                           src={spotlightItem.image}
-                          alt={spotlightItem?.title || "Spotlight"}
+                          alt={spotlightItem?.title || "Онцлох"}
                           fill
                           className="object-cover"
                         />
@@ -461,7 +468,7 @@ export default function ExplorePage() {
                     </div>
                     <div className="min-w-0 px-1 pt-5">
                       <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#B7AEA9]">
-                        Editor&apos;s Choice
+                        Редакцийн сонголт
                       </span>
                       <h2 className="mt-3 font-serif text-[clamp(1.4rem,2.6vw,3rem)] leading-[1.02] text-white [overflow-wrap:anywhere] [text-wrap:balance]">
                         {spotlightItem?.title}
@@ -474,7 +481,7 @@ export default function ExplorePage() {
                         className="mt-6 inline-flex max-w-full items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.05] px-5 py-2.5 transition-all hover:border-white/[0.24] hover:bg-white/[0.08]"
                       >
                         <span className="font-sans text-[10px] tracking-[0.22em] uppercase whitespace-nowrap text-white/78">
-                          Open Feature
+                          Онцлохыг нээх
                         </span>
                         <ArrowRight className="h-4 w-4 shrink-0 text-white/52" />
                       </Link>
@@ -485,7 +492,7 @@ export default function ExplorePage() {
                 <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="min-w-0 rounded-[30px] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl">
                     <p className="mb-4 font-sans text-[10px] tracking-[0.28em] uppercase text-white/32">
-                      Recent History
+                      Саяхны хайлт
                     </p>
                     <div className="space-y-3">
                       {recentSearches.length > 0 ? (
@@ -503,8 +510,7 @@ export default function ExplorePage() {
                         ))
                       ) : (
                         <p className="font-sans text-sm leading-relaxed text-white/42">
-                          Your last searches will appear here after you start
-                          exploring.
+                          Та хайлт хийж эхэлмэгц сүүлийн хайлтууд энд харагдана.
                         </p>
                       )}
                     </div>
@@ -512,16 +518,14 @@ export default function ExplorePage() {
 
                   <div className="min-w-0 rounded-[30px] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl">
                     <p className="mb-4 font-sans text-[10px] tracking-[0.28em] uppercase text-white/32">
-                      Search Scope
+                      Хайлтын хүрээ
                     </p>
                     <div className="space-y-3 font-sans text-sm leading-relaxed text-white/60">
                       <p>
-                        Titles, body text, tags, materials, colors, seasons, and
-                        brand metadata.
+                        Гарчиг, нийтлэлийн текст, таг, материал, өнгө, улирал, брэндийн мэдээлэл.
                       </p>
                       <p>
-                        Typo-tolerant search and term mapping for inputs like
-                        “winter”, “fw”, or “cashmer”.
+                        “winter”, “fw”, “cashmer” зэрэг бичгийн алдаатай эсвэл ойролцоо үгийг таньж хайна.
                       </p>
                     </div>
                   </div>
@@ -536,12 +540,12 @@ export default function ExplorePage() {
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4 md:mb-10">
               <div>
                 <span className="mb-4 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                  {showLiveResults ? "Live Search" : "Discovery"}
+                  {showLiveResults ? "Шууд хайлт" : "Нээлт"}
                 </span>
                 <h2 className="font-serif text-3xl leading-[1.05] text-white md:text-4xl lg:text-5xl">
                   {showLiveResults
-                    ? "Top Matches by Category"
-                    : "Start with visual discovery"}
+                    ? "Ангиллаар ойролцоо үр дүн"
+                    : "Дүрслэлээр эхлэн нээх"}
                 </h2>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -563,7 +567,7 @@ export default function ExplorePage() {
                         : "border border-white/[0.12] bg-white/[0.03] text-white/58 hover:border-white/[0.28] hover:bg-white/[0.06] hover:text-white"
                     }`}
                   >
-                    {category}
+                    {categoryLabels[category]}
                   </button>
                 ))}
               </div>
@@ -601,17 +605,17 @@ export default function ExplorePage() {
                           <div className="mb-5 flex items-end justify-between gap-4">
                             <div>
                               <p className="font-sans text-[10px] tracking-[0.26em] uppercase text-white/34">
-                                {category}
+                                {categoryLabels[category]}
                               </p>
                               <h3 className="mt-2 font-serif text-2xl text-white [overflow-wrap:anywhere]">
-                                {items.length} top matches
+                                {items.length} ойролцоо үр дүн
                               </h3>
                             </div>
                             <button
                               onClick={() => setActiveCategory(category)}
                               className="shrink-0 rounded-full border border-white/[0.12] bg-white/[0.03] px-4 py-2 font-sans text-[10px] tracking-[0.22em] uppercase text-white/56 transition-all hover:border-white/[0.24] hover:bg-white/[0.06] hover:text-white"
                             >
-                              See all
+                              Бүгдийг харах
                             </button>
                           </div>
                           <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -632,11 +636,10 @@ export default function ExplorePage() {
               {noResults && (
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <h3 className="font-serif text-4xl text-white [overflow-wrap:anywhere]">
-                    No results for "{deferredQuery}"
+                    "{deferredQuery}" хайлтаар үр дүн олдсонгүй
                   </h3>
                   <p className="mt-4 max-w-xl font-sans text-lg leading-relaxed text-white/52">
-                    Try a related material, season, color, or brand term. You
-                    might also like these editorial picks.
+                    Ойролцоо материал, улирал, өнгө эсвэл брэндийн нэрээр хайж үзнэ үү. Мөн эдгээр редакцийн сонголтууд сонирхолтой байж магадгүй.
                   </p>
                   <div className="mt-8 flex flex-wrap justify-center gap-3">
                     {["cashmere", "fw2025", "winter", "emerald", "wool"].map(
@@ -666,12 +669,12 @@ export default function ExplorePage() {
           <div className="mx-auto flex h-full min-h-0 w-full max-w-[88rem] flex-col">
             <div className="mb-8 text-center md:mb-10">
               <span className="mb-4 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                Full Results
+                Бүх үр дүн
               </span>
               <h2 className="font-serif text-3xl leading-[1.05] text-white md:text-4xl lg:text-5xl">
                 {showLiveResults
-                  ? `${totalResults} ranked matches`
-                  : "Submit a term to unlock the full result grid"}
+                  ? `${totalResults} эрэмбэлсэн үр дүн`
+                  : "Бүх үр дүнгийн самбарыг харахын тулд хайлтын үг оруулна уу"}
               </h2>
             </div>
 
@@ -680,8 +683,7 @@ export default function ExplorePage() {
                 <div className="flex h-full items-center justify-center text-center">
                   <div className="max-w-2xl">
                     <p className="font-sans text-lg leading-relaxed text-white/48">
-                      Search will expand into a scored result grid here, with
-                      matches ranked higher for titles and rich metadata.
+                      Хайлтын үр дүн энд оноогоор эрэмбэлэгдэн харагдана. Гарчиг болон дэлгэрэнгүй метадата таарсан илэрцүүд дээгүүр байрлана.
                     </p>
                   </div>
                 </div>

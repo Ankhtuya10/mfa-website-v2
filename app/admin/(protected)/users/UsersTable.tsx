@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Profile {
@@ -25,6 +24,12 @@ const roleStyles: Record<string, string> = {
   viewer: "border border-[rgba(0,0,0,0.1)] text-[#9B9590] px-2.5 py-1",
 };
 
+const roleLabels: Record<string, string> = {
+  admin: "Админ",
+  editor: "Редактор",
+  viewer: "Уншигч",
+};
+
 export function UsersTable({
   initialUsers,
   currentUserId,
@@ -46,9 +51,26 @@ export function UsersTable({
 
   async function updateRole(userId: string, newRole: string) {
     if (userId === currentUserId) return;
-    const supabase = createClient();
-    await supabase.from("profiles").update({ role: newRole }).eq("id", userId);
-    setUsers(users.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
+    const previousUsers = users;
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)),
+    );
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: newRole }),
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload?.error || "Эрх шинэчилж чадсангүй");
+      }
+    } catch (error) {
+      setUsers(previousUsers);
+      alert(error instanceof Error ? error.message : "Эрх шинэчилж чадсангүй");
+    }
   }
 
   async function handleInvite() {
@@ -64,7 +86,7 @@ export function UsersTable({
 
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload?.error || "Failed to send invite");
+        throw new Error(payload?.error || "Урилга илгээж чадсангүй");
       }
 
       const newUser: Profile = payload.user;
@@ -73,9 +95,9 @@ export function UsersTable({
       setInviteEmail("");
       setInviteRole("viewer");
     } catch (err) {
-      console.error("Invite failed:", err);
+      console.error("Урилга илгээхэд алдаа гарлаа:", err);
       setInviteError(
-        err instanceof Error ? err.message : "Failed to send invite",
+        err instanceof Error ? err.message : "Урилга илгээж чадсангүй",
       );
     } finally {
       setInviting(false);
@@ -89,19 +111,19 @@ export function UsersTable({
           <thead>
             <tr className="border-b border-[rgba(0,0,0,0.1)] bg-[#F5F2ED]">
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590]">
-                Member
+                Гишүүн
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-32">
-                Role
+                Эрх
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-32">
-                Joined
+                Нэгдсэн
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-28">
-                Status
+                Төлөв
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-24">
-                Actions
+                Үйлдэл
               </th>
             </tr>
           </thead>
@@ -112,7 +134,7 @@ export function UsersTable({
                   colSpan={5}
                   className="py-12 text-center text-[#9B9590] font-sans text-sm"
                 >
-                  No team members found
+                  Багийн гишүүн олдсонгүй
                 </td>
               </tr>
             ) : (
@@ -142,12 +164,12 @@ export function UsersTable({
                     <span
                       className={`font-sans text-[9px] tracking-[1.5px] uppercase ${roleStyles[user.role || "viewer"]}`}
                     >
-                      {user.role || "viewer"}
+                      {roleLabels[user.role || "viewer"] || "Уншигч"}
                     </span>
                   </td>
                   <td className="py-4 px-5 font-inter text-[12px] text-[#9B9590]">
                     {user.created_at
-                      ? new Date(user.created_at).toLocaleDateString("en-US", {
+                      ? new Date(user.created_at).toLocaleDateString("mn-MN", {
                           month: "short",
                           year: "numeric",
                         })
@@ -156,7 +178,7 @@ export function UsersTable({
                   <td className="py-4 px-5">
                     <span className="flex items-center gap-1.5 font-inter text-[12px] text-[#16A34A]">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />{" "}
-                      Active
+                      Идэвхтэй
                     </span>
                   </td>
                   <td className="py-4 px-5">
@@ -167,13 +189,13 @@ export function UsersTable({
                       className="font-sans text-[10px] tracking-[1px] uppercase border border-[rgba(0,0,0,0.1)] bg-white px-2 py-1 outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                       title={
                         user.id === currentUserId
-                          ? "You cannot change your own role here"
+                          ? "Өөрийн эрхийг эндээс өөрчлөх боломжгүй"
                           : undefined
                       }
                     >
-                      <option value="viewer">Viewer</option>
-                      <option value="editor">Editor</option>
-                      <option value="admin">Admin</option>
+                      <option value="viewer">Уншигч</option>
+                      <option value="editor">Редактор</option>
+                      <option value="admin">Админ</option>
                     </select>
                   </td>
                 </tr>
@@ -193,11 +215,11 @@ export function UsersTable({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-serif text-xl text-[#111111] mb-6">
-              Invite a team member
+              Багийн гишүүн урих
             </h3>
             <input
               type="email"
-              placeholder="Email address"
+              placeholder="Имэйл хаяг"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               className="w-full border-b border-[rgba(0,0,0,0.15)] bg-transparent py-3 font-inter text-[15px] text-[#111111] outline-none focus:border-[#111111] mb-4"
@@ -207,9 +229,9 @@ export function UsersTable({
               onChange={(e) => setInviteRole(e.target.value)}
               className="w-full border-b border-[rgba(0,0,0,0.15)] bg-transparent py-3 font-inter text-[15px] text-[#111111] outline-none mb-6"
             >
-              <option value="viewer">Viewer</option>
-              <option value="editor">Editor</option>
-              <option value="admin">Admin</option>
+              <option value="viewer">Уншигч</option>
+              <option value="editor">Редактор</option>
+              <option value="admin">Админ</option>
             </select>
             {inviteError && (
               <p className="mb-4 font-sans text-[11px] text-red-600">
@@ -221,7 +243,7 @@ export function UsersTable({
               disabled={inviting || !inviteEmail}
               className="w-full bg-[#111111] text-white font-sans font-bold text-[10px] tracking-[2.5px] uppercase px-5 py-2.5 hover:bg-[#333] transition-colors disabled:opacity-50"
             >
-              {inviting ? "Sending..." : "Send Invite"}
+              {inviting ? "Илгээж байна..." : "Урилга илгээх"}
             </button>
           </div>
         </div>

@@ -13,6 +13,7 @@ import {
   getCollections,
   getDesignerBySlug,
 } from "@/lib/supabase/queries";
+import { getArticleCategoryLabel } from "@/lib/localization";
 
 interface Article {
   id: string;
@@ -164,7 +165,7 @@ export default function ArticlePage({
                     lookNumber: Number(look.number) || 0,
                     image: String(look.image || ""),
                     collectionSlug: String(collection.slug || ""),
-                    collectionName: String(collection.title || "Collection"),
+                    collectionName: String(collection.title || "Цуглуулга"),
                   }),
                 ),
               )
@@ -238,7 +239,7 @@ export default function ArticlePage({
           <StickyNavbar />
           <main className="flex h-full items-center justify-center">
             <span className="animate-pulse font-sans text-sm tracking-[0.22em] uppercase text-[#B7AEA9]">
-              Loading…
+              Ачаалж байна…
             </span>
           </main>
         </div>
@@ -249,14 +250,14 @@ export default function ArticlePage({
   if (!article) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
-        <h1 className="font-serif text-4xl text-white">Article not found</h1>
+        <h1 className="font-serif text-4xl text-white">Нийтлэл олдсонгүй</h1>
       </div>
     );
   }
 
   const formattedDate = new Date(
     article.publishedAt || article.published_at || "2026-03-15",
-  ).toLocaleDateString("en-US", {
+  ).toLocaleDateString("mn-MN", {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -265,7 +266,7 @@ export default function ArticlePage({
   const articleParagraphs = (article.body || "").split("\n\n").filter(Boolean);
   const pullQuote =
     articleParagraphs[0]?.slice(0, 140) ||
-    "Woven from the finest inner fleece of Mongolian goats, each piece carries the silence of the steppe.";
+    "Монгол ямааны хамгийн нарийн ноолуураар бүтсэн эдлэл бүр тал нутгийн нам гүмийг тээдэг.";
 
   const currentLook = featuredLooks[currentLookIndex];
 
@@ -314,10 +315,10 @@ export default function ArticlePage({
                           color: "#F5F2ED",
                         }}
                       >
-                        {article.category}
+                        {getArticleCategoryLabel(article.category)}
                       </span>
                       <span className="font-sans text-[10px] tracking-[0.2em] uppercase text-white/50">
-                        {article.readTime} min read
+                        {article.readTime} мин уншина
                       </span>
                     </div>
 
@@ -330,7 +331,7 @@ export default function ArticlePage({
                     </p>
 
                     <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 font-sans text-[11px] uppercase tracking-[0.18em] text-white/55">
-                      <span>By {article.author}</span>
+                      <span>Нийтэлсэн: {article.author}</span>
                       <span className="h-1 w-1 rounded-full bg-white/35" />
                       <span>{formattedDate}</span>
                       <span className="h-1 w-1 rounded-full bg-white/35" />
@@ -367,25 +368,25 @@ export default function ArticlePage({
                 <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
                   <div className="max-w-md border-t border-white/18 pt-4">
                     <p className="mb-2.5 font-sans text-[10px] tracking-[0.2em] uppercase text-white/45">
-                      Credits
+                      Бүтээлч баг
                     </p>
                     <div className="grid grid-cols-2 gap-x-8 gap-y-1.5 font-sans text-[11px] tracking-[0.08em] text-white/65">
                       <span>
-                        Photo: {article.credits?.photographer || "Batbayar"}
+                        Зураг: {article.credits?.photographer || "Батбаяр"}
                       </span>
                       <span>
-                        Stylist: {article.credits?.stylist || "Nomin"}
+                        Стилист: {article.credits?.stylist || "Номин"}
                       </span>
-                      <span>Model: {article.credits?.model || "Anu"}</span>
+                      <span>Модель: {article.credits?.model || "Ану"}</span>
                       <span>
-                        Creative Dir:{" "}
-                        {article.credits?.creativeDirector || "Bold"}
-                      </span>
-                      <span>
-                        Location: {article.credits?.location || "Ulaanbaatar"}
+                        Креатив:{" "}
+                        {article.credits?.creativeDirector || "Болд"}
                       </span>
                       <span>
-                        Equipment: {article.credits?.equipment || "35mm Film"}
+                        Байршил: {article.credits?.location || "Улаанбаатар"}
+                      </span>
+                      <span>
+                        Тоног төхөөрөмж: {article.credits?.equipment || "35мм хальс"}
                       </span>
                     </div>
                   </div>
@@ -396,7 +397,7 @@ export default function ArticlePage({
               <div className="flex min-h-0 flex-col items-center justify-center bg-[linear-gradient(180deg,#12100E_0%,#0A0A0A_100%)] px-8 py-12 md:px-12 lg:col-span-6 lg:px-16">
                 <div className="mx-auto flex max-w-lg flex-col items-center text-center">
                   <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                    Narrative Entry
+                    Өгүүлэмж
                   </span>
                   <h2 className="mb-6 font-serif text-3xl leading-[1.08] text-white md:text-4xl lg:text-5xl">
                     {article.title}
@@ -447,10 +448,10 @@ export default function ArticlePage({
             <div className="mx-auto flex h-full min-h-0 w-full max-w-[95rem] flex-col px-6 pb-10 pt-20 md:px-10 md:pb-12 md:pt-24">
               <div className="mb-8 shrink-0 text-center md:mb-10">
                 <span className="mb-3 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                  The Story
+                  Нийтлэл
                 </span>
                 <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
-                  Editorial Text
+                  Редакцийн текст
                 </h2>
               </div>
 
@@ -475,10 +476,10 @@ export default function ArticlePage({
               <div className="mb-8 flex shrink-0 items-end justify-between md:mb-10">
                 <div>
                   <span className="mb-3 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                    Shop The Look
+                    Төрхийг сонгох
                   </span>
                   <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
-                    Featured Pieces
+                    Онцлох загварууд
                   </h2>
                 </div>
               </div>
@@ -501,21 +502,21 @@ export default function ArticlePage({
                         <div className="relative mb-4 min-h-0 flex-1 overflow-hidden rounded-[16px] border border-white/8">
                           <SafeImage
                             src={look.image}
-                            alt={`Look ${look.lookNumber}`}
+                            alt={`Төрх ${look.lookNumber}`}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-[1.045]"
                           />
                           <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/12" />
                           <div className="absolute left-4 top-4">
                             <span className="bg-white/90 px-2.5 py-1.5 font-sans text-[9px] tracking-[0.2em] uppercase text-[#0A0A0A]">
-                              Look {look.lookNumber}
+                              Төрх {look.lookNumber}
                             </span>
                           </div>
                           {/* expand hint */}
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                             <div className="rounded-full border border-white/20 bg-black/40 px-4 py-2 backdrop-blur-sm">
                               <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/90">
-                                View
+                                Үзэх
                               </span>
                             </div>
                           </div>
@@ -525,7 +526,7 @@ export default function ArticlePage({
                             {look.collectionName}
                           </p>
                           <h3 className="font-serif text-lg leading-tight text-white transition-colors group-hover:text-white/75">
-                            Look {look.lookNumber}
+                            Төрх {look.lookNumber}
                           </h3>
                         </div>
                       </div>
@@ -540,7 +541,7 @@ export default function ArticlePage({
                   className="group inline-flex items-center gap-2"
                 >
                   <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 transition-colors group-hover:text-white">
-                    View All in Archive
+                    Архиваас бүгдийг үзэх
                   </span>
                   <ArrowRight className="h-4 w-4 text-white/38 transition-all group-hover:translate-x-1 group-hover:text-white" />
                 </Link>
@@ -569,7 +570,7 @@ export default function ArticlePage({
                 <div className="flex min-h-0 items-center justify-center px-8 py-12 md:px-12 md:py-16 lg:col-span-7 lg:px-16">
                   <div className="mx-auto max-w-2xl text-center lg:text-left">
                     <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                      Featured Designer
+                      Онцлох дизайнер
                     </span>
                     <Link
                       href={`/designers/${designer.slug}`}
@@ -585,7 +586,7 @@ export default function ArticlePage({
                       </p>
                       <div className="inline-flex items-center gap-2">
                         <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/58 transition-colors group-hover:text-white">
-                          View Designer Profile
+                          Дизайнерын профайл үзэх
                         </span>
                         <ArrowRight className="h-4 w-4 text-white/38 transition-all group-hover:translate-x-1 group-hover:text-white" />
                       </div>
@@ -601,10 +602,10 @@ export default function ArticlePage({
             <div className="mx-auto flex h-full min-h-0 w-full max-w-[95rem] flex-col px-6 pb-10 pt-20 md:px-10 md:pb-12 md:pt-24">
               <div className="mb-8 shrink-0 text-center md:mb-10">
                 <span className="mb-3 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                  Continue Reading
+                  Үргэлжлүүлэн унших
                 </span>
                 <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
-                  Read Next
+                  Дараа унших
                 </h2>
               </div>
 
@@ -635,7 +636,7 @@ export default function ArticlePage({
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/28 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-7">
                         <span className="mb-2 block font-sans text-[9px] tracking-[0.25em] uppercase text-white/45">
-                          {item.category}
+                          {getArticleCategoryLabel(item.category)}
                         </span>
                         <h3 className="font-serif text-xl leading-tight text-white decoration-white/28 underline-offset-4 group-hover:underline">
                           {item.title}
@@ -707,7 +708,7 @@ export default function ArticlePage({
               >
                 <SafeImage
                   src={currentLook.image}
-                  alt={`Look ${currentLook.lookNumber}`}
+                  alt={`Төрх ${currentLook.lookNumber}`}
                   width={800}
                   height={1200}
                   className="mx-auto max-h-[80vh] object-contain"
@@ -727,7 +728,7 @@ export default function ArticlePage({
 
                 <div className="relative p-6">
                   <p className="mb-1 font-sans text-[10px] tracking-[0.22em] uppercase text-[#B7AEA9]">
-                    Look {currentLook.lookNumber}
+                    Төрх {currentLook.lookNumber}
                   </p>
                   <h3 className="mb-5 font-serif text-xl leading-tight text-white">
                     {currentLook.collectionName}
@@ -759,7 +760,7 @@ export default function ArticlePage({
                       className="group flex w-full items-center justify-between rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 transition-all hover:border-white/22 hover:bg-white/[0.08]"
                     >
                       <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-white/65 transition-colors group-hover:text-white">
-                        View Collection
+                        Цуглуулга үзэх
                       </span>
                       <ArrowRight className="h-3.5 w-3.5 text-white/40 transition-all group-hover:translate-x-1 group-hover:text-white" />
                     </Link>

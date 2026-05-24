@@ -17,17 +17,17 @@ import {
 import { useRouter } from "next/navigation";
 
 const TABS = [
-  { id: "articles", label: "Saved Articles", eyebrow: "Library" },
-  { id: "looks", label: "Saved Looks", eyebrow: "Library" },
-  { id: "collections", label: "Saved Collections", eyebrow: "Archive" },
-  { id: "following", label: "Following", eyebrow: "Designers" },
-  { id: "settings", label: "Settings", eyebrow: "Account" },
+  { id: "articles", label: "Хадгалсан нийтлэл", eyebrow: "Сан" },
+  { id: "looks", label: "Хадгалсан төрх", eyebrow: "Сан" },
+  { id: "collections", label: "Хадгалсан цуглуулга", eyebrow: "Архив" },
+  { id: "following", label: "Дагаж буй", eyebrow: "Дизайнерууд" },
+  { id: "settings", label: "Тохиргоо", eyebrow: "Бүртгэл" },
 ];
 
 const EMPTY_QUOTES: Record<string, string> = {
-  articles: '"The best fashion is the one that makes you feel like yourself."',
-  looks: '"Style is a way to say who you are without having to speak."',
-  following: '"Fashion is instant language." - Miuccia Prada',
+  articles: '"Хамгийн сайхан загвар бол өөрөөрөө байх мэдрэмж өгдөг загвар."',
+  looks: '"Стиль бол үг хэлэлгүйгээр өөрийгөө илэрхийлэх хэл юм."',
+  following: '"Загвар бол шууд ойлгогдох хэл." - Miuccia Prada',
 };
 
 const NOTIFICATIONS_STORAGE_KEY = "anoce_profile_notifications";
@@ -119,7 +119,7 @@ export default function ProfilePage() {
             .from("profiles")
             .insert({
               id: user.id,
-              name: user.email?.split("@")[0] || "Anonymous",
+              name: user.email?.split("@")[0] || "Нэргүй хэрэглэгч",
             })
             .select()
             .single();
@@ -266,26 +266,37 @@ export default function ProfilePage() {
     const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
     });
-    if (error) alert("Failed to send password reset email. Please try again.");
-    else alert("Password reset email sent. Check your inbox.");
+    if (error) alert("Нууц үг сэргээх имэйл илгээж чадсангүй. Дахин оролдоно уу.");
+    else alert("Нууц үг сэргээх имэйл илгээлээ. Ирсэн имэйлээ шалгана уу.");
   }
 
   async function handleDeleteAccount() {
     if (
       !window.confirm(
-        "Are you sure you want to delete your account? This cannot be undone.",
+        "Та бүртгэлээ устгахдаа итгэлтэй байна уу? Энэ үйлдлийг буцаах боломжгүй.",
       )
     )
       return;
+    const response = await fetch("/api/profile/delete", { method: "DELETE" });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      alert(payload?.error || "Бүртгэл устгаж чадсангүй. Дахин оролдоно уу.");
+      return;
+    }
     await supabase.auth.signOut();
     router.push("/");
   }
 
-  const userName = profile?.name || user?.email?.split("@")[0] || "Anonymous";
+  const userName = profile?.name || user?.email?.split("@")[0] || "Нэргүй хэрэглэгч";
   const userRole = profile?.role || "viewer";
-  const roleDisplay = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+  const roleDisplay =
+    userRole === "admin"
+      ? "Админ"
+      : userRole === "editor"
+        ? "Редактор"
+        : "Уншигч";
   const joinedDate = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString("en-US", {
+    ? new Date(user.created_at).toLocaleDateString("mn-MN", {
         month: "long",
         year: "numeric",
       })
@@ -338,12 +349,12 @@ export default function ProfilePage() {
       <div className="h-screen w-full overflow-hidden bg-[#080808]">
         <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#080808]">
           <StickyNavbar />
-          <p className="font-serif text-3xl text-white">Not signed in</p>
+          <p className="font-serif text-3xl text-white">Нэвтрээгүй байна</p>
           <a
             href="/login"
             className="mt-6 text-[10px] uppercase tracking-widest text-[#B7AEA9] hover:text-white"
           >
-            Go to Login {"->"}
+            Нэвтрэх хуудас руу {"->"}
           </a>
         </div>
       </div>
@@ -426,7 +437,7 @@ export default function ProfilePage() {
                 </p>
                 {joinedDate && (
                   <p className="mt-1.5 text-[8px] uppercase tracking-[0.3em] text-[#6B6560]">
-                    Joined {joinedDate}
+                    Нэгдсэн {joinedDate}
                   </p>
                 )}
               </div>
@@ -436,10 +447,10 @@ export default function ProfilePage() {
 
             <div className="mb-6 grid grid-cols-2 gap-2 px-5">
               {[
-                { label: "Articles", value: savedArticles.length },
-                { label: "Looks", value: savedLooks.length },
-                { label: "Collections", value: savedCollections.length },
-                { label: "Following", value: followedDesigners.length },
+                { label: "Нийтлэл", value: savedArticles.length },
+                { label: "Төрх", value: savedLooks.length },
+                { label: "Цуглуулга", value: savedCollections.length },
+                { label: "Дагасан", value: followedDesigners.length },
               ].map((s) => (
                 <div
                   key={s.label}
@@ -529,9 +540,9 @@ export default function ProfilePage() {
                         />
                       </svg>
                     }
-                    title="No saved articles yet"
-                    description="Bookmark articles as you read to build your personal editorial shelf."
-                    cta="Browse Editorial"
+                    title="Хадгалсан нийтлэл алга"
+                    description="Уншиж буй нийтлэлээ хадгалж, өөрийн редакцийн сангаа бүрдүүлээрэй."
+                    cta="Нийтлэл үзэх"
                     href="/editorial"
                     quote={EMPTY_QUOTES.articles}
                   />
@@ -550,18 +561,18 @@ export default function ProfilePage() {
                         </div>
                         <Image
                           src={look.image}
-                          alt={look.title || "Look"}
+                          alt={look.title || "Төрх"}
                           fill
                           className="rounded-[22px] object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-x-2 bottom-2 rounded-[22px] bg-gradient-to-t from-black/85 via-black/40 to-transparent px-5 pb-5 pt-12">
                           <p className="text-[9px] uppercase tracking-[0.22em] text-white/50">
-                            {look.collections?.designer_name || "Saved Look"}
+                            {look.collections?.designer_name || "Хадгалсан төрх"}
                           </p>
                           <p className="mt-1.5 font-serif text-[18px] font-light leading-tight text-white">
                             {look.collections?.title ||
                               look.title ||
-                              "Untitled"}
+                              "Гарчиггүй"}
                           </p>
                         </div>
                       </div>
@@ -584,9 +595,9 @@ export default function ProfilePage() {
                         />
                       </svg>
                     }
-                    title="No saved looks yet"
-                    description="Explore collections and save the looks you want to revisit later."
-                    cta="Explore Archive"
+                    title="Хадгалсан төрх алга"
+                    description="Цуглуулгуудаар аялж, дараа дахин харах төрхүүдээ хадгалаарай."
+                    cta="Архив үзэх"
                     href="/archive"
                     quote={EMPTY_QUOTES.looks}
                   />
@@ -597,7 +608,7 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                     {savedCollections.map((c: any) => {
                       const cover = c.cover_image || c.coverImage || "";
-                      const title = c.title || "Untitled";
+                      const title = c.title || "Гарчиггүй";
                       const season = c.season || "";
                       const year = c.year || "";
                       const designer = c.designer_name || c.designerName || "";
@@ -628,7 +639,7 @@ export default function ProfilePage() {
                                 {title}
                               </h3>
                               <p className="mt-1 font-sans text-[10px] text-white/40">
-                                {looksCount} looks
+                                {looksCount} төрх
                               </p>
                             </div>
                           </div>
@@ -660,9 +671,9 @@ export default function ProfilePage() {
                         />
                       </svg>
                     }
-                    title="No saved collections yet"
-                    description="Browse the archive and save collections you want to revisit."
-                    cta="Browse Archive"
+                    title="Хадгалсан цуглуулга алга"
+                    description="Архиваар аялж, дараа дахин үзэх цуглуулгуудаа хадгалаарай."
+                    cta="Архив үзэх"
                     href="/archive"
                   />
                 ))}
@@ -691,9 +702,9 @@ export default function ProfilePage() {
                         />
                       </svg>
                     }
-                    title="Not following anyone yet"
-                    description="Follow designers from their profiles to keep your favorites close."
-                    cta="Discover Designers"
+                    title="Одоогоор хэнийг ч дагаагүй байна"
+                    description="Дуртай дизайнеруудаа ойр байлгахын тулд профайлаас нь дагаарай."
+                    cta="Дизайнер нээх"
                     href="/designers"
                     quote={EMPTY_QUOTES.following}
                   />
@@ -703,12 +714,12 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_1fr]">
                   <div className="col-span-full rounded-[28px] border border-white/[0.07] bg-white/[0.03] p-7">
                     <h3 className="mb-7 text-center font-serif text-[22px] font-light text-white">
-                      Profile
+                      Профайл
                     </h3>
                     <div className="mx-auto max-w-sm space-y-4">
                       <div>
                         <label className="mb-2 block text-[8px] uppercase tracking-[0.28em] text-[#6B6560]">
-                          Display name
+                          Харагдах нэр
                         </label>
                         <input
                           type="text"
@@ -719,7 +730,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <label className="mb-2 block text-[8px] uppercase tracking-[0.28em] text-[#6B6560]">
-                          Email address
+                          Имэйл хаяг
                         </label>
                         <input
                           type="email"
@@ -728,7 +739,7 @@ export default function ProfilePage() {
                           className="w-full cursor-not-allowed rounded-[12px] border border-white/[0.05] bg-white/[0.015] px-4 py-3 text-center text-[12px] tracking-[0.03em] text-white/25 outline-none"
                         />
                         <p className="mt-2 text-center text-[9px] leading-relaxed text-white/24">
-                          Contact support to update your email address.
+                          Имэйл хаягаа шинэчлэх бол дэмжлэгийн багтай холбогдоно уу.
                         </p>
                       </div>
                       <div className="pt-1 text-center">
@@ -740,10 +751,10 @@ export default function ProfilePage() {
                           } ${saveSuccess ? "text-green-400" : "text-[#D4C9B8]"}`}
                         >
                           {saving
-                            ? "Saving..."
+                            ? "Хадгалж байна..."
                             : saveSuccess
-                              ? "Saved ?"
-                              : "Save changes"}
+                              ? "Хадгалсан"
+                              : "Өөрчлөлт хадгалах"}
                         </button>
                       </div>
                     </div>
@@ -751,14 +762,14 @@ export default function ProfilePage() {
 
                   <div className="rounded-[28px] border border-white/[0.07] bg-white/[0.03] p-7">
                     <h3 className="mb-6 text-center font-serif text-[22px] font-light text-white">
-                      Notifications
+                      Мэдэгдэл
                     </h3>
                     <div className="space-y-2">
                       {(
                         [
-                          ["New collection drops", "new_collections"],
-                          ["Editorial picks", "editorial_picks"],
-                          ["Breaking fashion news", "breaking_news"],
+                          ["Шинэ цуглуулга гарах үед", "new_collections"],
+                          ["Редакцийн сонголт", "editorial_picks"],
+                          ["Загварын шуурхай мэдээ", "breaking_news"],
                         ] as [string, string][]
                       ).map(([label, key]) => (
                         <label
@@ -787,19 +798,19 @@ export default function ProfilePage() {
 
                   <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] border border-white/[0.07] bg-white/[0.03] p-7 text-center">
                     <h3 className="font-serif text-[22px] font-light text-white">
-                      Account
+                      Бүртгэл
                     </h3>
                     <button
                       onClick={handleChangePassword}
                       className="rounded-full border border-white/[0.14] px-7 py-2.5 text-[8px] uppercase tracking-[0.3em] text-[#D4C9B8] transition-all hover:border-white/[0.24] hover:bg-white/[0.06]"
                     >
-                      Change password
+                      Нууц үг солих
                     </button>
                     <button
                       onClick={handleDeleteAccount}
                       className="text-[8px] uppercase tracking-[0.26em] text-red-400 transition-colors hover:text-red-300"
                     >
-                      Delete account
+                      Бүртгэл устгах
                     </button>
                   </div>
                 </div>

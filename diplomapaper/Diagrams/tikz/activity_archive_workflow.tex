@@ -1,0 +1,28 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \node[circle,draw,minimum size=0.6cm,fill=black] (start) at (0,0) {};
+  \node[draw,rounded corners=4pt,minimum width=4.0cm,minimum height=0.9cm] (login) at (0,-1.3) {Сайт нээх};
+  \node[draw,rounded corners=4pt,minimum width=4.0cm,minimum height=0.9cm] (catalog) at (0,-2.7) {Archive / Editorial үзэх};
+  \node[draw,rounded corners=4pt,minimum width=4.2cm,minimum height=0.9cm] (searchfilter) at (0,-4.1) {Search эсвэл filter хийх};
+  \node[diamond,draw,aspect=2.2] (access) at (0,-5.7) {Content олдсон уу?};
+  \node[draw,rounded corners=4pt,minimum width=4.2cm,minimum height=0.9cm] (buy) at (-4.6,-7.2) {AI туслахаас асуух};
+  \node[draw,rounded corners=4pt,minimum width=4.2cm,minimum height=0.9cm] (contentdetail) at (0,-8.4) {Collection / Article нээх};
+  \node[draw,rounded corners=4pt,minimum width=4.2cm,minimum height=0.9cm] (detailview) at (0,-9.9) {Look, material, designer үзэх};
+  \node[diamond,draw,aspect=2.4] (help) at (0,-11.5) {Хадгалах уу?};
+  \node[draw,rounded corners=4pt,minimum width=4.4cm,minimum height=0.9cm] (chat) at (4.8,-12.9) {Login / Bookmark};
+  \node[draw,rounded corners=4pt,minimum width=4.2cm,minimum height=0.9cm] (progress) at (0,-14.1) {Дараагийн content үзэх};
+  \node[circle,draw,minimum size=0.6cm,fill=black] (end) at (0,-15.6) {};
+
+  \draw[->] (start) -- (login);
+  \draw[->] (login) -- (catalog);
+  \draw[->] (catalog) -- (searchfilter);
+  \draw[->] (searchfilter) -- (access);
+  \draw[->] (access) -- node[above,font=\scriptsize] {Үгүй} (buy);
+  \draw[->] (buy.south) |- (contentdetail.west);
+  \draw[->] (access) -- node[right,font=\scriptsize] {Тийм} (contentdetail);
+  \draw[->] (contentdetail) -- (detailview);
+  \draw[->] (detailview) -- (help);
+  \draw[->] (help) -- node[above,font=\scriptsize] {Тийм} (chat);
+  \draw[->] (chat.south) |- (progress.east);
+  \draw[->] (help) -- node[left,font=\scriptsize] {Үгүй} (progress);
+  \draw[->] (progress) -- (end);
+\end{tikzpicture}

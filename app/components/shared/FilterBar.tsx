@@ -20,6 +20,7 @@ export function FilterBar({ filters, activeFilters, onChange, resultCount }: Fil
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   const hasActiveFilters = Object.values(activeFilters).some(v => v && v !== 'All')
+  const optionLabel = (option: string) => option === 'All' ? 'Бүгд' : option
 
   return (
     <div className="sticky top-20 z-40 bg-[#F5F2ED]/95 backdrop-blur border-b border-[rgba(0,0,0,0.08)] py-5 px-6 md:px-24">
@@ -60,7 +61,7 @@ export function FilterBar({ filters, activeFilters, onChange, resultCount }: Fil
                             : 'text-[#7A7470] hover:bg-[#F5F2ED] hover:text-[#2A2522]'
                         }`}
                       >
-                        {option}
+                        {optionLabel(option)}
                       </button>
                     ))}
                   </motion.div>
@@ -73,7 +74,7 @@ export function FilterBar({ filters, activeFilters, onChange, resultCount }: Fil
         <div className="flex items-center gap-4">
           {resultCount !== undefined && (
             <span className="font-sans text-[11px] tracking-[2px] uppercase text-[#9B9590]">
-              {resultCount} {resultCount === 1 ? 'result' : 'results'}
+              {resultCount} үр дүн
             </span>
           )}
           {hasActiveFilters && (
@@ -81,7 +82,7 @@ export function FilterBar({ filters, activeFilters, onChange, resultCount }: Fil
               onClick={() => filters.forEach(f => onChange(f.key, 'All'))}
               className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] hover:text-[#2A2522] transition-colors"
             >
-              Clear filters
+              Шүүлтүүр цэвэрлэх
             </button>
           )}
         </div>
@@ -96,7 +97,7 @@ export function FilterBar({ filters, activeFilters, onChange, resultCount }: Fil
                 key={filter.key}
                 className="inline-flex items-center gap-2 px-3 py-1 bg-[#2A2522] text-white font-sans text-[10px] tracking-[2px] uppercase"
               >
-                {activeFilters[filter.key]}
+                {optionLabel(activeFilters[filter.key])}
                 <button
                   onClick={() => onChange(filter.key, 'All')}
                   className="hover:text-[#B7AEA9] transition-colors"

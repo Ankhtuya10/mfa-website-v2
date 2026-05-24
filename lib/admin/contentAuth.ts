@@ -9,7 +9,7 @@ export async function requireContentAdmin() {
 
   if (!user) {
     return {
-      response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+      response: NextResponse.json({ error: "Нэвтрэх шаардлагатай." }, { status: 401 }),
       user: null,
     };
   }
@@ -22,10 +22,10 @@ export async function requireContentAdmin() {
 
   if (!profile || profile.role === "viewer") {
     return {
-      response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      response: NextResponse.json({ error: "Энэ үйлдэл хийх эрх хүрэлцэхгүй байна." }, { status: 403 }),
       user: null,
     };
   }
 
-  return { response: null, user };
+  return { response: null, user, profile };
 }

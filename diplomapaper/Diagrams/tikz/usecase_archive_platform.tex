@@ -1,0 +1,83 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{actorlabel}=[font=\scriptsize, align=center]
+  \tikzstyle{uc}=[draw, ellipse, minimum width=3.7cm, minimum height=0.95cm,
+    text width=3.25cm, align=center, font=\scriptsize]
+
+  \draw[rounded corners=8pt] (0,0) rectangle (16,10.4);
+  \node[font=\small\bfseries] at (8,10.05) {Anoce/MFA Монголын загварын архив};
+
+  % Actors
+  \node[draw, circle, minimum size=0.72cm] (guestHead) at (-2.2,8.3) {};
+  \draw (-2.2,7.95) -- (-2.2,6.95);
+  \draw (-2.65,7.55) -- (-1.75,7.55);
+  \draw (-2.2,6.95) -- (-2.65,6.35);
+  \draw (-2.2,6.95) -- (-1.75,6.35);
+  \node[actorlabel] at (-2.2,5.95) {Зочин};
+
+  \node[draw, circle, minimum size=0.72cm] (userHead) at (-2.2,3.6) {};
+  \draw (-2.2,3.25) -- (-2.2,2.25);
+  \draw (-2.65,2.85) -- (-1.75,2.85);
+  \draw (-2.2,2.25) -- (-2.65,1.65);
+  \draw (-2.2,2.25) -- (-1.75,1.65);
+  \node[actorlabel] at (-2.2,1.25) {Бүртгэлтэй\\хэрэглэгч};
+
+  \node[draw, circle, minimum size=0.72cm] (editorHead) at (18.2,7.2) {};
+  \draw (18.2,6.85) -- (18.2,5.85);
+  \draw (17.75,6.45) -- (18.65,6.45);
+  \draw (18.2,5.85) -- (17.75,5.25);
+  \draw (18.2,5.85) -- (18.65,5.25);
+  \node[actorlabel] at (18.2,4.85) {Редактор};
+
+  \node[draw, circle, minimum size=0.72cm] (adminHead) at (18.2,2.9) {};
+  \draw (18.2,2.55) -- (18.2,1.55);
+  \draw (17.75,2.15) -- (18.65,2.15);
+  \draw (18.2,1.55) -- (17.75,0.95);
+  \draw (18.2,1.55) -- (18.65,0.95);
+  \node[actorlabel] at (18.2,0.55) {Админ};
+
+  % Public use cases
+  \node[uc] (browse) at (3.4,8.4) {Архив үзэх\\ба шүүх};
+  \node[uc] (designer) at (8.0,8.4) {Дизайнерын\\профайл үзэх};
+  \node[uc] (collection) at (12.6,8.4) {Коллекц ба\\look нээх};
+
+  \node[uc] (article) at (3.4,6.4) {Нийтлэл\\унших};
+  \node[uc] (search) at (8.0,6.4) {Global search\\ашиглах};
+  \node[uc] (chat) at (12.6,6.4) {AI туслахаас\\асуух};
+
+  % Authenticated use cases
+  \node[uc] (auth) at (3.4,3.6) {Бүртгүүлэх\\Нэвтрэх};
+  \node[uc] (bookmark) at (8.0,3.6) {Bookmark\\Follow хийх};
+  \node[uc] (profile) at (12.6,3.6) {Профайл\\ашиглах};
+
+  % Admin/editor use cases
+  \node[uc] (editArticle) at (3.4,1.4) {Нийтлэл\\үүсгэх/засах};
+  \node[uc] (editContent) at (8.0,1.4) {Collection, designer\\мэдээлэл удирдах};
+  \node[uc] (manage) at (12.6,1.4) {Asset, user role\\удирдах};
+
+  % Associations
+  \draw (-1.65,7.55) -- (browse.west);
+  \draw (-1.65,7.55) -- (designer.west);
+  \draw (-1.65,7.55) -- (collection.west);
+  \draw (-1.65,7.55) -- (article.west);
+  \draw (-1.65,7.55) -- (search.west);
+  \draw (-1.65,7.55) -- (chat.west);
+
+  \draw (-1.65,2.85) -- (auth.west);
+  \draw (-1.65,2.85) -- (bookmark.west);
+  \draw (-1.65,2.85) -- (profile.west);
+  \draw (-1.65,2.85) -- (chat.west);
+
+  \draw (17.65,6.45) -- (editArticle.east);
+  \draw (17.65,6.45) -- (editContent.east);
+  \draw (17.65,6.45) -- (manage.east);
+
+  \draw (17.65,2.15) -- (editArticle.east);
+  \draw (17.65,2.15) -- (editContent.east);
+  \draw (17.65,2.15) -- (manage.east);
+
+  % Relationships
+  \draw[dashed,->] (bookmark) -- (auth);
+  \draw[dashed,->] (profile) -- (auth);
+  \draw[dashed,->] (chat) -- (search);
+  \draw[dashed,->] (collection) -- (designer);
+\end{tikzpicture}

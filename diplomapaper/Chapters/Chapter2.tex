@@ -1,0 +1,287 @@
+% Бүлэг 2
+
+\chapter{Системийн шаардлага ба шинжилгээ}
+\label{Chapter2}
+
+\section{Платформын танилцуулга}
+Anoce/MFA платформ нь Монголын загварын нийтлэл, дизайнер, коллекц, лүүк зураг, материал, улирал, архивын мэдээллийг нэгтгэн харуулах fashion magazine болон дижитал архивын шинжтэй веб систем юм. Платформын зорилго нь уншигчид Монголын загварын контентыг нэг дороос үзэх, хайх, ангилах боломж олгох; редактор болон админ хэрэглэгчид нийтлэл, зураг, дизайнер, коллекцийн мэдээллийг төвлөрсөн байдлаар удирдах орчин бүрдүүлэхэд оршино.
+
+Платформ нь дараах үндсэн хэрэглэгчдэд зориулагдана.
+\begin{itemize}
+  \item \textbf{Зочин хэрэглэгч:} нийтлэл унших, archive үзэх, дизайнер болон коллекцийн мэдээлэл харах, хайлт хийх;
+  \item \textbf{Бүртгэлтэй хэрэглэгч:} зочин хэрэглэгчийн боломж дээр нэмээд контент хадгалах, profile хэсгээ удирдах;
+  \item \textbf{Админ/редактор:} нийтлэл, дизайнер, коллекц, зурагт медиа файл удирдах, нийтлэх workflow хянах, хэрэглэгчийн эрх зохицуулах.
+\end{itemize}
+
+Энэ платформ нь энгийн blog эсвэл news site-аас ялгаатай. Энгийн blog ихэвчлэн огноо болон нийтлэлийн урсгалд төвлөрдөг бол fashion magazine platform нь зурагт өгүүлэмж, дизайнерын identity, коллекцийн холбоо, лүүк зураг, материал, улирал, archive navigation, сэтгүүлийн editorial tone-д илүү ач холбогдол өгнө. Иймээс Anoce/MFA платформын үндсэн хэсэг нь public home, editorial, archive, designers, collection detail, article detail, search overlay, profile, admin CMS, media library, AI chatbot гэсэн бүрэлдэхүүнтэй байна.
+
+Хүснэгт \ref{tab:platform-main-parts}-д платформын үндсэн хэсгүүд болон тэдгээрийн зорилгыг харуулав. Энэ хүснэгт нь дараагийн шаардлагын шинжилгээнд ашиглах системийн хүрээг тодорхойлж байна.
+\begin{longtable}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
+  \hline
+  \textbf{Хэсэг} & \textbf{Зорилго} & \textbf{Үндсэн хэрэглэгч} \\ \hline
+  Home & Брэндийн төрх, онцлох контент, коллекцийн эхлэл navigation харуулах & Зочин, бүртгэлтэй хэрэглэгч \\ \hline
+  Editorial & Загварын нийтлэл, ярилцлага, чиг хандлагын материал уншуулах & Зочин, бүртгэлтэй хэрэглэгч \\ \hline
+  Archive & Коллекц, улирал, дизайнер, материал, лүүк зургийг хайж үзүүлэх & Зочин, бүртгэлтэй хэрэглэгч \\ \hline
+  Designers & Дизайнерын profile, brand story, холбоотой коллекц харуулах & Зочин, бүртгэлтэй хэрэглэгч \\ \hline
+  Search overlay & Article, collection, designer өгөгдлийг нэг хайлтаар олох & Бүх хэрэглэгч \\ \hline
+  Admin CMS & Контент нэмэх, засах, устгах, нийтлэх, медиа файл удирдах & Админ/редактор \\ \hline
+  AI chatbot & Архивын өгөгдөлд тулгуурлан асуултад лавлагаа өгөх & Бүх хэрэглэгч \\ \hline
+  \caption{Платформын үндсэн хэсгүүд}
+  \label{tab:platform-main-parts}\\
+\end{longtable}
+
+\section{Одоогийн нөхцөл байдлын шинжилгээ}
+Монголын загварын мэдээлэл өнөөдөр сошиал медиа пост, брэндийн веб хуудас, цахим худалдааны бүтээгдэхүүний хуудас, эвентийн зар, хувь хүний портфолио, богино нийтлэл зэрэг олон эх сурвалжид тархсан байна. Нэг дизайнерын коллекц, тухайн коллекцийн лүүк зураг, материал, улирал, холбоотой нийтлэл, дизайнерын намтар, брэндийн түүхийг нэг дороос харах боломж хязгаарлагдмал. Энэ нь уншигчид мэдээлэл хайхад төвөгтэй, редакторт контент зохион байгуулахад хүндрэлтэй, судлаачид архивын өгөгдөл цуглуулахад цаг их шаарддаг.
+
+Загварын сэтгүүлийн платформд дараах асуудлууд илүү тод илэрч байна.
+\begin{itemize}
+  \item Загварын нийтлэл, зураг, collection, дизайнерын мэдээлэл олон эх сурвалжид салангид байгаа;
+  \item Монгол хэрэглэгчдэд зориулсан редакцийн нийтлэл ба архивын шинжтэй нэгдсэн платформ хомс;
+  \item Нийтлэл, зураг, чиг хандлага, зөвлөгөө, коллекцийн мета өгөгдлийг нэг дор хайх боломж сул;
+  \item Контент нэмэх, засах, нийтлэх ажиллагаа фронтэнд кодоос хамаарахгүй байх CMS шаардлагатай;
+  \item Зурагт контент олон тул медиа файл, дэлгэцийн хэмжээнд зохицох layout, хайлт/шүүлтүүр, хэрэглэгчийн хадгалалт зэрэг боломж хэрэгтэй;
+  \item AI туслах ашиглах бол архивын бодит өгөгдөлд тулгуурлах контекст болон fallback хариулт шаардлагатай.
+\end{itemize}
+
+Иймээс хөгжүүлэх платформ нь нийтлэл харуулах энгийн сайт бус, уншигчийн public experience болон редакцийн admin CMS-ийг нэгтгэсэн мэдээллийн платформ байх шаардлагатай.
+
+\section{Хэрэглэгчийн шаардлага}
+Платформын үндсэн хэрэглэгчийг зочин хэрэглэгч, бүртгэлтэй хэрэглэгч, админ/редактор гэсэн гурван бүлэгт хуваана. Одоогийн mfa-website-v2 хэрэгжилтэд public уншигчийн урсгал, authenticated profile/bookmark урсгал, protected admin CMS урсгал ялгаатай ажиллаж байна. Хүснэгт \ref{tab:user-roles-actions}-д хэрэглэгчийн төрөл ба хийх үндсэн үйлдлийг харуулав.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{|L{0.20\textwidth}|L{0.36\textwidth}|L{0.30\textwidth}|}
+    \hline
+    \textbf{Хэрэглэгч} & \textbf{Хийх үндсэн үйлдэл} & \textbf{Эрхийн түвшин} \\ \hline
+    Зочин хэрэглэгч & Нийтлэл унших, архив үзэх, дизайнер/коллекц харах, хайлт хийх & Public read \\ \hline
+    Бүртгэлтэй хэрэглэгч & Public контент үзэх, bookmark/follow ашиглах, profile удирдах & Authenticated reader/viewer \\ \hline
+    Админ/редактор & Нийтлэл нэмэх, засах, устгах, зураг удирдах, коллекц/дизайнер засах, нийтлэх workflow хянах & Staff role, admin/editor \\ \hline
+  \end{tabular}
+  \vspace{0.4em}
+  \caption{Хэрэглэгчийн төрөл ба хийх үйлдэл}
+  \label{tab:user-roles-actions}
+\end{table}
+
+Хэрэглэгчийн шаардлагыг сценарийн хэлбэрээр авч үзвэл уншигч archive болон нийтлэлийн navigation ойлгомжтой байхыг, бүртгэлтэй хэрэглэгч сонирхсон контентоо хадгалахыг, админ/редактор контент оруулах ажиллагаа хурдан бөгөөд алдаа багатай байхыг шаарддаг. Хүснэгт \ref{tab:user-requirement-summary}-д хэрэглэгчийн шаардлагын нэгтгэлийг харуулав.
+\begin{longtable}{|L{0.18\textwidth}|L{0.30\textwidth}|L{0.38\textwidth}|}
+  \hline
+  \textbf{Хэрэглэгч} & \textbf{Шаардлага} & \textbf{Платформын хариу шийдэл} \\ \hline
+  Зочин хэрэглэгч & Загварын нийтлэл, дизайнер, коллекц хайж олох & Нүүр, архив, дизайнер, нийтлэл, глобал хайлт \\ \hline
+  Зочин хэрэглэгч & Ангилал, улирал, дизайнер, material-аар шүүх & Archive filter, designer relation, metadata field \\ \hline
+  Бүртгэлтэй хэрэглэгч & Сонирхсон контент хадгалах & Supabase Auth, bookmark/follow, profile суурь \\ \hline
+  Админ/редактор & Нийтлэл бичих, зураг оруулах, ноорог хадгалах & Admin article form, медиа сан, review status \\ \hline
+  Админ/редактор & Коллекц болон дизайнерын мета өгөгдөл ашиглах & Collection/designer CRUD, холбоотой контентын relation \\ \hline
+  Админ & Бүх контент болон хэрэглэгчийн эрх хянах & Protected dashboard, users, role gate, admin API \\ \hline
+  \caption{Хэрэглэгчийн шаардлагын нэгтгэл}
+  \label{tab:user-requirement-summary}\\
+\end{longtable}
+
+\subsection*{A. Функциональ шаардлага}
+Функциональ шаардлага нь платформ ямар үйлдэл хийх ёстойг тодорхойлно. Anoce/MFA платформын хувьд public archive, editorial content, CMS workflow, search, authentication, AI туслах гэсэн бүлгүүдээр шаардлагыг тодорхойлов. Хүснэгт \ref{tab:functional-requirements}-д системийн функциональ шаардлагуудыг харуулав.
+
+{\small
+\begin{longtable}{|L{0.08\textwidth}|L{0.29\textwidth}|L{0.13\textwidth}|L{0.36\textwidth}|}
+  \hline
+  \textbf{Код} & \textbf{Шаардлага} & \textbf{Priority} & \textbf{Тайлбар} \\ \hline
+  FR-01 & Хэрэглэгч бүртгүүлэх, нэвтрэх & P1 & Supabase Auth ашиглан reader/editor/admin хэрэглэгчийг танина. \\ \hline
+  FR-02 & Хэрэглэгч нийтлэл үзэх & P1 & Published article жагсаалт болон detail хуудас харагдана. \\ \hline
+  FR-03 & Хэрэглэгч загварын collection/article унших & P1 & Editorial болон archive detail view-ээр нийтлэл, коллекц уншина. \\ \hline
+  FR-04 & Хэрэглэгч хайлт хийх & P1 & Article, collection, designer result-ийг нэг overlay дээр хайж харуулна. \\ \hline
+  FR-05 & Хэрэглэгч ангиллаар шүүх & P1 & Fashion, beauty, lifestyle, trends, season, designer, material filter дэмжинэ. \\ \hline
+  FR-06 & Хэрэглэгч платформын archive хэсгийг үзэх & P1 & Designer, season, year, material, look зурагтай collection archive харагдана. \\ \hline
+  FR-07 & Designer profile үзүүлэх & P1 & Дизайнерын bio, image, related collection харуулна. \\ \hline
+  FR-08 & Админ нийтлэл нэмэх, засах, устгах & P1 & Админ/редактор article CRUD хийх боломжтой байна. \\ \hline
+  FR-09 & Админ зураг болон контент удирдах & P1 & Cover image, look image, profile image зэрэг media asset хадгална. \\ \hline
+  FR-10 & Admin dashboard ашиглах & P1 & Нийтлэл, коллекц, дизайнер, медиа файл, хэрэглэгчийн эрх хянах view байна. \\ \hline
+  FR-11 & Хянах/нийтлэх workflow & P1 & Draft/review/published төлөвөөр редакцийн хяналт хэрэгжинэ. \\ \hline
+  FR-12 & Багийн гишүүн урих ба эрх өөрчлөх & P1 & Зөвхөн админ хэрэглэгч invite илгээж, viewer/editor/admin эрх онооно. \\ \hline
+  FR-13 & Bookmark/follow хийх & P2 & Authenticated reader сонирхсон контентоо хадгална. \\ \hline
+  FR-14 & AI chatbot асуултад хариулах & P2 & Live archive болон RAG context ашиглан лавлагаа өгнө. \\ \hline
+  FR-15 & Нэмэлт мэдээллийн хуудсууд & P2 & Journal, Careers, Press хуудсууд монгол контенттой ажиллана. \\ \hline
+  \caption{Платформын функциональ шаардлага}
+  \label{tab:functional-requirements}\\
+\end{longtable}
+}
+
+\subsection*{B. Функциональ бус шаардлага}
+Функциональ бус шаардлага нь платформын чанар, найдвартай байдал, аюулгүй байдал, ашиглахад хялбар байдлыг тодорхойлно. Fashion platform-д зураг олон, public болон admin урсгал зэрэгцээ, external AI provider ашиглах тул дараах чанарын шаардлага чухал. Хүснэгт \ref{tab:nonfunctional-requirements}-д функциональ бус шаардлагуудыг нэгтгэв.
+
+\begin{longtable}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
+  \hline
+  \textbf{Чанарын шинж} & \textbf{Шаардлага} & \textbf{Шалгах арга} \\ \hline
+  Ашиглахад ойлгомжтой байдал & Public navigation, archive filter, admin form хэрэглэгчид ойлгомжтой байх & Heuristic review, manual scenario \\ \hline
+  Responsive design & Mobile/desktop дээр text, зураг, button давхцахгүй байх & Browser viewport шалгалт, screenshot \\ \hline
+  Хурд & Public route болон search боломжийн хурдтай ажиллах & Build, route load, debounce search шалгах \\ \hline
+  Өгөгдлийн найдвартай хадгалалт & Designer, collection, article relation алдагдахгүй байх & Repository conversion test, seed data inspection \\ \hline
+  UI/UX aesthetic & UI/UX нь fashion magazine aesthetic-тэй нийцэх & Visual review, screenshot comparison \\ \hline
+  Аюулгүй байдал & Admin/editor API зөвшөөрөлгүй хэрэглэгчид хаалттай байх & 401/403 response, protected route scenario \\ \hline
+  Нууцлал & Provider key болон service credential client талд ил гарахгүй байх & Server-only route, env variable шалгах \\ \hline
+  Өргөтгөх боломж & Semantic search, RAG sync, notification нэмэхэд боломжтой байх & Architecture review, module boundary \\ \hline
+  AI найдвартай байдал & Context байхгүй үед зохиомол хариулт өгөхгүй байх & Fallback answer, insufficient context prompt \\ \hline
+  \caption{Функциональ бус шаардлага}
+  \label{tab:nonfunctional-requirements}\\
+\end{longtable}
+
+\section{Use case тодорхойлолт}
+Use case тодорхойлолт нь хэрэглэгчийн үүрэг болон системтэй харилцах үндсэн үйлдлийг тодорхойлно. Энэ платформд зочин хэрэглэгч, бүртгэлтэй хэрэглэгч, админ гэсэн actor-ууд голлон оролцоно. Зочин хэрэглэгч public контент уншиж, хайлт хийнэ; бүртгэлтэй хэрэглэгч хадгалах/follow үйлдэл ашиглана; админ нийтлэл, зураг, коллекц, хэрэглэгчийн эрхийг удирдана.
+
+Зураг \ref{fig:usecase-diagram}-т Anoce/MFA платформын use case диаграммыг үзүүлэв. Диаграмм нь public уншигчийн archive/search үйлдэл, authenticated хэрэглэгчийн хадгалалт, админ/редакторын CMS үйлдлийг нэг системийн хүрээнд харуулж байна.
+\begin{figure}[htbp]
+  \centering
+  \resizebox{0.96\textwidth}{!}{\input{Diagrams/tikz/usecase_archive_platform.tex}}
+  \caption[Use case диаграм]{Anoce/MFA платформын use case диаграм}
+  \label{fig:usecase-diagram}
+\end{figure}
+
+Хүснэгт \ref{tab:usecase-descriptions}-д гол actor-уудын use case-ийг урьдчилсан нөхцөл, үндсэн урсгал, үр дүнгийн хамт тодорхойлов. Энэ хүснэгт нь функциональ шаардлагыг хэрэглэгчийн бодит сценаритай холбож өгнө.
+{\scriptsize
+\begin{longtable}{|L{0.13\textwidth}|L{0.12\textwidth}|L{0.18\textwidth}|L{0.22\textwidth}|L{0.15\textwidth}|L{0.14\textwidth}|}
+  \hline
+  \textbf{Use case нэр} & \textbf{Actor} & \textbf{Тайлбар} & \textbf{Үндсэн урсгал} & \textbf{Урьдчилсан нөхцөл} & \textbf{Үр дүн} \\ \hline
+  Нийтлэл үзэх & Зочин хэрэглэгч & Published editorial нийтлэл унших & Editorial жагсаалт нээнэ; нийтлэл сонгоно; detail хуудсыг уншина & Нийтлэл published төлөвтэй байна & Нийтлэл бүрэн харагдана \\ \hline
+  Хайлт хийх & Зочин хэрэглэгч & Article, collection, designer хайх & Search overlay нээнэ; түлхүүр үг бичнэ; result сонгоно & Search index үүссэн байна & Тохирох контент руу шилжинэ \\ \hline
+  Ангиллаар шүүх & Зочин хэрэглэгч & Archive болон editorial контентыг ангилах & Filter сонгоно; жагсаалт шинэчлэгдэнэ; detail нээнэ & Контент metadata-тай байна & Шүүгдсэн жагсаалт харагдана \\ \hline
+  Archive үзэх & Зочин хэрэглэгч & Коллекц, улирал, дизайнер, look зураг үзэх & Archive хуудас нээнэ; collection сонгоно; look detail үзнэ & Published collection байна & Архивын мэдээлэл харагдана \\ \hline
+  Контент хадгалах & Бүртгэлтэй хэрэглэгч & Сонирхсон нийтлэл/коллекцыг хадгалах & Нэвтэрнэ; bookmark товч дарна; profile-д шалгана & Хэрэглэгч нэвтэрсэн байна & Контент хэрэглэгчийн profile-д хадгалагдана \\ \hline
+  Нийтлэл нэмэх & Админ & Шинэ editorial нийтлэл үүсгэх & Admin руу нэвтэрнэ; article form бөглөнө; draft/review хадгална & Admin/editor эрхтэй байна & Нийтлэл document үүснэ \\ \hline
+  Нийтлэл засах & Админ & Одоо байгаа нийтлэлийн текст, зураг, төлөв засах & Article сонгоно; талбар засна; хадгална & Нийтлэл оршин байна; эрхтэй байна & Нийтлэл шинэчлэгдэнэ \\ \hline
+  Нийтлэл устгах & Админ & Шаардлагагүй нийтлэл устгах & Article сонгоно; delete баталгаажуулна & Admin/editor эрхтэй байна & Нийтлэл жагсаалтаас хасагдана \\ \hline
+  Зураг/контент удирдах & Админ & Медиа файл, дизайнер, коллекц удирдах & Asset upload хийнэ; designer/collection form засна; хадгална & Admin/editor эрхтэй байна & Контент болон медиа metadata шинэчлэгдэнэ \\ \hline
+  Эрх удирдах & Админ & Хэрэглэгч урих, role өөрчлөх & Users хэсэг нээнэ; invite илгээнэ; role update хийнэ & Admin эрхтэй байна & Хэрэглэгчийн эрх шинэчлэгдэнэ \\ \hline
+  AI туслахаас асуух & Зочин хэрэглэгч & Архивын өгөгдөлд тулгуурласан лавлагаа авах & Chat нээнэ; асуулт бичнэ; хариу уншина & Chat API ажиллаж байна & Context-той хариулт эсвэл fallback ирнэ \\ \hline
+  \caption{Use case тодорхойлолт}
+  \label{tab:usecase-descriptions}\\
+\end{longtable}
+}
+
+\section{Системийн бүтэц ба архитектур}
+Платформын архитектур нь public UI, admin CMS, API route, content repository, authentication/authorization, media handling, AI/RAG давхаргаас бүрдэнэ. Public UI нь хэрэглэгчид нийтлэл, archive, designer profile, collection detail харуулна. Admin CMS нь контентын CRUD болон publish workflow-г удирдана. API route нь public болон protected endpoint-уудыг ялгаж, өгөгдлийн сан болон service layer-тэй холбогдоно.
+
+Зураг \ref{fig:system-architecture-overview}-т системийн ерөнхий архитектурын давхаргыг харуулав. Энэхүү бүтэц нь уншигчийн public experience болон админ/редакторын CMS workflow-г нэг codebase дотор тусгаарлан зохион байгуулах боломжийг бүрдүүлж байна.
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{\input{Diagrams/tikz/ch4_layered_architecture.tex}}
+  \caption[Системийн ерөнхий архитектур]{Anoce/MFA платформын системийн ерөнхий архитектур}
+  \label{fig:system-architecture-overview}
+\end{figure}
+
+Хүснэгт \ref{tab:system-structure-modules}-д системийн гол модулиуд болон хариуцлагыг харуулав. Энэ бүтэц нь гуравдугаар бүлэгт дэлгэрэнгүй тайлбарлах архитектурын зохиомжийн суурь болно.
+\begin{longtable}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
+  \hline
+  \textbf{Модуль} & \textbf{Хариуцлага} & \textbf{Жишээ route/module} \\ \hline
+  Public frontend & Нүүр, нийтлэл, archive, designers, search UI харуулах & \path{/}, \path{/archive}, \path{/editorial} \\ \hline
+  Admin CMS & Контент удирдах, workflow хянах, хэрэглэгчийн эрх зохицуулах & \path{/admin/(protected)} \\ \hline
+  Content API & Published article, collection, designer өгөгдөл унших & \path{/api/content/*} \\ \hline
+  Admin API & CRUD, asset upload, invite, role update хийх & \path{/api/admin/*} \\ \hline
+  Repository layer & CouchDB document conversion, хадгалалт, устгал хийх & \path{lib/couchdb/repository.ts} \\ \hline
+  Auth layer & Session, role, bookmark, protected route шалгах & \path{lib/supabase/*}, \path{middleware.ts} \\ \hline
+  AI layer & Live archive болон RAG context цуглуулж хариу үүсгэх & \path{/api/chat} \\ \hline
+  \caption{Системийн бүтэц ба модуль}
+  \label{tab:system-structure-modules}\\
+\end{longtable}
+
+\section{Өгөгдлийн сангийн загвар}
+Өгөгдлийн сангийн логик шинжилгээнд платформд шаардлагатай entity, тэдгээрийн холбоо, хадгалах өгөгдлийн ерөнхий бүтцийг тодорхойлно. Anoce/MFA платформд content өгөгдөл уян JSON document хэлбэртэй байх шаардлагатай тул CouchDB content repository, хэрэглэгчийн auth/role/bookmark/RAG layer-д Supabase/PostgreSQL ашиглах hybrid бүтэц сонгогдсон.
+
+Хүснэгт \ref{tab:data-analysis-entities}-д системийн үндсэн entity болон тэдгээрийн холбоог үзүүлэв. Энэ хүснэгт нь өгөгдлийн сангийн ER/document диаграммыг тайлбарлах суурь болно.
+\begin{longtable}{|L{0.18\textwidth}|L{0.35\textwidth}|L{0.33\textwidth}|}
+  \hline
+  \textbf{Entity} & \textbf{Гол талбар} & \textbf{Холбоо} \\ \hline
+  User/Profile & id, email, name, role, avatar & Bookmark, role permission \\ \hline
+  Role & admin, editor, reader/viewer & Protected route болон API эрх шалгана \\ \hline
+  Article & id, slug, title, category, body, status, tags, cover image, review note & Designer, related looks, asset, search index \\ \hline
+  Category/Tag & name, slug, type & Article болон collection-ийг ангилна \\ \hline
+  Designer & slug, name, brand, bio, tier, images & Collection-тэй 1:N холбоотой \\ \hline
+  Collection & slug, title, season, year, designer slug, looks & Designer болон олон look-тэй холбоотой \\ \hline
+  Look & number, image, materials, tags, description & Collection дотор nested object \\ \hline
+  Asset/Image & id, name, folder, content type, path & Article, designer, collection image-д ашиглагдана \\ \hline
+  Bookmark & user id, content id, content type & User болон content хоорондын хадгалалт \\ \hline
+  RAG document & title, content, category, tags, source & AI chatbot context-д ашиглагдана \\ \hline
+  \caption{Өгөгдлийн үндсэн entity}
+  \label{tab:data-analysis-entities}\\
+\end{longtable}
+
+Зураг \ref{fig:data-analysis-er}-т өгөгдлийн логик холбооны диаграммыг харуулав. Диаграммаас харахад хэрэглэгчийн profile/bookmark давхарга, article/designer/collection content давхарга, RAG document давхарга хоорондоо холбоотой боловч хадгалалтын хувьд ялгаатай зохион байгуулагдсан байна.
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{\input{Diagrams/tikz/er_core_schema.tex}}
+  \caption[Өгөгдлийн логик холбооны диаграм]{Өгөгдлийн логик холбооны диаграм}
+  \label{fig:data-analysis-er}
+\end{figure}
+
+\section{Гол дэлгэцүүд ба UI хэсгүүд}
+Платформын UI нь public уншигчийн хэсэг болон admin CMS хэсэгт хуваагдана. Public талд visual-first fashion magazine aesthetic хадгалах, зураг болон текстийн харьцааг зөв барих, archive navigation ойлгомжтой байлгах нь чухал. Admin талд мэдээлэл нягт боловч эмхтэй, form болон table ашиглахад ойлгомжтой байх шаардлагатай.
+
+Хүснэгт \ref{tab:main-ui-sections}-д гол дэлгэцүүд болон тэдгээрийн UI зорилгыг харуулав. Нүүр, archive, admin login зэрэг бодит screenshot-ийг хэрэгжилтийн бүлэгт тусад нь үзүүлнэ.
+\begin{longtable}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
+  \hline
+  \textbf{Дэлгэц/UI хэсэг} & \textbf{Гол агуулга} & \textbf{UX зорилго} \\ \hline
+  Home & Hero, discover section, collection grid, footer & Платформын brand identity болон эхлэл navigation бүрдүүлэх \\ \hline
+  Editorial & Featured story, нийтлэлийн жагсаалт, category & Унших туршлагыг сэтгүүлийн хэв маягаар өгөх \\ \hline
+  Archive & Collection grid, filter, designer/season metadata & Коллекц болон лүүк зургийг хурдан хайж олох \\ \hline
+  Collection detail & Hero image, designer, season, look gallery, material & Зурагт архивын detail мэдээллийг нэг дор харуулах \\ \hline
+  Designers & Designer directory, profile card, related collection & Дизайнерын identity болон холбоотой контент олох \\ \hline
+  Search overlay & Query input, grouped result, recent search & Article, collection, designer-ийг нэг хайлтаар олох \\ \hline
+  Admin dashboard & Count, recent activity, quick action & Контентын удирдлагын эхлэл хяналт хийх \\ \hline
+  Admin forms & Article, collection, designer, asset form & Контент нэмэх, засах, нийтлэх ажиллагааг алдаа багатай болгох \\ \hline
+  \caption{Гол дэлгэцүүд ба UI хэсгүүд}
+  \label{tab:main-ui-sections}\\
+\end{longtable}
+
+\section{Үйл ажиллагааны диаграм}
+Үйл ажиллагааны диаграм нь хэрэглэгчийн гол урсгалыг алхамчилж харуулна. Энэ ажилд public уншигчийн archive/search урсгал болон редактор/админы нийтлэл нийтлэх workflow-г авч үзэв.
+
+Зураг \ref{fig:activity-reader-archive}-т уншигч archive ашиглах урсгалыг харуулав. Уншигч archive хуудас руу орж, шүүлтүүр эсвэл хайлт ашиглан collection сонгож, detail мэдээллийг үзнэ.
+\begin{figure}[htbp]
+  \centering
+  \resizebox{0.62\textwidth}{!}{\input{Diagrams/tikz/activity_archive_workflow.tex}}
+  \caption[Уншигчийн archive ашиглах урсгал]{Уншигчийн archive ашиглах урсгал}
+  \label{fig:activity-reader-archive}
+\end{figure}
+
+Зураг \ref{fig:activity-article-publish}-т редактор/админы нийтлэл бэлтгэх ба нийтлэх урсгалыг харуулав. Уг workflow-д ноорог үүсгэх, review-д илгээх, админ хянах, засвар хүсэх эсвэл published төлөвт шилжүүлэх алхмууд орно.
+\begin{figure}[htbp]
+  \centering
+  \resizebox{0.62\textwidth}{!}{\input{Diagrams/tikz/activity_article_publish.tex}}
+  \caption[Нийтлэл бэлтгэх ба нийтлэх урсгал]{Редактор/админы нийтлэл бэлтгэх ба нийтлэх урсгал}
+  \label{fig:activity-article-publish}
+\end{figure}
+
+Эдгээр урсгалаас харахад public талд хайлт/шүүлтүүр болон дэлгэрэнгүй хуудас руу шилжих навигаци, staff талд эрхийн шалгалт, формын өгөгдөл шалгах, ноорог/хяналтад/нийтлэгдсэн төлөв хамгийн чухал хяналтын цэг болж байна.
+
+\section{Бизнес процессын шинжилгээ}
+Платформын үндсэн бизнес процесс нь контент бэлтгэх, удирдах, нийтлэх, хэрэглэгчид хүргэх, хэрэглэгчийн хайлт/хадгалалт/AI лавлагаагаар дахин ашиглах гэсэн дараалалтай.
+
+\begin{enumerate}
+  \item Редактор загварын нийтлэл, collection story, дизайнерын мэдээлэл, зурагт материалыг бэлтгэнэ.
+  \item Редактор эсвэл админ нийтлэл, дизайнер, коллекц, медиа файлыг admin CMS-д оруулна.
+  \item Контент нь ангилал, таг, дизайнер, коллекц, лүүк, материал, улирал зэрэг мета өгөгдөлтэй холбогдоно.
+  \item Админ нийтлэлийг хянаж батлах, засвар хүсэх эсвэл published төлөвт оруулна.
+  \item Уншигч homepage, editorial, archive, designers, search overlay-оор контентыг олж уншина.
+  \item Нэвтэрсэн хэрэглэгч bookmark/follow ашиглан сонирхсон контентоо хадгална.
+  \item AI туслах live content болон RAG context ашиглан хэрэглэгчийн асуултад архивт тулгуурласан хариулт өгнө.
+\end{enumerate}
+
+Хүснэгт \ref{tab:business-process-modules}-д бизнес процесс болон платформын модулийг холбон харуулав. Энэ хүснэгт нь шаардлага, use case, архитектурын модулиуд хоорондын уялдааг нэгтгэн харуулж байна.
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{|L{0.24\textwidth}|L{0.32\textwidth}|L{0.30\textwidth}|}
+    \hline
+    \textbf{Процесс} & \textbf{Оролцогч} & \textbf{Платформын модуль} \\ \hline
+    Контент бэлтгэх & Редактор & Article form, asset library \\ \hline
+    Контент хянах & Админ & Dashboard, review/publish workflow \\ \hline
+    Контент нийтлэх & Админ & Admin content API, review/publish workflow, CouchDB repository \\ \hline
+    Контент үзүүлэх & Уншигч & Home, editorial, archive, designer pages \\ \hline
+    Контент хайх & Уншигч & Global search overlay, search index API \\ \hline
+    Контент хадгалах & Нэвтэрсэн уншигч & Bookmark/follow, profile \\ \hline
+    AI лавлагаа авах & Уншигч & Chat API, live archive search, RAG query \\ \hline
+  \end{tabular}
+  \vspace{0.4em}
+  \caption{Бизнес процесс ба платформын модуль}
+  \label{tab:business-process-modules}
+\end{table}
+
+\section{Бүлгийн дүгнэлт}
+Хоёрдугаар бүлгээр Anoce/MFA платформын зорилго, хэрэглэгч, үндсэн хэсэг, одоогийн нөхцөл байдал, хэрэглэгчийн шаардлага, функциональ болон функциональ бус шаардлага, use case тодорхойлолт, системийн бүтэц, өгөгдлийн сангийн загвар, гол UI хэсэг, бизнес процессын урсгалыг тодорхойлов. Ингэснээр дараагийн бүлэгт платформыг хэрхэн зохиомжлох архитектур, API, өгөгдлийн сан, UI/UX болон аюулгүй байдлын шийдлийг боловсруулах үндэс бүрдлээ.

@@ -51,15 +51,15 @@ const defaultSocialLinks: SocialLink[] = [
 ];
 
 const defaultNavLinks: FooterLink[] = [
-  { label: "Archive", href: "/archive" },
-  { label: "Editorial", href: "/editorial" },
-  { label: "Designers", href: "/designers" },
-  { label: "About", href: "/about" },
+  { label: "Архив", href: "/archive" },
+  { label: "Нийтлэл", href: "/editorial" },
+  { label: "Дизайнерууд", href: "/designers" },
+  { label: "Тухай", href: "/about" },
 ];
 
 export const Footer = ({
   brandName = "Anoce",
-  brandDescription = "Mongolian heritage reimagined through modern craft, editorial storytelling, and timeless textures.",
+  brandDescription = "Монгол өвийг орчин үеийн ур хийц, редакцийн өгүүлэмж, цаглашгүй материалын мэдрэмжээр шинээр харах орон зай.",
   socialLinks = defaultSocialLinks,
   navLinks = defaultNavLinks,
   creatorName,
@@ -144,7 +144,7 @@ export const Footer = ({
 
           <div className="absolute bottom-2 left-0 right-0 z-30 flex flex-col items-center justify-center gap-2 border-t border-white/[0.08] pt-2 text-center">
             <p className="text-center font-sans text-base text-[#B7AEA9]">
-              &copy;{currentYear} {brandName}. All rights reserved.
+              &copy;{currentYear} {brandName}. Бүх эрх хуулиар хамгаалагдсан.
             </p>
             {creatorName && creatorUrl && (
               <nav className="flex gap-4">
@@ -153,7 +153,7 @@ export const Footer = ({
                   target="_blank"
                   className="font-sans text-base text-[#B7AEA9] transition-colors duration-300 hover:font-medium hover:text-[#F5F2ED]"
                 >
-                  Crafted by {creatorName}
+                  Бүтээсэн: {creatorName}
                 </Link>
               </nav>
             )}

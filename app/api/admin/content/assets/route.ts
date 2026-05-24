@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get("file");
     if (!(file instanceof File)) {
-      return NextResponse.json({ error: "Missing file" }, { status: 400 });
+      return NextResponse.json({ error: "Файл илгээгээгүй байна" }, { status: 400 });
     }
     const folder = String(formData.get("folder") || "assets");
     const asset = await createContentRepository().createAsset(file, folder);

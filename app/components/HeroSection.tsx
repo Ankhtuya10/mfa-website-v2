@@ -188,7 +188,7 @@ export const HeroSection = () => {
         className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
       >
         <span className="font-sans text-[9px] tracking-[3.6px] uppercase text-[#F4EEE8]/76">
-          Scroll
+          Доош
         </span>
         <div className="h-[42px] w-px bg-gradient-to-b from-[#F4EEE8]/76 to-[#F4EEE8]/20" />
       </motion.div>

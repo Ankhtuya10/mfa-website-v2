@@ -23,6 +23,14 @@ const categories = [
   "brands",
 ] as const;
 
+const categoryLabels: Record<(typeof categories)[number], string> = {
+  all: "Бүгд",
+  articles: "Нийтлэл",
+  collections: "Цуглуулга",
+  designers: "Дизайнер",
+  brands: "Брэнд",
+};
+
 const highlightMatch = (text: string, query: string) => {
   if (!query.trim()) return text;
   const terms = expandQueryTerms(query).sort((a, b) => b.length - a.length);
@@ -184,10 +192,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           className="fixed inset-0 z-[120]"
           role="dialog"
           aria-modal="true"
-          aria-label="Global search"
+          aria-label="Ерөнхий хайлт"
         >
           <button
-            aria-label="Close search"
+            aria-label="Хайлтыг хаах"
             onClick={onClose}
             className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(212,201,184,0.12),rgba(0,0,0,0.62)_42%,rgba(0,0,0,0.78)_100%)] backdrop-blur-2xl"
           />
@@ -219,7 +227,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     ref={inputRef}
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Search cashmere, FW2025, emerald wool, Gobi..."
+                    placeholder="Ноолуур, FW2025, ногоон ноос, Gobi гэж хайх..."
                     className="h-11 min-w-0 flex-1 truncate bg-transparent font-sans text-xl leading-none text-white/92 outline-none placeholder:text-white/36 md:h-12 md:text-2xl"
                   />
                   <button
@@ -236,12 +244,12 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   {/* Season group */}
                   <div className="flex items-center gap-2">
                     <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">
-                      Season
+                      Улирал
                     </span>
                     {[
-                      { label: "All", value: "all" },
-                      { label: "Current", value: "current" },
-                      { label: "Archive", value: "archive" },
+                      { label: "Бүгд", value: "all" },
+                      { label: "Одоогийн", value: "current" },
+                      { label: "Архив", value: "archive" },
                     ].map((option) => (
                       <FilterPill
                         key={option.value}
@@ -261,7 +269,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   {/* Type group */}
                   <div className="flex items-center gap-2">
                     <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">
-                      Type
+                      Төрөл
                     </span>
                     {categories.map((category) => (
                       <FilterPill
@@ -269,7 +277,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                         active={activeCategory === category}
                         onClick={() => setActiveCategory(category)}
                       >
-                        {category}
+                        {categoryLabels[category]}
                       </FilterPill>
                     ))}
                   </div>
@@ -283,7 +291,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   <aside className="space-y-5 lg:col-span-3">
                     <section className="rounded-[20px] border border-white/10 bg-white/[0.035] p-5">
                       <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">
-                        Recent
+                        Саяхны хайлт
                       </p>
                       {recentSearches.length > 0 ? (
                         <div className="space-y-1.5">
@@ -312,14 +320,14 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                         </div>
                       ) : (
                         <p className="font-sans text-[13px] leading-relaxed text-white/40">
-                          Your recent searches will appear here.
+                          Таны сүүлийн хайлтууд энд харагдана.
                         </p>
                       )}
                     </section>
 
                     <section className="rounded-[20px] border border-white/8 bg-white/[0.025] p-5">
                       <p className="mb-3 font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">
-                        Trending
+                        Түгээмэл
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {trendingTags.map((tag) => (
@@ -341,11 +349,11 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     <div className="mb-5 flex items-end justify-between gap-4">
                       <div>
                         <p className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">
-                          {showLiveResults ? "Top matches" : "Featured"}
+                          {showLiveResults ? "Ойролцоо үр дүн" : "Онцлох"}
                         </p>
                         {showLiveResults && (
                           <p className="mt-1 font-sans text-[13px] text-white/42">
-                            {totalResults} results in archive
+                            Архиваас {totalResults} үр дүн
                           </p>
                         )}
                       </div>
@@ -392,10 +400,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     {noResults && (
                       <div className="rounded-[20px] border border-white/10 bg-white/[0.035] p-6 text-center md:p-8">
                         <h3 className="font-sans text-2xl leading-tight text-white">
-                          No results for "{deferredQuery}"
+                          "{deferredQuery}" хайлтаар үр дүн олдсонгүй
                         </h3>
                         <p className="mt-2 font-sans text-[14px] leading-relaxed text-white/48">
-                          Try a material, season, designer, or collection name.
+                          Материал, улирал, дизайнер эсвэл цуглуулгын нэрээр хайж үзнэ үү.
                         </p>
                         <div className="mt-5 flex flex-wrap justify-center gap-2">
                           {[

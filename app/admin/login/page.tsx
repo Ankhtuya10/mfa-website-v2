@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
       })
       
       if (authError) {
-        setError('Invalid credentials or insufficient permissions')
+        setError('Имэйл, нууц үг буруу эсвэл эрх хүрэлцэхгүй байна.')
         setLoading(false)
         return
       }
@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
 
       if (!profile || profile.role === 'viewer') {
         await supabase.auth.signOut()
-        setError('You do not have permission to access the CMS.')
+        setError('Танд CMS-д нэвтрэх эрх байхгүй байна.')
         setLoading(false)
         return
       }
@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
       router.push(redirectPath)
       
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError('Алдаа гарлаа. Дахин оролдоно уу.')
       setLoading(false)
     }
   }
@@ -67,14 +67,14 @@ export default function AdminLoginPage() {
 
         <div className="w-full h-px bg-white/8 my-8" />
 
-        <h2 className="font-serif text-xl text-white mb-1">Staff Access</h2>
+        <h2 className="font-serif text-xl text-white mb-1">Багийн нэвтрэлт</h2>
         <p className="font-sans text-[11px] text-white/40 mb-8">
-          Sign in to the content management system
+          Агуулга удирдах системд нэвтэрнэ үү
         </p>
 
         {searchParams.get('error') === 'unauthorized' && (
           <div className="bg-red-500/10 border border-red-500/20 px-4 py-3 mb-6 font-sans text-[11px] text-red-400 text-center">
-            Your account does not have staff access.
+            Таны бүртгэлд багийн хандалтын эрх байхгүй байна.
           </div>
         )}
 
@@ -87,7 +87,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleAdminLogin}>
           <div className="mb-6">
             <label className="font-sans text-[10px] tracking-[2px] uppercase text-white/40 block mb-2">
-              Email address
+              Имэйл хаяг
             </label>
             <input
               type="email"
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
 
           <div className="mb-6">
             <label className="font-sans text-[10px] tracking-[2px] uppercase text-white/40 block mb-2">
-              Password
+              Нууц үг
             </label>
             <div className="relative">
               <input
@@ -127,7 +127,7 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="w-full bg-[#B7AEA9] text-[#0A0A0A] font-sans font-bold text-[11px] tracking-[3px] uppercase py-3.5 mt-8 hover:bg-white transition-colors disabled:opacity-50"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Нэвтэрч байна...' : 'Нэвтрэх'}
           </button>
         </form>
 
@@ -137,7 +137,7 @@ export default function AdminLoginPage() {
           href="/"
           className="block text-center font-sans text-[10px] tracking-[2px] uppercase text-white/30 hover:text-white/60 transition-colors"
         >
-          ← Back to site
+          ← Сайт руу буцах
         </a>
       </div>
     </div>

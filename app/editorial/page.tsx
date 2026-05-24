@@ -7,6 +7,7 @@ import { StickyNavbar, Footer } from "@/app/components";
 import { SafeImage } from "@/app/components/shared/SafeImage";
 import { ChevronRight, Play, Pause, ArrowRight } from "lucide-react";
 import { getArticles, getCollections } from "@/lib/supabase/queries";
+import { formatSeasonYear, getArticleCategoryLabel } from "@/lib/localization";
 
 interface EditorialArticle {
   id: string;
@@ -74,7 +75,7 @@ type ReadNextStory = {
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
   try {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("mn-MN", {
       month: "long",
       day: "numeric",
       year: "numeric",
@@ -182,15 +183,13 @@ export default function EditorialPage() {
 
         const mappedLooks = (collectionData || []).flatMap((collection: any) =>
           (Array.isArray(collection.looks) ? collection.looks : []).map((look: any) => {
-            const seasonLabel = [collection?.season, collection?.year]
-            .filter(Boolean)
-            .join(" ");
+            const seasonLabel = formatSeasonYear(collection?.season, collection?.year);
             return {
               id: String(look.id),
               image: String(look.image || editorialHeroFallbackImage),
-              title: `Look ${look.number || ""}`.trim(),
-              designer: String(collection?.designer_name || collection?.designerName || "Designer"),
-              collection: seasonLabel || String(collection?.title || "Collection"),
+              title: `Төрх ${look.number || ""}`.trim(),
+              designer: String(collection?.designer_name || collection?.designerName || "Дизайнер"),
+              collection: seasonLabel || String(collection?.title || "Цуглуулга"),
               href: collection?.slug ? `/archive/${collection.slug}` : "/archive",
             } satisfies FeaturedPiece;
           }),
@@ -242,7 +241,7 @@ export default function EditorialPage() {
           <StickyNavbar />
           <div className="flex h-full items-center justify-center">
             <span className="animate-pulse font-sans text-sm tracking-[0.22em] uppercase text-[#B7AEA9]">
-              Loading…
+              Ачаалж байна…
             </span>
           </div>
         </div>
@@ -285,7 +284,7 @@ export default function EditorialPage() {
                 <SafeImage
                   src={currentHeroImage}
                   fallbackSrc={editorialHeroFallbackImage}
-                  alt={currentFeature?.title || "Editorial"}
+                  alt={currentFeature?.title || "Нийтлэл"}
                   fill
                   className="object-cover"
                   priority
@@ -324,30 +323,30 @@ export default function EditorialPage() {
                               color: "#F5F2ED",
                             }}
                           >
-                            {currentFeature?.category || "Feature"}
+                            {getArticleCategoryLabel(currentFeature?.category)}
                           </span>
                           <span className="font-sans text-[10px] tracking-[0.22em] uppercase text-white/45">
-                            {currentFeature?.readTime} min read
+                            {currentFeature?.readTime} мин уншина
                           </span>
                         </div>
 
                         <h1 className="mb-7 max-w-[18ch] font-serif text-[clamp(2rem,4.2vw,4.5rem)] leading-[1.0] tracking-[-0.02em] text-white [text-wrap:balance]">
-                          {currentFeature?.title || "The Quiet Revolution"}
+                          {currentFeature?.title || "Чимээгүй хувьсал"}
                         </h1>
 
                         <p className="max-w-xl font-sans text-sm leading-7 text-white/65 sm:text-base md:text-lg md:leading-8">
                           {currentFeature?.subtitle ||
-                            "How Mongolian designers are transforming the narrative of Asian fashion"}
+                            "Монгол дизайнерууд Азийн загварын өгүүлэмжийг хэрхэн шинэчилж байна"}
                         </p>
 
                         <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-[10px] uppercase tracking-[0.2em] text-white/45">
                           <span>
-                            By {currentFeature?.author || "Editorial Staff"}
+                            Нийтэлсэн: {currentFeature?.author || "Редакц"}
                           </span>
                           <span className="h-px w-4 bg-white/30" />
                           <span>
                             {formatDate(currentFeature?.publishedAt || "") ||
-                              "March 2026"}
+                              "2026 оны 3 сар"}
                           </span>
                         </div>
                       </motion.div>
@@ -367,8 +366,8 @@ export default function EditorialPage() {
                         className="rounded-full border border-white/12 bg-black/20 p-3 text-white/62 backdrop-blur-md transition-all hover:border-white/28 hover:text-white"
                         aria-label={
                           isAutoPlaying
-                            ? "Pause editorial rotation"
-                            : "Play editorial rotation"
+                            ? "Нийтлэлийн эргэлтийг түр зогсоох"
+                            : "Нийтлэлийн эргэлтийг ажиллуулах"
                         }
                       >
                         {isAutoPlaying ? (
@@ -390,7 +389,7 @@ export default function EditorialPage() {
                                 ? "bg-white"
                                 : "bg-white/28 hover:bg-white/50"
                             }`}
-                            aria-label={`Show editorial feature ${idx + 1}`}
+                            aria-label={`${idx + 1}-р онцлох нийтлэлийг харуулах`}
                           />
                         ))}
                       </div>
@@ -407,7 +406,7 @@ export default function EditorialPage() {
                           className="group inline-flex items-center gap-3 border-b border-white/20 pb-1"
                         >
                           <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-white/80 transition-colors group-hover:text-white">
-                            Read Story
+                            Нийтлэл унших
                           </span>
                           <ArrowRight className="h-4 w-4 text-white/55 transition-all group-hover:translate-x-1 group-hover:text-white" />
                         </Link>
@@ -451,7 +450,7 @@ export default function EditorialPage() {
                     <SafeImage
                       src={currentNarrativeImage}
                       fallbackSrc={editorialHeroFallbackImage}
-                      alt={currentFeature?.title || "Editorial Feature"}
+                      alt={currentFeature?.title || "Онцлох нийтлэл"}
                       fill
                       className="object-cover"
                     />
@@ -470,13 +469,13 @@ export default function EditorialPage() {
                   >
                     <div className="border-t border-white/18 pt-4">
                       <p className="mb-2.5 font-sans text-[10px] tracking-[0.2em] uppercase text-white/45">
-                        Credits
+                        Бүтээлч баг
                       </p>
                       <div className="grid grid-cols-2 gap-x-8 gap-y-1.5 font-sans text-[11px] tracking-[0.08em] text-white/65">
-                        <span>Photo: Batbayar</span>
-                        <span>Stylist: Nomin</span>
-                        <span>Model: Anu</span>
-                        <span>Creative Dir: Bold</span>
+                        <span>Зураг: Батбаяр</span>
+                        <span>Стилист: Номин</span>
+                        <span>Модель: Ану</span>
+                        <span>Креатив: Болд</span>
                       </div>
                     </div>
                   </motion.div>
@@ -495,15 +494,15 @@ export default function EditorialPage() {
                       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                     >
                       <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                        In Focus
+                        Онцлох
                       </span>
                       <h2 className="mb-6 font-serif text-3xl leading-[1.08] text-white md:text-4xl lg:text-5xl">
                         {currentFeature?.title ||
-                          "The Architecture of the Steppe"}
+                          "Тал нутгийн архитектур"}
                       </h2>
                       <p className="mb-8 font-sans text-base leading-7 text-white/60 md:text-lg md:leading-8">
                         {currentFeature?.subtitle ||
-                          "Exploring the geometric foundations of Mongolian design where the vastness of the landscape meets the precision of contemporary craft."}
+                          "Өргөн уудам ландшафт орчин үеийн ур хийцийн нарийвчлалтай огтлолцдог Монгол дизайны геометр суурийг ажиглах нь."}
                       </p>
                       <Link
                         href={
@@ -514,7 +513,7 @@ export default function EditorialPage() {
                         className="group inline-flex items-center gap-3 border-b border-white/18 pb-1"
                       >
                         <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/68 transition-colors group-hover:text-white">
-                          View Full Story
+                          Дэлгэрэнгүй унших
                         </span>
                         <ArrowRight className="h-4 w-4 text-white/45 transition-all group-hover:translate-x-1 group-hover:text-white" />
                       </Link>
@@ -552,7 +551,7 @@ export default function EditorialPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-3">
                           <span className="block font-sans text-[9px] tracking-[0.2em] uppercase text-white/60">
-                            {idx === 0 ? "Next Up" : "Also Read"}
+                            {idx === 0 ? "Дараагийнх" : "Мөн унших"}
                           </span>
                           <p className="mt-1 line-clamp-2 font-serif text-sm leading-tight text-white">
                             {article.title}
@@ -579,11 +578,11 @@ export default function EditorialPage() {
                 "
               </span>
               <blockquote className="-mt-10 mb-8 font-serif text-2xl leading-[1.36] text-white md:text-3xl lg:text-4xl">
-                We&apos;re not just making clothes. We&apos;re preserving a way
-                of life. Every sweater carries the memory of the herd.
+                Бид зөвхөн хувцас бүтээдэггүй. Бид амьдралын хэв маягийг хадгалж байна.
+                Ноосон цамц бүр сүргийн дурсамжийг тээдэг.
               </blockquote>
               <cite className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#B7AEA9]/65 not-italic">
-                Tsetseg, Cashmere Grader
+                Цэцэг, ноолуур ангилагч
               </cite>
             </motion.div>
           </section>
@@ -594,10 +593,10 @@ export default function EditorialPage() {
               <div className="mb-8 flex shrink-0 items-end justify-between md:mb-10">
                 <div>
                   <span className="mb-3 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                    Shop The Look
+                    Төрхийг сонгох
                   </span>
                   <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl lg:text-5xl">
-                    Featured Pieces
+                    Онцлох загварууд
                   </h2>
                 </div>
                 <Link
@@ -605,7 +604,7 @@ export default function EditorialPage() {
                   className="group hidden items-center gap-2 md:inline-flex"
                 >
                   <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 transition-colors group-hover:text-white">
-                    View All
+                    Бүгдийг үзэх
                   </span>
                   <ChevronRight className="h-4 w-4 text-white/38 transition-colors group-hover:text-white" />
                 </Link>
@@ -637,7 +636,7 @@ export default function EditorialPage() {
                           <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
                           <div className="absolute bottom-4 left-4 right-4 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                             <span className="block w-full bg-white/90 py-3 text-center font-sans text-[10px] tracking-[0.2em] uppercase text-[#0A0A0A]">
-                              View in Archive
+                              Архиваас үзэх
                             </span>
                           </div>
                         </div>
@@ -664,7 +663,7 @@ export default function EditorialPage() {
                   className="group inline-flex items-center gap-2"
                 >
                   <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 transition-colors group-hover:text-white">
-                    View All
+                    Бүгдийг үзэх
                   </span>
                   <ChevronRight className="h-4 w-4 text-white/38 transition-colors group-hover:text-white" />
                 </Link>
@@ -678,10 +677,10 @@ export default function EditorialPage() {
               <div className="mb-8 flex shrink-0 items-end justify-between md:mb-10">
                 <div>
                   <span className="mb-3 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                    Latest Stories
+                    Шинэ нийтлэлүүд
                   </span>
                   <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl lg:text-5xl">
-                    Editorial
+                    Редакц
                   </h2>
                 </div>
                 <Link
@@ -689,7 +688,7 @@ export default function EditorialPage() {
                   className="group hidden items-center gap-2 md:inline-flex"
                 >
                   <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 transition-colors group-hover:text-white">
-                    View All
+                    Бүгдийг үзэх
                   </span>
                   <ChevronRight className="h-4 w-4 text-white/38 transition-colors group-hover:text-white" />
                 </Link>
@@ -726,7 +725,7 @@ export default function EditorialPage() {
                               color: "#F5F2ED",
                             }}
                           >
-                            {article.category}
+                            {getArticleCategoryLabel(article.category)}
                           </span>
                         </div>
                       </div>
@@ -734,7 +733,7 @@ export default function EditorialPage() {
                         <div className="flex items-center gap-3 font-sans text-[10px] tracking-[0.15em] uppercase text-white/38">
                           <span>{article.author}</span>
                           <span className="h-1 w-1 rounded-full bg-white/28" />
-                          <span>{article.readTime} min</span>
+                          <span>{article.readTime} мин</span>
                         </div>
                         <h3 className="font-serif text-xl leading-[1.2] text-white transition-colors group-hover:text-white/78 md:text-2xl">
                           {article.title}
@@ -754,7 +753,7 @@ export default function EditorialPage() {
                   className="group inline-flex items-center gap-2"
                 >
                   <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/55 transition-colors group-hover:text-white">
-                    View All Stories
+                    Бүх нийтлэлийг үзэх
                   </span>
                   <ChevronRight className="h-4 w-4 text-white/38 transition-colors group-hover:text-white" />
                 </Link>
@@ -767,10 +766,10 @@ export default function EditorialPage() {
             <div className="mx-auto flex h-full min-h-0 w-full max-w-[95rem] flex-col px-8 pb-10 pt-20 md:px-10 md:pb-12 md:pt-24">
               <div className="mb-8 shrink-0 text-center md:mb-10">
                 <span className="mb-3 block font-sans text-[10px] tracking-[0.3em] uppercase text-[#B7AEA9]">
-                  Continue Reading
+                  Үргэлжлүүлэн унших
                 </span>
                 <h2 className="font-serif text-3xl leading-[1.1] text-white md:text-4xl">
-                  Read Next
+                  Дараа унших
                 </h2>
               </div>
 
@@ -798,7 +797,7 @@ export default function EditorialPage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/28 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-7">
                         <span className="mb-2 block font-sans text-[9px] tracking-[0.25em] uppercase text-white/48">
-                          {item.category}
+                          {getArticleCategoryLabel(item.category)}
                         </span>
                         <h3 className="font-serif text-xl leading-tight text-white decoration-white/28 underline-offset-4 group-hover:underline">
                           {item.title}

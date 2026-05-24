@@ -44,7 +44,7 @@ export default function CalendarPage() {
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
   const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1
-  const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const monthName = currentDate.toLocaleDateString('mn-MN', { month: 'long', year: 'numeric' })
 
   const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
   const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
@@ -84,7 +84,7 @@ export default function CalendarPage() {
     return (
       <div className="flex flex-col gap-7">
         <div className="flex items-end justify-between pt-1">
-          <h1 className="font-serif text-[32px] text-[#1A1A18] leading-none tracking-tight">Calendar</h1>
+          <h1 className="font-serif text-[32px] text-[#1A1A18] leading-none tracking-tight">Календарь</h1>
         </div>
         <div className="bg-white rounded-xl border border-[#E8E4DD] h-[500px] animate-pulse" />
       </div>
@@ -108,11 +108,11 @@ export default function CalendarPage() {
             onClick={() => setCurrentDate(new Date())}
             className="ml-2 px-3 py-1.5 font-sans text-[10px] tracking-[0.1em] uppercase text-[#9E9B94] hover:text-[#1A1A18] hover:bg-[#ECEAE5] rounded-lg transition-all"
           >
-            Today
+            Өнөөдөр
           </button>
         </div>
         <button className="flex items-center gap-2 bg-[#0E0E0D] text-white font-sans text-[10.5px] tracking-[0.12em] uppercase font-medium px-5 py-2.5 rounded-lg hover:bg-[#2a2a28] transition-colors">
-          <Plus className="w-3.5 h-3.5" strokeWidth={2} /> Schedule
+          <Plus className="w-3.5 h-3.5" strokeWidth={2} /> Товлох
         </button>
       </div>
 
@@ -123,7 +123,7 @@ export default function CalendarPage() {
         <div className="flex-1 bg-white rounded-xl border border-[#E8E4DD] overflow-hidden">
           {/* Day headers */}
           <div className="grid grid-cols-7 border-b border-[#EDEBE6]">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+            {['Дав', 'Мяг', 'Лха', 'Пүр', 'Баа', 'Бям', 'Ням'].map((day) => (
               <div key={day} className="py-3 text-center font-sans text-[9.5px] tracking-[0.12em] uppercase text-[#B0ACA4] font-medium">
                 {day}
               </div>
@@ -164,7 +164,7 @@ export default function CalendarPage() {
                         ))}
                         {dayArticles.length > 2 && (
                           <p className="font-sans text-[9px] text-[#B0ACA4] pl-1">
-                            +{dayArticles.length - 2} more
+                            +{dayArticles.length - 2} илүү
                           </p>
                         )}
                       </div>
@@ -179,11 +179,11 @@ export default function CalendarPage() {
         {/* This week sidebar */}
         <div className="w-[220px] shrink-0 bg-white rounded-xl border border-[#E8E4DD] overflow-hidden self-start">
           <div className="px-5 py-4 border-b border-[#EDEBE6]">
-            <h2 className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#9E9B94] font-medium">This Week</h2>
+            <h2 className="font-sans text-[10px] tracking-[0.12em] uppercase text-[#9E9B94] font-medium">Энэ долоо хоног</h2>
           </div>
           <div className="px-5 py-3 divide-y divide-[#F0EDE8]">
             {thisWeekArticles.length === 0 ? (
-              <p className="font-sans text-[12px] text-[#C0BCB5] py-4 text-center">No articles this week</p>
+              <p className="font-sans text-[12px] text-[#C0BCB5] py-4 text-center">Энэ долоо хоногт нийтлэл алга</p>
             ) : (
               thisWeekArticles.map((article, i) => (
                 <div key={i} className="flex items-start gap-2.5 py-3">
@@ -192,7 +192,7 @@ export default function CalendarPage() {
                     <p className="font-sans text-[12px] text-[#1A1A18] leading-snug line-clamp-2">{article.title}</p>
                     <p className="font-sans text-[10.5px] text-[#B0ACA4] mt-0.5">
                       {article.published_at
-                        ? new Date(article.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        ? new Date(article.published_at).toLocaleDateString('mn-MN', { month: 'short', day: 'numeric' })
                         : ''}
                     </p>
                   </div>

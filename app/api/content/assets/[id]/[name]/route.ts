@@ -15,6 +15,6 @@ export async function GET(
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
     return new Response(source.body, { headers });
   } catch (error) {
-    return jsonError(error, "Asset not found");
+    return jsonError(error, "Медиа файл олдсонгүй");
   }
 }

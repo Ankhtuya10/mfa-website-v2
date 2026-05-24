@@ -1,0 +1,32 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{box}=[draw, rounded corners=4pt, minimum width=2.55cm, minimum height=0.8cm,
+    text width=2.35cm, align=center, font=\scriptsize]
+  \tikzstyle{msg}=[font=\scriptsize, fill=white, inner sep=1pt, text width=3.1cm, align=center]
+
+  \node[box] (u) at (0,0) {Хэрэглэгч};
+  \node[box] (ui) at (4,0) {Search UI};
+  \node[box] (engine) at (8.5,0) {Ranking\\engine};
+  \node[box] (db) at (12.7,0) {Search\\index API};
+
+  \draw[dashed] (0,-0.5) -- (0,-8.2);
+  \draw[dashed] (4,-0.5) -- (4,-8.2);
+  \draw[dashed] (8.5,-0.5) -- (8.5,-8.2);
+  \draw[dashed] (12.7,-0.5) -- (12.7,-8.2);
+
+  \draw[->] (0,-1.2) -- (4,-1.2);
+  \node[msg, above] at (2,-1.2) {1. Search нээх};
+  \draw[->] (4,-2.2) -- (12.7,-2.2);
+  \node[msg, above] at (8.35,-2.2) {2. Index API дуудах};
+  \draw[->] (12.7,-3.2) -- (4,-3.2);
+  \node[msg, above] at (8.35,-3.2) {3. Нэгтгэсэн index};
+  \draw[->] (4,-4.2) -- (0,-4.2);
+  \node[msg, above] at (2,-4.2) {4. Query авах};
+  \draw[->] (0,-5.2) -- (8.5,-5.2);
+  \node[msg, above] at (4.25,-5.2) {5. Query ба filter};
+  \draw[->] (8.5,-6.2) -- (12.7,-6.2);
+  \node[msg, above] at (10.6,-6.2) {6. Оноо тооцох};
+  \draw[->] (12.7,-7.2) -- (4,-7.2);
+  \node[msg, above] at (8.35,-7.2) {7. Ангилсан result};
+  \draw[->] (4,-7.8) -- (0,-7.8);
+  \node[msg, above] at (2,-7.8) {8. Result сонгох};
+\end{tikzpicture}

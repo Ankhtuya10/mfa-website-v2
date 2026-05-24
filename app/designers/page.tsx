@@ -9,18 +9,18 @@ import { getDesigners } from "@/lib/supabase/queries";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const TIERS = ["All", "High-End", "Contemporary", "Emerging"] as const;
+const TIERS = ["Бүгд", "Дээд зэрэглэл", "Орчин үеийн", "Шинэ үе"] as const;
 
 const TIER_DB_KEY: Record<string, string> = {
-  "High-End": "high-end",
-  Contemporary: "contemporary",
-  Emerging: "emerging",
+  "Дээд зэрэглэл": "high-end",
+  "Орчин үеийн": "contemporary",
+  "Шинэ үе": "emerging",
 };
 
 const TIER_DISPLAY: Record<string, string> = {
-  "high-end": "High-End",
-  contemporary: "Contemporary",
-  emerging: "Emerging",
+  "high-end": "Дээд зэрэглэл",
+  contemporary: "Орчин үеийн",
+  emerging: "Шинэ үе",
 };
 
 // ─── Animation variants ───────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ const cardVariants = {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DesignersPage() {
-  const [activeTier, setActiveTier] = useState("All");
+  const [activeTier, setActiveTier] = useState("Бүгд");
   const [designers, setDesigners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,13 +68,13 @@ export default function DesignersPage() {
   // ── Derived counts ──────────────────────────────────────────────────────────
 
   const tierCount = (tier: string) => {
-    if (tier === "All") return designers.length;
+    if (tier === "Бүгд") return designers.length;
     const key = TIER_DB_KEY[tier] ?? tier.toLowerCase();
     return designers.filter((d) => d.tier === key).length;
   };
 
   const filteredDesigners =
-    activeTier === "All"
+    activeTier === "Бүгд"
       ? designers
       : designers.filter(
           (d) =>
@@ -140,7 +140,7 @@ export default function DesignersPage() {
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="block font-sans text-[10px] tracking-[0.36em] uppercase text-white/50 mb-6"
             >
-              Mongolian Fashion Archive
+              Монгол загварын архив
             </motion.span>
 
             <motion.h1
@@ -153,7 +153,7 @@ export default function DesignersPage() {
               }}
               className="font-serif text-6xl md:text-7xl lg:text-[5.5rem] leading-[0.95] text-white mb-6"
             >
-              The Designers
+              Дизайнерууд
             </motion.h1>
 
             <motion.p
@@ -167,7 +167,7 @@ export default function DesignersPage() {
               className="font-sans text-white/38 text-sm tracking-[0.18em]"
             >
               {!loading && designers.length > 0
-                ? `${designers.length} ${designers.length === 1 ? "house" : "houses"} · ${activeTiersCount} ${activeTiersCount === 1 ? "tier" : "tiers"}`
+                ? `${designers.length} ордон · ${activeTiersCount} ангилал`
                 : "\u00A0"}
             </motion.p>
           </div>
@@ -179,7 +179,7 @@ export default function DesignersPage() {
             className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
           >
             <span className="font-sans text-[9px] uppercase tracking-[3.6px] text-white/35">
-              Scroll
+              Доош
             </span>
             <div className="h-[36px] w-px bg-gradient-to-b from-white/40 to-white/5" />
           </motion.div>
@@ -203,7 +203,7 @@ export default function DesignersPage() {
                       : "text-white/40 hover:text-white/70 border-b-2 border-transparent"
                   }`}
                 >
-                  {tier === "All" ? `All (${count})` : `${tier} (${count})`}
+                  {tier === "Бүгд" ? `Бүгд (${count})` : `${tier} (${count})`}
                 </button>
               );
             })}
@@ -228,7 +228,7 @@ export default function DesignersPage() {
             )}
 
             {/* ── All tier — grouped view ───────────────────────────── */}
-            {!loading && activeTier === "All" && (
+            {!loading && activeTier === "Бүгд" && (
               <>
                 {(["high-end", "contemporary", "emerging"] as const).map(
                   (key) => {
@@ -267,7 +267,7 @@ export default function DesignersPage() {
                 {designers.length === 0 && (
                   <div className="text-center py-32">
                     <p className="font-sans text-sm tracking-[0.2em] text-white/25">
-                      No designers found
+                      Дизайнер олдсонгүй
                     </p>
                   </div>
                 )}
@@ -276,11 +276,11 @@ export default function DesignersPage() {
 
             {/* ── Single tier — filtered view ───────────────────────── */}
             {!loading &&
-              activeTier !== "All" &&
+              activeTier !== "Бүгд" &&
               (filteredDesigners.length === 0 ? (
                 <div className="text-center py-32">
                   <p className="font-sans text-sm tracking-[0.2em] text-white/25">
-                    No designers found
+                    Дизайнер олдсонгүй
                   </p>
                 </div>
               ) : (
@@ -309,13 +309,13 @@ export default function DesignersPage() {
 
 function DesignerGridCard({ designer }: { designer: any }) {
   const tierLabel: Record<string, string> = {
-    "high-end": "High-End",
-    contemporary: "Contemporary",
-    emerging: "Emerging",
+    "high-end": "Дээд зэрэглэл",
+    contemporary: "Орчин үеийн",
+    emerging: "Шинэ үе",
   };
 
   const label = tierLabel[designer.tier] ?? (designer.tier as string);
-  const estYear = designer.founded ? `Est. ${designer.founded}` : null;
+  const estYear = designer.founded ? `Үүс. ${designer.founded}` : null;
 
   return (
     <motion.div variants={cardVariants}>

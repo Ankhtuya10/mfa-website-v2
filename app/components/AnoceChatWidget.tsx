@@ -25,7 +25,7 @@ type AuthState = "loading" | "signed-in" | "signed-out";
 const starterSuggestions = [
   "Одоо ямар trend байна?",
   "Ноолуурын брэндүүд",
-  "Streetwear санал болго",
+  "Гудамжны стиль санал болго",
 ];
 
 const insufficientContextMessage =
@@ -126,9 +126,9 @@ function useLinkPreview(path: string) {
 }
 
 const typeLabel: Record<string, string> = {
-  designer: "Designer",
-  article: "Editorial",
-  collection: "Collection",
+  designer: "Дизайнер",
+  article: "Нийтлэл",
+  collection: "Цуглуулга",
 };
 
 function LinkPreviewCard({ path }: { path: string }) {

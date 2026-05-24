@@ -157,7 +157,7 @@ export function FollowButton({ designerId, size = 'md', variant = 'default' }: F
       onClick={toggle}
       disabled={isPending}
       aria-pressed={isFollowing}
-      aria-label={isFollowing ? 'Unfollow designer' : 'Follow designer'}
+      aria-label={isFollowing ? 'Дизайнер дагахаа болих' : 'Дизайнер дагах'}
       className={`${sizeClasses[size]} flex items-center justify-center rounded-full border transition-colors hover:bg-black/5 disabled:cursor-wait disabled:opacity-60 ${
         isFollowing
           ? 'border-white/20 bg-white/10 text-[#B7AEA9]'
