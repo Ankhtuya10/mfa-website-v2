@@ -90,33 +90,33 @@ function isCollectionQuestion(message: string) {
 function buildAnswerGuidance(message: string) {
   if (isCollectionQuestion(message)) {
     return [
-      "[COLLECTION ANSWER FORMAT]",
-      "Хэрэглэгч collection, жил, улирал, look асуусан бол LIVE ARCHIVE-ийн тохирох цуглуулга, look-уудыг ашигла.",
+      "[ЦУГЛУУЛГЫН ХАРИУЛТЫН ХЭЛБЭР]",
+      "Хэрэглэгч цуглуулга, жил, улирал, look асуусан бол шууд архивын тохирох цуглуулга, look-уудыг ашигла.",
       "Дараах бүтэцтэй хариул:",
       "  Цуглуулгын нэр — Season Year",
       "  Дизайнер: ...",
       "  Товч: ...",
-      "  URL: ...",
+      "  Холбоос: ...",
       "Онцлох looks:",
-      "  - Look N: тайлбар (материал)",
-      "Context-д байхгүй collection, look, материал бүү зохио.",
-      "Markdown тэмдэглэгээ бүү ашигла.",
+      "  - Look N: тайлбар, материал",
+      "Өгөгдсөн баримтад байхгүй цуглуулга, look, материал бүү зохио.",
+      "Хариултаа зөвхөн Монгол хэлээр бич. Англи гарчиг, англи тайлбар бүү ашигла.",
     ].join("\n");
   }
   if (isTrendQuestion(message)) {
     return [
-      "[TREND ANSWER FORMAT]",
-      "Монгол fashion-д давамгай чиглэлүүдийг context дээр үндэслэн тайлбарла.",
-      "LIVE ARCHIVE дахь нийтлэл, цуглуулгатай холбон хариул.",
-      "Context-д байхгүй брэнд, факт, тренд бүү нэм.",
-      "Markdown тэмдэглэгээ бүү ашигла.",
+      "[ЧИГ ХАНДЛАГЫН ХАРИУЛТЫН ХЭЛБЭР]",
+      "Монгол загварт давамгай чиглэлүүдийг өгөгдсөн баримт дээр үндэслэн тайлбарла.",
+      "Шууд архив дахь нийтлэл, цуглуулгатай холбон хариул.",
+      "Өгөгдсөн баримтад байхгүй брэнд, факт, чиг хандлага бүү нэм.",
+      "Хариултаа зөвхөн Монгол хэлээр бич. Англи гарчиг, англи тайлбар бүү ашигла.",
     ].join("\n");
   }
   return [
-    "[RESPONSE STYLE]",
-    "Хариултыг 3-5 богино өгүүлбэр эсвэл bullet хэлбэрээр бүрэн дуусга.",
+    "[ХАРИУЛТЫН ӨНГӨ АЯС]",
+    "Хариултыг 3-5 богино өгүүлбэр эсвэл мөрөөр бүрэн дуусга.",
     "Холбоотой Anoce URL байвал богино зөвлөмж болгон дурд.",
-    "Markdown тэмдэглэгээ бүү ашигла.",
+    "Хариултаа зөвхөн Монгол хэлээр бич. Англи гарчиг, англи тайлбар бүү ашигла.",
   ].join("\n");
 }
 
@@ -134,7 +134,7 @@ function cleanFallbackExcerpt(content: string) {
 
   const fallback = lines.find(
     (line) =>
-      !/^(Төрөл:|Нэр:|Гарчиг:|Slug:|Tier:|Ангилал:|Байршил:|Итгэлцлийн түвшин:|Keyword:|Tags:|Anoce URL:|Type:|Category:|Document ID:|Source confidence:|Brand slug:|Он:|Улирал:)/i.test(
+      !/^(Төрөл:|Нэр:|Гарчиг:|Slug:|Tier:|Ангилал:|Байршил:|Итгэлцлийн түвшин:|Keyword:|Tags:|Anoce URL:|Type:|Category:|Document ID:|Source confidence:|Brand slug:|Баримтын дугаар:|Брэнд slug:|Түлхүүр үг:|Он:|Улирал:)/i.test(
         line,
       ),
   );
@@ -190,7 +190,7 @@ function buildFallbackAnswer(
   liveResults: Awaited<ReturnType<typeof searchLiveArchive>>,
   brandDocs: AnoceRagDocumentRow[],
 ) {
-  const lines = ["Anoce archive дээр үндэслэвэл:"];
+  const lines = ["Anoce архивын өгөгдөл дээр үндэслэвэл:"];
 
   if (liveResults.length > 0) {
     for (const r of liveResults.slice(0, 2)) {
@@ -248,6 +248,13 @@ function looksLowQualityAnswer(answer: string) {
   const uniqueRatio = counts.size / words.length;
 
   return maxCount >= 6 || uniqueRatio < 0.35;
+}
+
+function looksEnglishHeavyAnswer(answer: string) {
+  const latinLetters = answer.match(/[A-Za-z]/g)?.length ?? 0;
+  const cyrillicLetters = answer.match(/[А-Яа-яЁёӨөҮү]/g)?.length ?? 0;
+  if (latinLetters < 18) return false;
+  return latinLetters > cyrillicLetters * 0.18;
 }
 
 // ─── provider helpers ─────────────────────────────────────────────────────────
@@ -319,15 +326,19 @@ async function generateGemini(
   ].join("\n");
   const first = await requestGemini(prompt);
 
-  if (first.finishReason !== "MAX_TOKENS" && !looksIncomplete(first.answer)) {
+  if (
+    first.finishReason !== "MAX_TOKENS" &&
+    !looksIncomplete(first.answer) &&
+    !looksEnglishHeavyAnswer(first.answer)
+  ) {
     return first.answer;
   }
 
-  console.warn("Gemini answer looked incomplete; retrying.");
+  console.warn("Gemini answer needed retry; enforcing Mongolian-only output.");
   const retryPrompt = [
     buildAnoceChatPromptMn(message, liveContext, brandContext),
     "",
-    "[IMPORTANT] Өмнөх хариулт дутуу тасарсан. Маш товч, бүрэн өгүүлбэрээр дуусган бич. Дээд тал нь 4 bullet.",
+    "[ЧУХАЛ] Өмнөх хариултыг зөвхөн Монгол хэлээр дахин бич. Англи өгүүлбэр, англи гарчиг, англи тайлбар бүү үлдээ. Брэндийн нэр болон холбоос зайлшгүй бол хэвээр байж болно. Маш товч, дээд тал нь 4 мөр.",
     buildAnswerGuidance(message),
   ].join("\n");
 
@@ -379,17 +390,26 @@ async function generateOllama(
   ].join("\n");
   const answer = await requestOllama(prompt);
 
-  if (!looksIncomplete(answer) && !looksLowQualityAnswer(answer)) return answer;
+  if (
+    !looksIncomplete(answer) &&
+    !looksLowQualityAnswer(answer) &&
+    !looksEnglishHeavyAnswer(answer)
+  ) return answer;
 
-  console.warn("Ollama answer looked incomplete; retrying.");
+  console.warn("Ollama answer needed retry; enforcing Mongolian-only output.");
   const retryPrompt = [
     buildAnoceChatPromptMn(message, liveContext, brandContext),
     "",
-    "[IMPORTANT] Өмнөх хариулт дутуу. Маш товч, бүрэн өгүүлбэрээр дуусган бич. Дээд тал нь 4 bullet.",
+    "[ЧУХАЛ] Өмнөх хариултыг зөвхөн Монгол хэлээр дахин бич. Англи өгүүлбэр, англи гарчиг, англи тайлбар бүү үлдээ. Брэндийн нэр болон холбоос зайлшгүй бол хэвээр байж болно. Маш товч, дээд тал нь 4 мөр.",
   ].join("\n");
 
   const retry = await requestOllama(retryPrompt);
-  if (retry && !looksIncomplete(retry) && !looksLowQualityAnswer(retry)) {
+  if (
+    retry &&
+    !looksIncomplete(retry) &&
+    !looksLowQualityAnswer(retry) &&
+    !looksEnglishHeavyAnswer(retry)
+  ) {
     return retry;
   }
 

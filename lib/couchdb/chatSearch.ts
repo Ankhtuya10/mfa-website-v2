@@ -52,7 +52,7 @@ function formatArticle(a: any): string {
   if (a.subtitle) lines.push(`Дэд гарчиг: ${a.subtitle}`)
   if (a.published_at) {
     lines.push(
-      `Огноо: ${new Date(a.published_at).toLocaleDateString('en-US', {
+      `Огноо: ${new Date(a.published_at).toLocaleDateString('mn-MN', {
         year: 'numeric', month: 'long', day: 'numeric',
       })}`,
     )
@@ -74,15 +74,15 @@ function formatCollection(c: any): string {
     `Дизайнер: ${c.designer_name} | Улирал: ${c.season} ${c.year}`,
   ]
   if (c.description) lines.push(`Тайлбар: ${c.description}`)
-  lines.push(`Look тоо: ${looks.length}`)
+  lines.push(`Лүүкийн тоо: ${looks.length}`)
   lines.push(`Линк: /archive/${c.slug}`)
   if (looks.length > 0) {
-    lines.push('Looks:')
+    lines.push('Лүүкүүд:')
     for (const look of looks.slice(0, 5)) {
       const mats = Array.isArray(look.materials) ? look.materials.join(', ') : ''
       const desc = look.description ? look.description.slice(0, 120) : ''
       lines.push(
-        `  Look ${look.number}${desc ? ': ' + desc : ''}${mats ? ' (' + mats + ')' : ''}`,
+        `  Лүүк ${look.number}${desc ? ': ' + desc : ''}${mats ? ' (' + mats + ')' : ''}`,
       )
     }
   }
@@ -152,6 +152,12 @@ export async function searchLiveArchive(
 export function formatLiveArchiveContext(results: ChatSearchResult[]): string {
   if (results.length === 0) return ''
   return results
-    .map((r, i) => `# Архивын бичлэг ${i + 1} (${r.type})\n${r.context}`)
+    .map((r, i) => `# Архивын бичлэг ${i + 1} (${getMongolianTypeLabel(r.type)})\n${r.context}`)
     .join('\n\n---\n\n')
+}
+
+function getMongolianTypeLabel(type: ChatSearchResult['type']) {
+  if (type === 'article') return 'нийтлэл'
+  if (type === 'collection') return 'цуглуулга'
+  return 'дизайнер'
 }

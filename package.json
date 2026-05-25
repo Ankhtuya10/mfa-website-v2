@@ -15,29 +15,34 @@
     "couchdb:up": "docker compose -f docker-compose.couchdb.yml up -d",
     "seed:couchdb": "tsx scripts/seed-couchdb.ts",
     "test": "tsx --test \"**/*.test.ts\"",
-    "lint": "tsc --noEmit --incremental false"
+    "lint": "tsc --noEmit --incremental false",
+    "rag:generate": "tsx scripts/generate-anoce-rag.ts",
+    "rag:validate": "tsx scripts/validate-anoce-rag.ts",
+    "rag:import": "tsx scripts/import-anoce-rag.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@supabase/ssr": "^0.9.0",
-    "@supabase/supabase-js": "^2.99.3",
+    "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.577.0",
     "next": "^16.2.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
-    "tsx": "^4.21.0"
+    "tsx": "^4.22.3"
   }
 }

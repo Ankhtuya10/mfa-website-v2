@@ -19,9 +19,10 @@ const SELECT_COLUMNS =
   'id,type,title,content,brand_slug,category,tags,source_confidence,url,metadata,created_at'
 const TEXT_SEARCH_COLUMNS = ['title', 'content', 'category', 'brand_slug']
 const DEFAULT_LIMIT = 8
-const BROAD_TREND_TYPES = ['trend', 'trend_report']
+const BROAD_TREND_TYPES = ['trend', 'trend_report', 'trend_guide']
 const COLLECTION_TYPES = ['archive_collection', 'collection']
 const LOOK_TYPES = ['archive_look', 'look']
+const MATERIAL_TYPES = ['material_guide']
 const KEYWORD_EXPANSIONS: Array<{ triggers: string[]; terms: string[] }> = [
   {
     triggers: ['trend', 'trends', 'чиг хандлага', 'чиглэл', 'трэнд', 'одоогийн', 'одоо'],
@@ -153,6 +154,10 @@ function isLookDocument(document: AnoceRagDocumentRow) {
   return LOOK_TYPES.includes(document.type)
 }
 
+function isMaterialDocument(document: AnoceRagDocumentRow) {
+  return MATERIAL_TYPES.includes(document.type)
+}
+
 function buildIlikeOrFilter(terms: string[]) {
   return terms
     .flatMap((term) => TEXT_SEARCH_COLUMNS.map((column) => `${column}.ilike.*${term}*`))
@@ -182,9 +187,15 @@ function scoreDocument(document: AnoceRagDocumentRow, terms: string[], query: st
   if (document.source_confidence === 'high') score += 1
   if (document.source_confidence === 'low') score -= 1
   if (trendQuestion && isTrendDocument(document)) score += 30
+  if (isMaterialDocument(document)) score += 2
+  if (document.type === 'faq') score += 1
   if (collectionQuestion && isCollectionDocument(document)) score += 32
   if (collectionQuestion && isLookDocument(document)) score += 12
   if (trendQuestion && document.type === 'guide') score -= 6
+  if (getCyrillicRatio(document.title) > 0.2) score += 8
+  if (isEnglishHeavy(document.title)) score -= 20
+  if (getCyrillicRatio(document.content) > 0.35) score += 12
+  if (isEnglishHeavy(document.content)) score -= 30
 
   return score
 }
@@ -298,19 +309,147 @@ export async function buildAnoceRagContext(query: string, limit = DEFAULT_LIMIT)
 
 export function formatAnoceRagContext(documents: AnoceRagDocumentRow[]) {
   return documents
-    .map((document, index) =>
-      [
-        `# Эх сурвалж ${index + 1}: ${document.title}`,
-        `Document ID: ${document.id}`,
-        `Type: ${document.type}`,
-        `Source confidence: ${document.source_confidence ?? 'medium'}`,
-        `Anoce URL: ${document.url ?? 'байхгүй'}`,
-        `Brand slug: ${document.brand_slug ?? 'байхгүй'}`,
-        `Category: ${document.category ?? 'байхгүй'}`,
-        `Tags: ${(document.tags ?? []).join(', ') || 'байхгүй'}`,
+    .map((document, index) => {
+      const images = formatImageMetadata(document.metadata)
+      const brandLine = document.brand_slug && /[А-Яа-яЁёӨөҮү]/.test(document.brand_slug)
+        ? `Брэндийн богино нэр: ${document.brand_slug}`
+        : ''
+      return [
+        `# Эх сурвалж ${index + 1}: ${getDisplayTitle(document.title)}`,
+        `Төрөл: ${getMongolianDocumentType(document.type)}`,
+        `Итгэлцлийн түвшин: ${getMongolianConfidence(document.source_confidence)}`,
+        `Холбоос: ${document.url ?? 'байхгүй'}`,
+        brandLine,
+        `Ангилал: ${getDisplayCategory(document.category)}`,
+        `Түлхүүр үг: ${getDisplayTags(document.tags).join(', ') || 'байхгүй'}`,
+        images,
         '',
-        document.content,
-      ].join('\n'),
-    )
+        cleanContextContent(document.content),
+      ].join('\n')
+    })
     .join('\n\n---\n\n')
+}
+
+function cleanContextContent(content: string) {
+  return content
+    .split('\n')
+    .map((line) => sanitizeDisplayText(line.trim()))
+    .filter((line) => line && !isEnglishHeavy(line) && !/^(type|description|looks?|look)\b/i.test(line))
+    .join('\n')
+}
+
+function getDisplayTitle(title: string) {
+  const sanitized = sanitizeDisplayText(title)
+  return isEnglishHeavy(sanitized) ? 'Архивын бичлэг' : sanitized
+}
+
+function sanitizeDisplayText(text: string) {
+  return text
+    .replace(/\bSS\s*\/?\s*/g, 'Хавар/Зун ')
+    .replace(/\bFW\s*\/?\s*/g, 'Намар/Өвөл ')
+    .replace(/\bMood:/gi, 'Уур амьсгал:')
+    .replace(/\bCategory:/gi, 'Ангилал:')
+    .replace(/\bdemo archive record\b/gi, 'демо архивын бичлэг')
+    .replace(/\bdemo\b/gi, 'демо')
+    .replace(/\beditorial dataset\b/gi, 'редакцийн өгөгдөл')
+    .replace(/\bminimal silhouette\b/gi, 'энгийн силуэт')
+    .replace(/\bbrocade\b/gi, 'хээтэй торго')
+    .replace(/\bcollection-ss\b/gi, 'хавар-зун цуглуулга')
+    .replace(/\bcollection-fw\b/gi, 'намар-өвөл цуглуулга')
+    .replace(/\bceremonial-silk\b/gi, 'ёслолын торго')
+    .replace(/\bcashmere-winter\b/gi, 'өвлийн ноолуур')
+}
+
+function getCyrillicRatio(text: string) {
+  const letters = text.match(/\p{L}/gu) ?? []
+  if (letters.length === 0) return 0
+
+  const cyrillicLetters = text.match(/[А-Яа-яЁёӨөҮү]/g) ?? []
+  return cyrillicLetters.length / letters.length
+}
+
+function isEnglishHeavy(text: string) {
+  const letters = text.match(/\p{L}/gu) ?? []
+  if (letters.length < 12) return false
+
+  const latinLetters = text.match(/[A-Za-z]/g) ?? []
+  const cyrillicLetters = text.match(/[А-Яа-яЁёӨөҮү]/g) ?? []
+  return latinLetters.length >= Math.max(8, cyrillicLetters.length * 1.5)
+}
+
+function getMongolianDocumentType(type: string) {
+  const labels: Record<string, string> = {
+    archive_collection: 'архивын цуглуулга',
+    collection: 'цуглуулга',
+    archive_look: 'архивын look',
+    look: 'look',
+    designer_profile: 'дизайнерын танилцуулга',
+    brand_profile: 'брэндийн танилцуулга',
+    editorial_article: 'редакцийн нийтлэл',
+    material_guide: 'материалын тайлбар',
+    trend_guide: 'чиг хандлагын тайлбар',
+    faq: 'түгээмэл асуулт',
+    glossary: 'тайлбар толь',
+    trend: 'чиг хандлага',
+    trend_report: 'чиг хандлагын тайлан',
+  }
+
+  return labels[type] ?? type.replace(/_/g, ' ')
+}
+
+function getMongolianConfidence(confidence: string | null) {
+  if (confidence === 'high') return 'өндөр'
+  if (confidence === 'low') return 'бага'
+  if (confidence === 'synthetic_demo') return 'демо өгөгдөл'
+  return 'дунд'
+}
+
+function getDisplayTags(tags: string[] | null) {
+  return (tags ?? [])
+    .map(sanitizeDisplayText)
+    .filter((tag) => /[А-Яа-яЁёӨөҮү]/.test(tag) && !/[A-Za-z]/.test(tag))
+    .slice(0, 12)
+}
+
+function getDisplayCategory(category: string | null) {
+  if (!category) return 'байхгүй'
+  const sanitized = sanitizeDisplayText(category)
+  return /[А-Яа-яЁёӨөҮү]/.test(sanitized) ? sanitized : 'байхгүй'
+}
+
+function formatImageMetadata(metadata: Record<string, unknown> | null) {
+  const images = metadata?.images
+  if (!Array.isArray(images) || images.length === 0) return ''
+
+  const lines = images
+    .slice(0, 3)
+    .map((image, index) => {
+      if (!image || typeof image !== 'object') return ''
+
+      const item = image as Record<string, unknown>
+      const url = typeof item.url === 'string' ? item.url : ''
+      const alt = typeof item.alt === 'string' ? item.alt : ''
+      const caption = typeof item.caption === 'string' ? item.caption : ''
+      const imageType = typeof item.image_type === 'string' ? item.image_type : ''
+      const colors = Array.isArray(item.colors) ? item.colors.map(String).join(', ') : ''
+      const visibleItems = Array.isArray(item.visible_items) ? item.visible_items.map(String).join(', ') : ''
+      const materials = Array.isArray(item.materials) ? item.materials.map(String).join(', ') : ''
+      const styleKeywords = Array.isArray(item.style_keywords) ? item.style_keywords.map(String).join(', ') : ''
+
+      return [
+        `  ${index + 1}. холбоос=${url || 'байхгүй'}`,
+        alt ? `орлох_тайлбар=${alt}` : '',
+        caption ? `тайлбар=${caption}` : '',
+        imageType ? `зургийн_төрөл=${imageType}` : '',
+        colors ? `өнгө=${colors}` : '',
+        visibleItems ? `харагдах_эдлэл=${visibleItems}` : '',
+        materials ? `материал=${materials}` : '',
+        styleKeywords ? `хэв_маяг=${styleKeywords}` : '',
+      ]
+        .filter(Boolean)
+        .join(' | ')
+    })
+    .filter(Boolean)
+
+  return lines.length > 0 ? ['Зургийн мэдээлэл:', ...lines].join('\n') : ''
 }
