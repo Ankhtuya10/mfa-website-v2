@@ -18,10 +18,13 @@ export function getMongoConfig() {
 
 function createClient(uri: string): Promise<MongoClient> {
   const client = new MongoClient(uri, {
-    maxPoolSize: 10,
-    serverSelectionTimeoutMS: 5000,
-    connectTimeoutMS: 5000,
-    socketTimeoutMS: 15000,
+    maxPoolSize: 1,
+    minPoolSize: 0,
+    serverSelectionTimeoutMS: 8000,
+    connectTimeoutMS: 8000,
+    socketTimeoutMS: 20000,
+    tls: true,
+    tlsAllowInvalidCertificates: false,
   });
   return client.connect();
 }
@@ -29,10 +32,18 @@ function createClient(uri: string): Promise<MongoClient> {
 async function getDb(): Promise<Db> {
   const { uri, database } = getMongoConfig();
   if (!globalWithMongo._mongoClientPromise) {
-    globalWithMongo._mongoClientPromise = createClient(uri);
+    globalWithMongo._mongoClientPromise = createClient(uri).catch((err) => {
+      globalWithMongo._mongoClientPromise = undefined;
+      throw err;
+    });
   }
-  const client = await globalWithMongo._mongoClientPromise;
-  return client.db(database);
+  try {
+    const client = await globalWithMongo._mongoClientPromise;
+    return client.db(database);
+  } catch (err) {
+    globalWithMongo._mongoClientPromise = undefined;
+    throw err;
+  }
 }
 
 function col(db: Db): Collection<StringIdDoc> {
