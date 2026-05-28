@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createContentRepository } from "@/lib/couchdb/repository";
 import { jsonError } from "../../utils";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function GET(
   _request: Request,

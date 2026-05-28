@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createContentRepository } from "@/lib/couchdb/repository";
 import { formatSeasonYear } from "@/lib/localization";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function GET() {
   try {

@@ -3,7 +3,7 @@ import { createContentRepository } from "@/lib/couchdb/repository";
 import { formatSeasonYear } from "@/lib/localization";
 import { jsonError } from "../utils";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function GET() {
   try {
