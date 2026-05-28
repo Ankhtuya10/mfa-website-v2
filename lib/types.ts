@@ -30,10 +30,14 @@ export interface Collection {
   designerId: string
   designerName: string
   designerSlug: string
-  season: 'SS' | 'FW'
+  season: 'SS' | 'FW' | 'Pre-Fall' | 'Resort'
   year: number
   description: string
   coverImage: string
+  categories?: string[]
+  materials?: string[]
+  colors?: string[]
+  occasions?: string[]
   looks: Look[]
 }
 

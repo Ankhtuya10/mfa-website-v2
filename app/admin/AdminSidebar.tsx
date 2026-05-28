@@ -13,7 +13,7 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Хянах самбар',   href: '/admin/dashboard' },
   { icon: FileText,        label: 'Нийтлэл',    href: '/admin/articles' },
   { icon: Grid,            label: 'Цуглуулга', href: '/admin/collections' },
-  { icon: Users,           label: 'Дизайнер',   href: '/admin/designers' },
+  { icon: Users,           label: 'Брэнд/Дизайнер',   href: '/admin/designers' },
   { icon: Image,           label: 'Медиа',      href: '/admin/assets' },
   { icon: Calendar,        label: 'Календарь',    href: '/admin/calendar' },
   { icon: Shield,          label: 'Хэрэглэгч',       href: '/admin/users', adminOnly: true },

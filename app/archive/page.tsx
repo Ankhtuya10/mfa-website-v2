@@ -8,40 +8,16 @@ import { StickyNavbar, Footer } from "@/app/components";
 import { EmptyState } from "@/app/components/shared/EmptyState";
 import { getCollections, getDesigners } from "@/lib/supabase/queries";
 import { getSeasonLabel } from "@/lib/localization";
-
-const canonicalSeasons = ["SS", "FW", "Pre-Fall", "Resort"] as const;
-
-const categoryKeywords: Record<string, string[]> = {
-  "Гадуур хувцас": ["outerwear", "coat", "jacket", "parka", "trench", "bomber"],
-  "Сүлжмэл": ["knit", "knitwear", "cardigan", "sweater", "turtleneck"],
-  "Аксессуар": [
-    "accessory",
-    "bag",
-    "belt",
-    "scarf",
-    "hat",
-    "jewelry",
-    "jewellery",
-  ],
-  "Гутал": [
-    "footwear",
-    "shoe",
-    "boot",
-    "sneaker",
-    "loafer",
-    "heel",
-    "sandals",
-  ],
-};
-
-const materialKeywords: Record<string, string[]> = {
-  "Ноолуур": ["cashmere"],
-  "Торго": ["silk"],
-  "Техник нейлон": ["nylon", "technical"],
-  "Элэгдүүлсэн деним": ["denim", "distressed"],
-  "Ноос": ["wool"],
-  "Арьс": ["leather"],
-};
+import {
+  ARCHIVE_CATEGORY_OPTIONS,
+  ARCHIVE_COLOR_OPTIONS,
+  ARCHIVE_MATERIAL_OPTIONS,
+  ARCHIVE_OCCASION_OPTIONS,
+  ARCHIVE_SEASON_OPTIONS,
+  deriveArchiveValues,
+  getArchiveOptionLabels,
+  mergeArchiveValues,
+} from "@/lib/content/archiveTaxonomy";
 
 const getDesignerName = (collection: any) =>
   String(
@@ -77,57 +53,6 @@ const getCollectionYear = (collection: any) => {
   return match ? Number(match[0]) : null;
 };
 
-const getSearchText = (collection: any) =>
-  `${collection.title || ""} ${collection.description || ""}`.toLowerCase();
-
-const deriveCategories = (collection: any) => {
-  const categories = new Set<string>();
-  const searchText = getSearchText(collection);
-  const looks = Array.isArray(collection.looks) ? collection.looks : [];
-
-  for (const [category, keywords] of Object.entries(categoryKeywords)) {
-    if (keywords.some((keyword) => searchText.includes(keyword)))
-      categories.add(category);
-  }
-
-  for (const look of looks) {
-    const tags = Array.isArray(look?.tags) ? look.tags : [];
-    for (const tag of tags) {
-      const normalizedTag = String(tag).toLowerCase();
-      for (const [category, keywords] of Object.entries(categoryKeywords)) {
-        if (keywords.some((keyword) => normalizedTag.includes(keyword)))
-          categories.add(category);
-      }
-    }
-  }
-
-  return Array.from(categories);
-};
-
-const deriveMaterials = (collection: any) => {
-  const materials = new Set<string>();
-  const searchText = getSearchText(collection);
-  const looks = Array.isArray(collection.looks) ? collection.looks : [];
-
-  for (const [material, keywords] of Object.entries(materialKeywords)) {
-    if (keywords.some((keyword) => searchText.includes(keyword)))
-      materials.add(material);
-  }
-
-  for (const look of looks) {
-    const lookMaterials = Array.isArray(look?.materials) ? look.materials : [];
-    for (const rawMaterial of lookMaterials) {
-      const normalizedMaterial = String(rawMaterial).toLowerCase();
-      for (const [material, keywords] of Object.entries(materialKeywords)) {
-        if (keywords.some((keyword) => normalizedMaterial.includes(keyword)))
-          materials.add(material);
-      }
-    }
-  }
-
-  return Array.from(materials);
-};
-
 type CollectionMeta = {
   key: string;
   collection: any;
@@ -136,6 +61,8 @@ type CollectionMeta = {
   designer: string;
   categories: string[];
   materials: string[];
+  colors: string[];
+  occasions: string[];
 };
 
 const getCollectionCoverImage = (collection: any) => {
@@ -201,6 +128,8 @@ export default function ArchivePage() {
   const [selectedDesigners, setSelectedDesigners] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchAll() {
@@ -232,15 +161,20 @@ export default function ArchivePage() {
 
   const collectionMeta = useMemo<CollectionMeta[]>(
     () =>
-      archiveCollections.map((collection) => ({
-        key: String(collection.slug || collection.id),
-        collection,
-        year: getCollectionYear(collection),
-        season: getCollectionSeason(collection),
-        designer: getDesignerName(collection),
-        categories: deriveCategories(collection),
-        materials: deriveMaterials(collection),
-      })),
+      archiveCollections.map((collection) => {
+        const archiveValues = deriveArchiveValues(collection);
+        return {
+          key: String(collection.slug || collection.id),
+          collection,
+          year: getCollectionYear(collection),
+          season: getCollectionSeason(collection),
+          designer: getDesignerName(collection),
+          categories: archiveValues.categories,
+          materials: archiveValues.materials,
+          colors: archiveValues.colors,
+          occasions: archiveValues.occasions,
+        };
+      }),
     [archiveCollections],
   );
 
@@ -262,9 +196,9 @@ export default function ArchivePage() {
     );
     const extras = found.filter(
       (season) =>
-        !canonicalSeasons.includes(season as (typeof canonicalSeasons)[number]),
+        !ARCHIVE_SEASON_OPTIONS.some((option) => option.value === season),
     );
-    return [...canonicalSeasons, ...extras];
+    return [...ARCHIVE_SEASON_OPTIONS.map((option) => option.value), ...extras];
   }, [collectionMeta]);
 
   const designerOptions = useMemo(
@@ -277,17 +211,37 @@ export default function ArchivePage() {
 
   const categoryOptions = useMemo(
     () =>
-      Array.from(
-        new Set(collectionMeta.flatMap((item) => item.categories)),
-      ).sort((a, b) => a.localeCompare(b)),
+      mergeArchiveValues(
+        getArchiveOptionLabels(ARCHIVE_CATEGORY_OPTIONS),
+        collectionMeta.flatMap((item) => item.categories),
+      ),
     [collectionMeta],
   );
 
   const materialOptions = useMemo(
     () =>
-      Array.from(
-        new Set(collectionMeta.flatMap((item) => item.materials)),
-      ).sort((a, b) => a.localeCompare(b)),
+      mergeArchiveValues(
+        getArchiveOptionLabels(ARCHIVE_MATERIAL_OPTIONS),
+        collectionMeta.flatMap((item) => item.materials),
+      ),
+    [collectionMeta],
+  );
+
+  const colorOptions = useMemo(
+    () =>
+      mergeArchiveValues(
+        getArchiveOptionLabels(ARCHIVE_COLOR_OPTIONS),
+        collectionMeta.flatMap((item) => item.colors),
+      ),
+    [collectionMeta],
+  );
+
+  const occasionOptions = useMemo(
+    () =>
+      mergeArchiveValues(
+        getArchiveOptionLabels(ARCHIVE_OCCASION_OPTIONS),
+        collectionMeta.flatMap((item) => item.occasions),
+      ),
     [collectionMeta],
   );
 
@@ -312,13 +266,23 @@ export default function ArchivePage() {
           selectedMaterials.some((material) =>
             item.materials.includes(material),
           );
+        const colorMatch =
+          selectedColors.length === 0 ||
+          selectedColors.some((color) => item.colors.includes(color));
+        const occasionMatch =
+          selectedOccasions.length === 0 ||
+          selectedOccasions.some((occasion) =>
+            item.occasions.includes(occasion),
+          );
 
         return (
           yearMatch &&
           seasonMatch &&
           designerMatch &&
           categoryMatch &&
-          materialMatch
+          materialMatch &&
+          colorMatch &&
+          occasionMatch
         );
       }),
     [
@@ -328,6 +292,8 @@ export default function ArchivePage() {
       selectedDesigners,
       selectedCategories,
       selectedMaterials,
+      selectedColors,
+      selectedOccasions,
     ],
   );
 
@@ -374,7 +340,9 @@ export default function ArchivePage() {
     selectedSeasons.length +
     selectedDesigners.length +
     selectedCategories.length +
-    selectedMaterials.length;
+    selectedMaterials.length +
+    selectedColors.length +
+    selectedOccasions.length;
 
   const clearAllFilters = () => {
     setSelectedYears([]);
@@ -382,6 +350,8 @@ export default function ArchivePage() {
     setSelectedDesigners([]);
     setSelectedCategories([]);
     setSelectedMaterials([]);
+    setSelectedColors([]);
+    setSelectedOccasions([]);
   };
 
   const toggleValue = <T,>(
@@ -522,7 +492,7 @@ export default function ArchivePage() {
                   Архив шүүх
                 </h2>
                 <p className="mt-2 font-sans text-[13px] leading-relaxed text-white/50">
-                  Улирал, брэнд, материалаар нарийвчлан шүүнэ үү.
+                  Улирал, брэнд, төрөл, материал, өнгө болон зориулалтаар шүүнэ үү.
                 </p>
               </div>
 
@@ -540,7 +510,7 @@ export default function ArchivePage() {
                   onToggle={(season) => toggleValue(season, setSelectedSeasons)}
                 />
                 <FilterGroup
-                  label="Дизайнер / Брэнд"
+                  label="Брэнд/Дизайнер"
                   values={designerOptions}
                   selected={selectedDesigners}
                   onToggle={(designer) =>
@@ -561,6 +531,20 @@ export default function ArchivePage() {
                   selected={selectedMaterials}
                   onToggle={(material) =>
                     toggleValue(material, setSelectedMaterials)
+                  }
+                />
+                <FilterGroup
+                  label="Өнгө"
+                  values={colorOptions}
+                  selected={selectedColors}
+                  onToggle={(color) => toggleValue(color, setSelectedColors)}
+                />
+                <FilterGroup
+                  label="Зориулалт"
+                  values={occasionOptions}
+                  selected={selectedOccasions}
+                  onToggle={(occasion) =>
+                    toggleValue(occasion, setSelectedOccasions)
                   }
                 />
               </div>
@@ -1034,7 +1018,7 @@ export default function ArchivePage() {
                   { value: totalLooks, label: "Төрх", sub: "баримтжсан" },
                   {
                     value: totalDesigners,
-                    label: "Дизайнер",
+                    label: "Брэнд/Дизайнер",
                     sub: "төлөөлөгдсөн",
                   },
                   {
@@ -1093,7 +1077,7 @@ export default function ArchivePage() {
                   href="/designers"
                   className="border-b border-white/24 pb-1 font-sans text-[11px] tracking-[0.28em] uppercase text-white/60 transition-colors hover:border-white/60 hover:text-white"
                 >
-                  Дизайнеруудтай танилцах
+                  Брэнд/дизайнеруудтай танилцах
                 </Link>
               </div>
             </motion.div>

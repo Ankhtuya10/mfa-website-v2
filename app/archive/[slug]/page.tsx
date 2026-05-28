@@ -208,7 +208,7 @@ export default function CollectionPage({
                     href={`/designers/${collection.designer_slug}`}
                     className="font-sans text-[11px] tracking-[2px] uppercase text-[#B7AEA9] mt-4 inline-block hover:text-[#2A2522] transition-colors"
                   >
-                    Дизайнерын профайл үзэх →
+                    Брэнд/дизайнерын профайл үзэх →
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 gap-5 md:grid-cols-4">

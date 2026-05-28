@@ -2,6 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  if (path === "/brands" || path.startsWith("/brands/")) {
+    const designersUrl = request.nextUrl.clone();
+    designersUrl.pathname = path.replace(/^\/brands/, "/designers");
+    return NextResponse.redirect(designersUrl);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -28,8 +36,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const path = request.nextUrl.pathname;
-
   // ADMIN ROUTES (not including /admin/login)
   if (path.startsWith("/admin") && path !== "/admin/login") {
     if (!user) {

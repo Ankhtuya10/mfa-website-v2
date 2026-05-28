@@ -177,9 +177,14 @@ export class CouchDbClient {
     return (await response.json()) as CouchWriteResponse;
   }
 
-  async getAttachment(docId: string, attachmentName: string) {
+  async getAttachment(
+    docId: string,
+    attachmentName: string,
+    init: RequestInit = {},
+  ) {
     return this.request(
       `/${encodeURIComponent(docId)}/${encodeURIComponent(attachmentName)}`,
+      init,
     );
   }
 

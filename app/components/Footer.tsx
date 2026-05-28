@@ -53,7 +53,7 @@ const defaultSocialLinks: SocialLink[] = [
 const defaultNavLinks: FooterLink[] = [
   { label: "Архив", href: "/archive" },
   { label: "Нийтлэл", href: "/editorial" },
-  { label: "Дизайнерууд", href: "/designers" },
+  { label: "Брэнд/Дизайнер", href: "/designers" },
   { label: "Тухай", href: "/about" },
 ];
 

@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { slug } = await context.params;
     const designer = await createContentRepository().getDesignerBySlug(decodeURIComponent(slug));
-    if (!designer) return NextResponse.json({ error: "Дизайнер олдсонгүй" }, { status: 404 });
+    if (!designer) return NextResponse.json({ error: "Брэнд/дизайнер олдсонгүй" }, { status: 404 });
     return NextResponse.json(designer);
   } catch (error) {
     return jsonError(error);

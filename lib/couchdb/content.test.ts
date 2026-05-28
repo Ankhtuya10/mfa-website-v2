@@ -46,9 +46,13 @@ describe("CouchDB content mapping", () => {
       season: "FW",
       year: 2026,
       description: "Collection",
-      cover_image: "/cover.jpg",
-      looks: [
-        {
+        cover_image: "/cover.jpg",
+        categories: ["Streetwear", "Спорт хувцас"],
+        materials: ["Mesh", "Хөвөн"],
+        colors: ["Ягаан"],
+        occasions: ["Sport"],
+        looks: [
+          {
           id: "look-one",
           number: 1,
           image: "/look.jpg",
@@ -65,6 +69,10 @@ describe("CouchDB content mapping", () => {
     const collection = fromCouchCollection(doc);
     assert.equal(collection.slug, "gobi-fw-2026");
     assert.equal(collection.designer_name, "Gobi");
+    assert.deepEqual(collection.categories, ["Streetwear", "Спорт хувцас"]);
+    assert.deepEqual(collection.materials, ["Mesh", "Хөвөн"]);
+    assert.deepEqual(collection.colors, ["Ягаан"]);
+    assert.deepEqual(collection.occasions, ["Sport"]);
     assert.equal(collection.looks[0].materials[0], "cashmere");
   });
 

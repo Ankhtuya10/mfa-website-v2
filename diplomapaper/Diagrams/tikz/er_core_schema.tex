@@ -3,27 +3,30 @@
     text width=4.45cm, align=left, font=\tiny]
   \tikzstyle{rel}=[font=\tiny, fill=white, inner sep=1pt, align=center]
 
-  \node[entity] (designer) at (0,6.6) {\textbf{designer doc}\\PK \_id\\slug, name, tier\\bio, images};
-  \node[entity] (collection) at (6.2,6.6) {\textbf{collection doc}\\PK \_id\\slug, title\\designer\_slug\\season, year, looks[]};
-  \node[entity] (look) at (12.4,6.6) {\textbf{look object}\\id, number\\image, description\\materials[], tags[]};
+  % Content layer (CouchDB)
+  \node[entity, fill=orange!8, draw=orange!50] (designer) at (0,6.6) {\textbf{designer doc}\\PK \_id\\slug, name, tier\\bio, images};
+  \node[entity, fill=blue!8, draw=blue!50] (collection) at (6.2,6.6) {\textbf{collection doc}\\PK \_id\\slug, title\\designer\_slug\\season, year, looks[]};
+  \node[entity, fill=cyan!8, draw=cyan!50] (look) at (12.4,6.6) {\textbf{look object}\\id, number\\image, description\\materials[], tags[]};
 
-  \node[entity] (article) at (0,3.1) {\textbf{article doc}\\PK \_id\\slug, title\\category, status\\body, tags};
-  \node[entity] (asset) at (6.2,3.1) {\textbf{asset doc}\\PK \_id\\name, path\\folder, content\_type\\attachment};
-  \node[entity] (search) at (12.4,3.1) {\textbf{search index item}\\title, subtitle\\category, tags\\href, searchText};
+  \node[entity, fill=green!8, draw=green!50!black] (article) at (0,3.1) {\textbf{article doc}\\PK \_id\\slug, title\\category, status\\body, tags};
+  \node[entity, fill=yellow!10, draw=yellow!50!black] (asset) at (6.2,3.1) {\textbf{asset doc}\\PK \_id\\name, path\\folder, content\_type\\attachment};
+  \node[entity, fill=gray!10, draw=gray!50] (search) at (12.4,3.1) {\textbf{search index item}\\title, subtitle\\category, tags\\href, searchText};
 
-  \node[entity] (profile) at (0,-0.4) {\textbf{profiles}\\PK id\\email/name\\role};
-  \node[entity] (bookmark) at (6.2,-0.4) {\textbf{bookmarks}\\PK id\\FK user\_id\\content\_id\\content\_type};
-  \node[entity] (rag) at (12.4,-0.4) {\textbf{anoce\_rag\_documents}\\PK id\\type, title\\content, tags\\brand\_slug};
+  % User/RAG layer (Supabase)
+  \node[entity, fill=teal!8, draw=teal!50] (profile) at (0,-0.4) {\textbf{profiles}\\PK id\\email/name\\role};
+  \node[entity, fill=teal!6, draw=teal!40] (bookmark) at (6.2,-0.4) {\textbf{bookmarks}\\PK id\\FK user\_id\\content\_id\\content\_type};
+  \node[entity, fill=violet!8, draw=violet!50] (rag) at (12.4,-0.4) {\textbf{anoce\_rag\_documents}\\PK id\\type, title\\content, tags\\brand\_slug};
 
-  \draw[->] (designer) -- node[above,rel] {1:N} (collection);
-  \draw[->] (collection) -- node[above,rel] {1:N\\nested} (look);
-  \draw[->] (article) -- node[above,rel] {image} (asset);
-  \draw[->] (collection) -- node[right,rel] {cover\\look image} (asset);
-  \draw[->] (designer) -- node[left,rel] {profile\\cover} (asset);
-  \draw[->] (designer) -- (search);
-  \draw[->] (collection) -- (search);
-  \draw[->] (article) -- (search);
-  \draw[->] (profile) -- node[above,rel] {1:N} (bookmark);
-  \draw[->] (bookmark) -- node[right,rel] {content id} (search);
-  \draw[->] (rag) -- node[right,rel] {AI context} (search);
+  % Relationships
+  \draw[->, orange!70] (designer) -- node[above,rel] {1:N} (collection);
+  \draw[->, blue!70] (collection) -- node[above,rel] {1:N\\nested} (look);
+  \draw[->, green!60!black] (article) -- node[above,rel] {image} (asset);
+  \draw[->, blue!60] (collection) -- node[right,rel] {cover\\look image} (asset);
+  \draw[->, orange!60] (designer) -- node[left,rel] {profile\\cover} (asset);
+  \draw[->, gray!60] (designer) -- (search);
+  \draw[->, gray!60] (collection) -- (search);
+  \draw[->, gray!60] (article) -- (search);
+  \draw[->, teal!60] (profile) -- node[above,rel] {1:N} (bookmark);
+  \draw[->, teal!50] (bookmark) -- node[right,rel] {content id} (search);
+  \draw[->, violet!60] (rag) -- node[right,rel] {AI context} (search);
 \end{tikzpicture}

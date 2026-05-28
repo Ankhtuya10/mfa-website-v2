@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Pencil, Eye, Trash2 } from "lucide-react";
+import { ARCHIVE_SEASON_OPTIONS } from "@/lib/content/archiveTaxonomy";
 
 interface Collection {
   id: string;
@@ -26,7 +27,7 @@ export function CollectionsTable({
 }: CollectionsTableProps) {
   const [collections, setCollections] =
     useState<Collection[]>(initialCollections);
-  const [filter, setFilter] = useState<"all" | "FW" | "SS">("all");
+  const [filter, setFilter] = useState<string>("all");
 
   const filteredCollections = collections.filter((c) =>
     filter === "all" ? true : c.season === filter,
@@ -48,17 +49,23 @@ export function CollectionsTable({
   return (
     <>
       <div className="flex gap-4 mb-6">
-        {(["all", "FW", "SS"] as const).map((s) => (
+        {[
+          { value: "all", label: "Бүгд" },
+          ...ARCHIVE_SEASON_OPTIONS.map((season) => ({
+            value: season.value,
+            label: season.value,
+          })),
+        ].map((s) => (
           <button
-            key={s}
-            onClick={() => setFilter(s)}
+            key={s.value}
+            onClick={() => setFilter(s.value)}
             className={`px-4 py-2 font-sans text-[11px] tracking-[2px] uppercase border transition-colors ${
-              s === filter
+              s.value === filter
                 ? "bg-[#111111] text-white border-[#111111]"
                 : "border-[rgba(0,0,0,0.15)] text-[#9B9590] hover:border-[#111111]"
             }`}
           >
-            {s === "all" ? "Бүгд" : s}
+            {s.label}
           </button>
         ))}
       </div>
@@ -74,7 +81,7 @@ export function CollectionsTable({
                 Гарчиг
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-40">
-                Дизайнер
+                Брэнд/Дизайнер
               </th>
               <th className="text-left py-3 px-5 font-sans text-[10px] tracking-[2.5px] uppercase text-[#9B9590] w-28">
                 Улирал

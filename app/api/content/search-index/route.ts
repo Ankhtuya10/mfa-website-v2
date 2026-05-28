@@ -73,26 +73,19 @@ export async function GET() {
       image: designer.cover_image || designer.coverImage || "",
       href: `/designers/${designer.slug}`,
       category: "designers",
-      meta: `${designer.name} · ${designer.tier || ""}`.trim(),
-      searchText: [designer.name, designer.bio, designer.short_bio || designer.shortBio, `${designer.founded || ""}`].join(" "),
-      tags: [designer.tier || ""],
-    }));
-
-    const brandItems = designers.map((designer: any) => ({
-      id: `brand-${designer.id}`,
-      slug: designer.slug,
-      title: designer.name,
-      subtitle: designer.short_bio || designer.shortBio || "",
-      image: designer.cover_image || designer.coverImage || "",
-      href: `/designers/${designer.slug}`,
-      category: "brands",
-      meta: `${designer.name} · Үүс. ${designer.founded || "-"}`,
-      searchText: [designer.name, designer.bio, designer.short_bio || designer.shortBio].join(" "),
+      meta: ["Брэнд/Дизайнер", designer.tier].filter(Boolean).join(" · "),
+      searchText: [
+        designer.name,
+        designer.brand,
+        designer.bio,
+        designer.short_bio || designer.shortBio,
+        `${designer.founded || ""}`,
+      ].join(" "),
       tags: [designer.tier || ""],
     }));
 
     return NextResponse.json(
-      [...articleItems, ...collectionItems, ...designerItems, ...brandItems].filter(
+      [...articleItems, ...collectionItems, ...designerItems].filter(
         (item) => item.slug && item.title && item.image,
       ),
     );

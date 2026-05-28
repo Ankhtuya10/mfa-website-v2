@@ -166,5 +166,4 @@ export const groupRankedResults = (
   articles: items.filter((item) => item.category === "articles"),
   collections: items.filter((item) => item.category === "collections"),
   designers: items.filter((item) => item.category === "designers"),
-  brands: items.filter((item) => item.category === "brands"),
 });

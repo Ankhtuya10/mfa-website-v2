@@ -96,7 +96,7 @@ export default function DesignerPage({
   if (!designer) {
     return (
       <div className="min-h-screen bg-[#080604] flex items-center justify-center">
-        <h1 className="font-serif text-4xl text-white">Дизайнер олдсонгүй</h1>
+        <h1 className="font-serif text-4xl text-white">Брэнд/дизайнер олдсонгүй</h1>
       </div>
     );
   }

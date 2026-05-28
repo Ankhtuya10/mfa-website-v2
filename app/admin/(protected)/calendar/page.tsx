@@ -1,7 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import {
+  buildScheduleArticleHref,
+  getCalendarScheduleDate,
+} from '@/lib/content/calendarSchedule'
 import { fetchJson } from '@/lib/content/client'
 
 interface Article {
@@ -45,9 +50,11 @@ export default function CalendarPage() {
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
   const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1
   const monthName = currentDate.toLocaleDateString('mn-MN', { month: 'long', year: 'numeric' })
+  const today = new Date()
 
   const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
   const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+  const scheduleHref = buildScheduleArticleHref(getCalendarScheduleDate(currentDate, today))
 
   const articlesByDay: Record<number, Article[]> = {}
   articles.forEach(article => {
@@ -61,7 +68,6 @@ export default function CalendarPage() {
     }
   })
 
-  const today = new Date()
   const isToday = (day: number) =>
     day === today.getDate() &&
     currentDate.getMonth() === today.getMonth() &&
@@ -111,9 +117,12 @@ export default function CalendarPage() {
             Өнөөдөр
           </button>
         </div>
-        <button className="flex items-center gap-2 bg-[#0E0E0D] text-white font-sans text-[10.5px] tracking-[0.12em] uppercase font-medium px-5 py-2.5 rounded-lg hover:bg-[#2a2a28] transition-colors">
+        <Link
+          href={scheduleHref}
+          className="flex items-center gap-2 bg-[#0E0E0D] text-white font-sans text-[10.5px] tracking-[0.12em] uppercase font-medium px-5 py-2.5 rounded-lg hover:bg-[#2a2a28] transition-colors"
+        >
           <Plus className="w-3.5 h-3.5" strokeWidth={2} /> Товлох
-        </button>
+        </Link>
       </div>
 
       {/* Calendar + sidebar */}

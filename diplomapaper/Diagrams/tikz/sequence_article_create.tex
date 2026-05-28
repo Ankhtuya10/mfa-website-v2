@@ -1,0 +1,27 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{box}=[draw, rounded corners=4pt, minimum width=2.45cm, minimum height=0.8cm,
+    text width=2.2cm, align=center, font=\scriptsize]
+  \tikzstyle{msg}=[font=\scriptsize, fill=white, inner sep=1pt, text width=3.0cm, align=center]
+
+  \node[box, fill=red!10, draw=red!40] (admin) at (0,0) {Админ};
+  \node[box, fill=orange!10, draw=orange!40] (ui) at (3.3,0) {Admin UI};
+  \node[box, fill=yellow!12, draw=yellow!50!black] (auth) at (6.6,0) {Auth\\role check};
+  \node[box, fill=blue!10, draw=blue!50] (api) at (9.9,0) {Admin API};
+  \node[box, fill=green!10, draw=green!50!black] (repo) at (13.2,0) {Content\\Repository};
+  \node[box, fill=teal!10, draw=teal!50] (db) at (16.5,0) {CouchDB};
+
+  \foreach \x in {0,3.3,6.6,9.9,13.2,16.5} {
+    \draw[dashed, black!30] (\x,-0.5) -- (\x,-8.7);
+  }
+
+  \draw[->, red!60] (0,-1.1) -- node[msg, above] {1. Нийтлэл нэмэх form нээх} (3.3,-1.1);
+  \draw[->, orange!60] (3.3,-2.0) -- node[msg, above] {2. Session авах} (6.6,-2.0);
+  \draw[<-, orange!60] (3.3,-2.9) -- node[msg, above] {3. admin/editor эрх OK} (6.6,-2.9);
+  \draw[->, red!60] (0,-3.8) -- node[msg, above] {4. Гарчиг, body, зураг, category бөглөх} (3.3,-3.8);
+  \draw[->, blue!60] (3.3,-4.7) -- node[msg, above] {5. POST /api/admin/content/articles} (9.9,-4.7);
+  \draw[->, yellow!60!black] (9.9,-5.6) -- node[msg, above] {6. requireContentAdmin()} (6.6,-5.6);
+  \draw[<-, blue!60] (9.9,-6.5) -- node[msg, above] {7. Эрх баталгаажсан} (6.6,-6.5);
+  \draw[->, green!60!black] (9.9,-7.4) -- node[msg, above] {8. upsertArticle()} (13.2,-7.4);
+  \draw[->, teal!70] (13.2,-8.1) -- node[msg, above] {9. Document хадгалах} (16.5,-8.1);
+  \draw[<-, orange!60] (3.3,-8.7) -- node[msg, above] {10. id, rev, status} (16.5,-8.7);
+\end{tikzpicture}

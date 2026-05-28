@@ -6,10 +6,10 @@ import { motion } from "framer-motion";
 
 import { fetchContentCollections } from "@/lib/content/client";
 import { formatSeasonYear } from "@/lib/localization";
+import { USAGE_MEDIA } from "@/lib/usageMedia";
 import { Button } from "./shared";
 
-const VIDEO_URL =
-  "https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennieklunklun.mp4";
+const VIDEO_URL = USAGE_MEDIA.jennieVideo;
 
 const FALLBACK_LABEL = "Шинэ цуглуулга";
 const FALLBACK_DESCRIPTION =

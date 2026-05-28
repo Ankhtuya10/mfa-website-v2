@@ -1,0 +1,26 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{source}=[draw, rounded corners=5pt, minimum width=3.8cm, minimum height=0.85cm,
+    text width=3.35cm, align=center, font=\scriptsize]
+  \tikzstyle{centerbox}=[draw, rounded corners=6pt, minimum width=4.4cm, minimum height=1.05cm,
+    text width=3.95cm, align=center, font=\scriptsize\bfseries]
+  \tikzstyle{note}=[draw, rounded corners=5pt, minimum width=4.2cm, minimum height=0.85cm,
+    text width=3.8cm, align=center, font=\scriptsize]
+
+  \node[source, fill=blue!8] (social) at (0,4.8) {Social media\\пост, story, reel};
+  \node[source, fill=green!8] (brand) at (5.2,4.8) {Брэндийн веб\\product/story};
+  \node[source, fill=yellow!12] (media) at (10.4,4.8) {Lifestyle медиа\\нийтлэл};
+  \node[source, fill=orange!10] (shop) at (2.6,2.7) {E-commerce\\бүтээгдэхүүн};
+  \node[source, fill=purple!8] (event) at (7.8,2.7) {Fashion event\\зар, recap};
+
+  \node[centerbox, fill=gray!12] (user) at (5.2,0.8) {Хэрэглэгч\\загварын мэдээлэл хайна};
+  \node[note, fill=red!6] (problem) at (5.2,-1.2) {Мэдээлэл салангид, archive сул,\\хайлт ба ангилал хангалтгүй};
+  \node[note, fill=cyan!8] (platform) at (5.2,-3.1) {Нэгдсэн fashion magazine\\ба digital archive платформын хэрэгцээ};
+
+  \draw[->] (social) -- (user);
+  \draw[->] (brand) -- (user);
+  \draw[->] (media) -- (user);
+  \draw[->] (shop) -- (user);
+  \draw[->] (event) -- (user);
+  \draw[->] (user) -- (problem);
+  \draw[->] (problem) -- (platform);
+\end{tikzpicture}

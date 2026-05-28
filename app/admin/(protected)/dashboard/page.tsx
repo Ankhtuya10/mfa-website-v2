@@ -75,7 +75,7 @@ export default async function DashboardPage() {
           : 'article',
     })),
     ...(recentDesigners || []).map((designer) => ({
-      action: 'Дизайнер нэмэгдсэн',
+      action: 'Брэнд/дизайнер нэмэгдсэн',
       item: designer.name || 'Нэргүй дизайнер',
       time: designer.created_at,
       type: 'designer',
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
     },
     {
       value: designerCount ?? 0,
-      label: 'Дизайнер',
+      label: 'Брэнд/Дизайнер',
       sub: 'Бүх ангиллаар',
       subColor: 'text-stone-400',
       icon: null,
@@ -258,7 +258,7 @@ export default async function DashboardPage() {
             <div className="p-3 flex flex-col gap-1">
               {[
                 { label: 'Шинэ нийтлэл', href: '/admin/articles/new', accent: true },
-                { label: 'Дизайнер удирдах', href: '/admin/designers', accent: false },
+                { label: 'Брэнд/Дизайнер удирдах', href: '/admin/designers', accent: false },
                 { label: 'Календарь харах', href: '/admin/calendar', accent: false },
                 { label: 'Медиа оруулах', href: '/admin/assets', accent: false },
               ].map((action) => (

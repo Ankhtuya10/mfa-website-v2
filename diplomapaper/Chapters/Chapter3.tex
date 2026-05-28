@@ -3,191 +3,259 @@
 \chapter{Платформын зохиомж ба архитектур}
 \label{Chapter3}
 
-\section{Ерөнхий архитектур}
-Anoce/MFA платформ нь хэрэглэгчийн интерфэйс, сервер талын API, content repository, нэвтрэлт ба эрхийн шалгалтын давхарга, медиа файл, хайлт болон AI туслах гэсэн бүрэлдэхүүнтэй клиент-сервер бүтэцтэй байна. Хэрэглэгч браузераар public хуудас болон admin CMS-д хандана. Фронтэнд нь Next.js/React component-уудаар UI-г харуулж, API route-ууд контент болон нэвтрэлт танилтын давхаргатай харилцана. Өгөгдлийн хувьд CouchDB нь нийтлэл, дизайнер, коллекц, медиа файлын document хадгалж, Supabase нь auth, profile role, bookmark/follow, RAG document index-д ашиглагдана.
+\section{Платформын ерөнхий архитектур}
+Хоёрдугаар бүлэгт тодорхойлсон шаардлагад үндэслэн Anoce/MFA платформыг клиент-сервер архитектуртай, нэг Next.js codebase дотор public хэрэглэгчийн интерфэйс, admin/content management хэсэг, API layer, authentication layer, data layer, AI/RAG layer-ийг тусгаарласан байдлаар зохиомжилсон. Хэрэглэгч браузераар нүүр хуудас, archive, editorial, designer, collection detail зэрэг public хуудсанд хандана. Админ болон редактор protected admin route-оор контент удирдана.
+
+Зураг \ref{fig:ch3-general-architecture}-т платформын ерөнхий архитектурыг харуулав. Frontend layer нь React component болон Tailwind CSS layout-аар UI-г харуулна. API layer нь public content API, protected admin API, search index API, chat API-г агуулна. Backend/service layer нь repository, auth helper, RAG query, upload logic зэрэг бизнес логикийг гүйцэтгэнэ. Database layer-д CouchDB content document, Supabase Auth/PostgreSQL profile, bookmark, RAG document хадгалагдана.
 
 \begin{figure}[htbp]
   \centering
   \resizebox{\textwidth}{!}{\input{Diagrams/tikz/ch4_layered_architecture.tex}}
-  \caption[Платформын ерөнхий архитектур]{Anoce/MFA платформын ерөнхий архитектур}
-  \label{fig:general-architecture}
+  \caption[Платформын ерөнхий архитектур]{Платформын ерөнхий архитектур}
+  \label{fig:ch3-general-architecture}
 \end{figure}
 
-Энэхүү архитектурын гол зарчим нь public UI-г өгөгдлийн хадгалалтын нарийн хэрэгжилтээс, admin workflow-г public унших API-аас, AI provider-ийг фронтэнд component-оос тусгаарлах явдал юм. Ингэснээр хадгалалт, хайлт, AI provider, админ/редакторын эрх, UI component тус бүрийг бие даан сайжруулах боломжтой.
+Хэрэглэгчийн хүсэлт дараах үндсэн урсгалаар ажиллана. Public route нь шаардлагатай өгөгдлийг \texttt{/api/content/*} endpoint-оор авч UI-д харуулна. Admin route нь эхлээд Supabase session болон \texttt{profiles.role} талбараар editor/admin эрх шалгаад, дараа нь \texttt{/api/admin/content/*} endpoint-оор CouchDB repository-тэй харилцана. AI chat хүсэлт нь \texttt{/api/chat} route-оор дамжин live archive болон RAG context цуглуулж, provider fallback ашиглан хариу үүсгэнэ.
 
-\begin{table}[htbp]
-  \centering
-  \small
-  \begin{tabular}{|L{0.22\textwidth}|L{0.36\textwidth}|L{0.28\textwidth}|}
-    \hline
-    \textbf{Бүрэлдэхүүн} & \textbf{Үүрэг} & \textbf{Жишээ} \\ \hline
-    Браузер клиент & Хэрэглэгчийн UI харуулах & Нүүр, архив, нийтлэл, admin pages \\ \hline
-    Фронтэнд аппликейшн & Component, төлөв, шүүлтүүр, форм, навигаци & React component, hook, Tailwind layout \\ \hline
-    Бэкенд/API давхарга & Контент унших/бичих, auth, хайлт, chat logic & Next.js API routes \\ \hline
-    Контент repository & Нийтлэл, дизайнер, коллекц, медиа файл хадгалах & CouchDB document store \\ \hline
-    Auth/user давхарга & User session, role, bookmark, RAG index & Supabase Auth/PostgreSQL \\ \hline
-    AI давхарга & Live/RAG context, prompt, provider fallback & Chat API, Gemini/Ollama fallback \\ \hline
-  \end{tabular}
-\vspace{0.4em}
-  \caption{Архитектурын бүрэлдэхүүн ба үүрэг}
-  \label{tab:architecture-components}
-\end{table}
+\section{Платформын дотоод бүтэц}
+Төслийн дотоод бүтэц нь component-based болон route-based зохион байгуулалттай. \texttt{app} хавтас нь Next.js App Router-ийн page, layout, API route-уудыг агуулна. \texttt{app/components} хавтас нь дахин ашиглагдах UI component-уудыг, \texttt{lib} хавтас нь CouchDB, Supabase, content client, AI prompt, localization, type helper-үүдийг агуулна. \texttt{scripts} хавтас нь seed болон RAG dataset script-үүдийг агуулна. \texttt{diplomapaper} хавтас нь дипломын LaTeX эх файл, зураг, диаграмм, PDF output-ийг хадгална.
 
-\section{Платформын дотоод архитектур}
-Дотоод архитектурыг route layer, component layer, API layer, service/repository layer, data layer гэсэн түвшинд зохион байгуулна. Route layer нь \path{app} хавтас дахь page болон layout-уудаар хэрэгжинэ. Component layer нь navbar, card, search overlay, dashboard table, form зэрэг дахин ашиглагдах UI-г агуулна. API layer нь \path{/api/content/*}, \path{/api/admin/content/*}, \path{/api/chat} route-уудаар client ба data layer-ийн хооронд ажиллана.
-
-\begin{longtable}{|L{0.20\textwidth}|L{0.32\textwidth}|L{0.34\textwidth}|}
+\begin{longtable}{|L{0.24\textwidth}|L{0.30\textwidth}|L{0.32\textwidth}|}
   \hline
-  \textbf{Түвшин} & \textbf{Хариуцлага} & \textbf{Жишээ файл/модуль} \\ \hline
-  Page/Layout & Хуудасны бүтэц, route-level data loading & \path{app/archive/page.tsx}, \path{app/admin/(protected)} \\ \hline
-  Component & Дахин ашиглагдах UI, карт, форм, overlay & \path{app/components}, \path{app/components/shared} \\ \hline
-  Hook/Client helper & Client state, API дуудлага, debounce & \path{useGlobalSearch}, \path{lib/content/client.ts} \\ \hline
-  API route & Request validation, response, auth boundary & \path{/api/content/*}, \path{/api/admin/content/*} \\ \hline
-  Repository & Хадгалалтын логик, document conversion, CRUD & \path{lib/couchdb/repository.ts} \\ \hline
-  Data service & Auth, role, bookmark, RAG query & \path{lib/supabase/*}, CouchDB \\ \hline
-  \caption{Дотоод архитектурын түвшин}
-  \label{tab:internal-architecture}\\
+  \textbf{Хавтас/файл} & \textbf{Үүрэг} & \textbf{Тайлбар} \\ \hline
+  \path{app/page.tsx} & Нүүр хуудас & Hero, discover, collection grid, visual magazine entry \\ \hline
+  \path{app/archive} & Archive route & Collection list/detail, season/designer/material metadata \\ \hline
+  \path{app/editorial} & Нийтлэлийн route & Article list/detail, category, tag, body rendering \\ \hline
+  \path{app/designers} & Designer route & Designer directory болон profile page \\ \hline
+  \path{app/components} & UI component & Header, footer, cards, search overlay, shared button/filter/image \\ \hline
+  \path{app/admin/(protected)} & Admin CMS & Dashboard, articles, collections, designers, assets, calendar, users \\ \hline
+  \path{app/api/content} & Public API & Published article, collection, designer, search index авах \\ \hline
+  \path{app/api/admin} & Protected API & CRUD, upload, invite, role update хийх \\ \hline
+  \path{lib/couchdb} & Repository layer & CouchDB client, document conversion, CRUD, attachment \\ \hline
+  \path{lib/supabase} & Auth/user/RAG helper & Session, role, profile, bookmark, RAG query \\ \hline
+  \path{lib/content/client.ts} & API communication helper & \texttt{fetchJson}, \texttt{postJson}, upload helper \\ \hline
+  \path{scripts} & Seed/import pipeline & CouchDB seed, RAG seed, validation script \\ \hline
+  \path{diplomapaper} & Тайлан & LaTeX chapters, figures, diagrams, references \\ \hline
+  \caption{Project folder structure-ийн тайлбар}
+  \label{tab:ch3-project-structure}\\
 \end{longtable}
 
-\begin{figure}[htbp]
-  \centering
-  \resizebox{\textwidth}{!}{\input{Diagrams/tikz/class_archive_platform.tex}}
-  \caption[Платформын дотоод класс бүтэц]{Платформын дотоод класс ба domain object-ийн бүтэц}
-  \label{fig:internal-class-architecture}
-\end{figure}
+\section{Модулийн зохиомж}
+Платформыг хэрэглэгчийн интерфэйс, контент унших, хайлт, archive, admin CMS, authentication, API communication, media, AI/RAG гэсэн module-уудаар зохиомжилсон. Module бүр тодорхой хариуцлагатай бөгөөд хоорондоо API болон service layer-ээр холбогдоно.
 
-Фронтэндээс нийтлэл авах урсгал дараах байдлаар явагдана: page/component нь content client helper дуудаж, helper нь public API route руу хүсэлт илгээж, API route нь repository method ашиглан CouchDB document уншаад фронтэндэд domain object хэлбэрээр буцаана. Admin талд ижил урсгал ажиллах боловч API route нь эхлээд Supabase session болон role шалгана.
+\begin{longtable}{|L{0.22\textwidth}|L{0.42\textwidth}|L{0.22\textwidth}|}
+  \hline
+  \textbf{Модуль} & \textbf{Үүрэг} & \textbf{Холбогдох хэрэглэгч} \\ \hline
+  Нүүр хуудасны модуль & Brand identity, hero, онцлох collection, discover section, footer харуулах & Зочин, хэрэглэгч \\ \hline
+  Article module & Нийтлэл жагсаах, category-аар ялгах, дэлгэрэнгүй уншуулах & Зочин, хэрэглэгч \\ \hline
+  Archive module & Collection, season, designer, look, material metadata-г харуулах, шүүх & Зочин, хэрэглэгч \\ \hline
+  Designer module & Designer directory, profile, холбоотой collection харуулах & Зочин, хэрэглэгч \\ \hline
+  Search module & Search overlay, search index, lexical ranking, grouped result харуулах & Бүх хэрэглэгч \\ \hline
+  Profile module & Bookmark болон бүртгэлтэй хэрэглэгчийн мэдээлэл харуулах & Бүртгэлтэй хэрэглэгч \\ \hline
+  Admin dashboard module & Нийт контентын тоо, recent activity, quick action харуулах & Админ, редактор \\ \hline
+  Content management module & Article, collection, designer, asset нэмэх, засах, устгах & Админ, редактор \\ \hline
+  Authentication module & Login, session, role, protected route шалгах & Бүх хэрэглэгч \\ \hline
+  API communication module & Frontend ба backend хооронд JSON/form-data хүсэлт илгээх & Систем \\ \hline
+  Image/media module & Cover, thumbnail, look, profile image upload болон serve хийх & Админ, редактор \\ \hline
+  AI/RAG module & Live archive болон RAG document ашиглан chat хариу үүсгэх & Зочин, хэрэглэгч \\ \hline
+  \caption{Платформын модулийн зохиомж}
+  \label{tab:ch3-module-design}\\
+\end{longtable}
 
 \section{API зохиомж}
-API зохиомж нь public унших API, хамгаалагдсан admin API, медиа файлын API, chat API гэсэн бүлэгтэй. Public API нь зөвхөн published content уншихад зориулагдана. Admin API нь editor/admin role-той хэрэглэгч нийтлэл, коллекц, дизайнер, медиа файл удирдахад хэрэглэгдэнэ. Харин хэрэглэгч урих болон эрх өөрчлөх API нь зөвхөн admin role-той хэрэглэгчид нээлттэй байна. Chat API нь архивын контекст болон RAG document ашиглан AI хариулт үүсгэнэ.
+API зохиомж нь frontend болон backend/service layer-ийн хооронд өгөгдөл дамжуулах гэрээ юм. Public API нь нээлттэй published content уншуулахад зориулагдана. Admin API нь editor/admin эрхтэй хэрэглэгчийн CRUD болон media upload үйлдлийг гүйцэтгэнэ. User management API нь зөвхөн admin role-той хэрэглэгчид нээлттэй байна.
 
 {\small
-\begin{longtable}{|L{0.29\textwidth}|L{0.16\textwidth}|L{0.31\textwidth}|L{0.14\textwidth}|}
+\begin{longtable}{|L{0.26\textwidth}|L{0.14\textwidth}|L{0.28\textwidth}|L{0.14\textwidth}|}
   \hline
-  \textbf{API} & \textbf{Method} & \textbf{Үүрэг} & \textbf{Access} \\ \hline
-  \path{/api/content/articles} & GET & Published article жагсаалт авах & Public \\ \hline
-  \path{/api/content/articles/[slug]} & GET & Нэг нийтлэлийн detail авах & Public \\ \hline
-  \path{/api/content/collections} & GET & Collection жагсаалт, filter авах & Public \\ \hline
-  \path{/api/content/collections/[slug]} & GET & Collection detail ба looks авах & Public \\ \hline
-  \path{/api/content/designers} & GET & Designer list авах & Public \\ \hline
-  \path{/api/content/designers/[slug]} & GET & Designer profile авах & Public \\ \hline
-  \path{/api/content/search-index} & GET & Global search-д хэрэгтэй index авах & Public \\ \hline
-  \path{/api/admin/content/articles} & GET/POST & Нийтлэл жагсаах, шинээр үүсгэх & Editor/Admin \\ \hline
-  \path{/api/admin/content/articles/[id]} & GET/PUT/DELETE & Нийтлэл detail авах, засах, устгах & Editor/Admin \\ \hline
-  \path{/api/admin/content/collections} & GET/POST & Collection удирдах & Editor/Admin \\ \hline
-  \path{/api/admin/content/designers} & GET/POST & Designer удирдах & Editor/Admin \\ \hline
-  \path{/api/admin/content/assets} & GET/POST & Asset list болон upload хийх & Editor/Admin \\ \hline
-  \path{/api/admin/invite} & POST & Багийн гишүүн урих, анхны эрх оноох & Admin \\ \hline
-  \path{/api/admin/users/[id]/role} & PATCH & Хэрэглэгчийн эрх өөрчлөх & Admin \\ \hline
-  \path{/api/profile/delete} & DELETE & Өөрийн profile, bookmark, auth user устгах & Auth \\ \hline
-  \path{/api/content/assets/[id]/[name]} & GET & CouchDB attachment serve хийх & Public read \\ \hline
-  \path{/api/chat} & POST & AI chatbot хариулт үүсгэх & Public/Auth \\ \hline
+  \textbf{Endpoint} & \textbf{Method} & \textbf{Зорилго} & \textbf{Эрх} \\ \hline
+  \texttt{/api/content/ articles} & GET & Published нийтлэлүүд авах; category query дэмжих & Нээлттэй \\ \hline
+  \texttt{/api/content/ articles/[slug]} & GET & Нэг нийтлэлийн дэлгэрэнгүй авах & Нээлттэй \\ \hline
+  \texttt{/api/content/ collections} & GET & Collection жагсаалт авах; season/designer filter дэмжих & Нээлттэй \\ \hline
+  \texttt{/api/content/ collections/[slug]} & GET & Collection detail болон looks авах & Нээлттэй \\ \hline
+  \texttt{/api/content/ designers} & GET & Designer list авах & Нээлттэй \\ \hline
+  \texttt{/api/content/ designers/[slug]} & GET & Designer profile авах & Нээлттэй \\ \hline
+  \texttt{/api/content/ search-index} & GET & Search overlay-д ашиглах нэгтгэсэн index авах & Нээлттэй \\ \hline
+  \texttt{/api/content/ assets/[id]/[name]} & GET & CouchDB attachment зураг serve хийх & Нээлттэй \\ \hline
+  \texttt{/api/admin/ content/articles} & GET, POST & Бүх нийтлэл жагсаах, шинэ нийтлэл үүсгэх & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/articles/[id]} & GET, PUT, DELETE & Нийтлэл detail авах, засах, устгах & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/collections} & GET, POST & Collection жагсаах, үүсгэх & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/collections/[id]} & GET, PUT, DELETE & Collection засах, устгах & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/designers} & GET, POST & Designer жагсаах, үүсгэх & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/designers/[id]} & GET, PUT, DELETE & Designer засах, устгах & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/assets} & GET, POST & Asset list авах, зураг upload хийх & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ invite} & POST & Багийн гишүүн урих & Admin \\ \hline
+  \texttt{/api/admin/ users/[id]/role} & PATCH & Хэрэглэгчийн role өөрчлөх & Admin \\ \hline
+  \texttt{/api/profile/ delete} & DELETE & Өөрийн profile/bookmark/auth user устгах & Auth user \\ \hline
+  \texttt{/api/chat} & POST & AI chatbot хариу үүсгэх & Бүртгэлтэй \\ \hline
   \caption{API endpoint-ийн зохиомж}
-  \label{tab:api-design}\\
+  \label{tab:ch3-api-design}\\
 \end{longtable}
 }
 
-Global search болон AI chatbot-ийн API урсгалыг дараах дарааллын диаграмуудаар харуулав. Search overlay нь search index дээр ranking хийж, chat API нь live content болон RAG context цуглуулан prompt бүрдүүлнэ.
+Request body нь тухайн endpoint-ийн зорилгоос хамаарна. Жишээлбэл, нийтлэл үүсгэх request-д \texttt{title}, \texttt{subtitle}, \texttt{body}, \texttt{category}, \texttt{tags}, \texttt{designer\_slug}, \texttt{status}, \texttt{cover\_image}, \texttt{read\_time} талбар орно. Response нь JSON хэлбэрээр domain object эсвэл \texttt{\{ error: "..."\}} бүтэцтэй алдаа буцаана. Unauthorized үед 401, role хүрэлцэхгүй үед 403, олдоогүй үед 404 status ашиглана.
+
+\section{Зохиомжийн шатны класс диаграмм}
+Шинжилгээний class диаграмм domain object-ийг ерөнхий харуулсан бол зохиомжийн шатны class диаграмм frontend client, controller/API, service/repository, entity object-ийн хамаарлыг илүү тодорхой харуулна. Энэ түвшинд \texttt{ApiClient}, \texttt{AuthService}, \texttt{ContentController}, \texttt{ContentRepository}, \texttt{ArticleService}, \texttt{MediaService}, \texttt{Article}, \texttt{Category/Tag}, \texttt{User/Profile} зэрэг class/object ойлголт ялгарна.
 
 \begin{figure}[htbp]
   \centering
-  \resizebox{\textwidth}{!}{\input{Diagrams/tikz/sequence_archive_search.tex}}
-  \caption[Global search API урсгал]{Global search overlay ба search index API-ийн урсгал}
-  \label{fig:api-search-sequence}
+  \resizebox{\textwidth}{!}{\input{Diagrams/tikz/ch3_design_class_platform.tex}}
+  \caption[Зохиомжийн шатны класс диаграмм]{Зохиомжийн шатны класс диаграмм}
+  \label{fig:ch3-design-class}
 \end{figure}
 
-\begin{figure}[htbp]
-  \centering
-  \resizebox{\textwidth}{!}{\input{Diagrams/tikz/sequence_anoce_chat.tex}}
-  \caption[AI chatbot API урсгал]{AI chatbot API, live archive, RAG context-ийн урсгал}
-  \label{fig:api-chat-sequence}
-\end{figure}
+Зураг \ref{fig:ch3-design-class}-т frontend helper нь controller/API-г дуудаж, controller нь auth шалгалт болон repository-г ашиглаж, repository нь CouchDB document-ийг domain object болгон хөрвүүлж байгааг харуулна. Энэ бүтэц нь дөрөвдүгээр бүлэгт \texttt{lib/content/client.ts}, \texttt{lib/admin/contentAuth.ts}, \texttt{lib/couchdb/repository.ts}, \texttt{app/api/*} файлуудаар хэрэгжинэ.
 
 \section{Өгөгдлийн сангийн зохиомж}
-Өгөгдлийн сангийн зохиомж нь content document болон user/auth relational өгөгдлийг хослуулсан hybrid загвартай. Загварын сэтгүүлийн content нь талбарын хувьд уян хатан тул article, collection, designer, asset-ийг CouchDB document байдлаар хадгална. Харин хэрэглэгчийн session, role, bookmark, RAG index зэрэг owner болон query policy шаарддаг өгөгдлийг Supabase/PostgreSQL-д хадгална.
+Өгөгдлийн сангийн зохиомж нь хоёр төрлийн хадгалалтыг хослуулна. Нэгдүгээрт, fashion content уян JSON шинжтэй тул article, collection, designer, asset өгөгдлийг CouchDB document хэлбэрээр хадгална. Хоёрдугаарт, session, profile role, bookmark, RAG document зэрэг relational query болон authentication policy шаарддаг өгөгдлийг Supabase/PostgreSQL-д хадгална.
+
+{\small
+\begin{longtable}{|L{0.18\textwidth}|L{0.16\textwidth}|L{0.36\textwidth}|L{0.18\textwidth}|}
+  \hline
+  \textbf{Table/Document} & \textbf{Type} & \textbf{Field} & \textbf{Relation} \\ \hline
+  article doc & CouchDB & \texttt{\_id}, \texttt{\_rev}, type, slug, title, subtitle, body, category, tags, status, cover\_image, author, created\_at, updated\_at & category/tag, designer, asset \\ \hline
+  collection doc & CouchDB & \texttt{\_id}, slug, title, designer\_slug, season, year, looks[], materials, tags, cover image & designer, look, asset \\ \hline
+  designer doc & CouchDB & \texttt{\_id}, slug, name, brand, tier, bio, images, social links & collection 1:N \\ \hline
+  asset doc & CouchDB & \texttt{\_id}, name, path, folder, content\_type, size, attachment metadata & article/collection/designer image \\ \hline
+  profiles & Supabase & id, email, name, role, avatar\_url & auth.users.id \\ \hline
+  bookmarks & Supabase & id, user\_id, content\_id, content\_type, created\_at & profiles 1:N \\ \hline
+  anoce\_rag\_documents & Supabase & id, title, content, category, tags, source, brand\_slug & AI context \\ \hline
+  \caption{Өгөгдлийн сангийн table/document зохиомж}
+  \label{tab:ch3-database-design}\\
+\end{longtable}
+}
+
+Article document-ийн хувьд \texttt{slug} нь URL-д ашиглагдах тогтвортой нэр, \texttt{status} нь draft/review/published/archived төлөв, \texttt{cover\_image} нь asset URL, \texttt{tags} нь хайлт болон related content-д ашиглагдана. CouchDB update хийх үед \texttt{\_rev} revision хадгалагдах тул repository layer нь document conflict эрсдэлийг бууруулах үүрэгтэй.
+
+\section{Өгөгдлийн ерөнхий схем}
+Өгөгдлийн ерөнхий схем нь entity хоорондын холбоог визуал байдлаар харуулна. Нэг designer олон collection-тэй, нэг collection олон look-тэй, нэг article category/tag болон image asset-тай, нэг user олон bookmark-тэй, RAG document нь search/AI context-той холбогдоно.
 
 \begin{figure}[htbp]
   \centering
   \resizebox{\textwidth}{!}{\input{Diagrams/tikz/er_core_schema.tex}}
-  \caption[Өгөгдлийн сангийн ER/document зохиомж]{Өгөгдлийн сангийн ER/document зохиомж}
-  \label{fig:database-design-er}
+  \caption[Өгөгдлийн ерөнхий схем]{Өгөгдлийн ерөнхий схем}
+  \label{fig:ch3-data-schema}
 \end{figure}
 
-{\small
-\begin{longtable}{|L{0.18\textwidth}|L{0.24\textwidth}|L{0.08\textwidth}|L{0.20\textwidth}|L{0.18\textwidth}|}
-  \hline
-  \textbf{Хүснэгт/document} & \textbf{Гол талбар} & \textbf{PK} & \textbf{FK/Relation} & \textbf{Тайлбар} \\ \hline
-  designer doc & \_id, slug, name, tier, bio, images & \_id & collection.designer\_slug & Дизайнерын profile мэдээлэл \\ \hline
-  collection doc & \_id, slug, title, season, year, looks[] & \_id & designer\_slug & Коллекц болон nested look \\ \hline
-  article doc & \_id, slug, title, category, status, body, tags & \_id & designer slug, asset path & Editorial нийтлэл \\ \hline
-  asset doc & \_id, name, path, folder, content\_type, size & \_id & article/collection image & Зураг болон attachment metadata \\ \hline
-  profiles & id, email, name, role, avatar\_url & id & auth.users.id & Хэрэглэгчийн role ба profile \\ \hline
-  bookmarks & id, user\_id, content\_id, content\_type & id & profiles.id & Хэрэглэгчийн хадгалсан content \\ \hline
-  anoce\_rag\_documents & id, title, content, category, tags, source & id & brand/content slug & AI chatbot-ийн retrieval context \\ \hline
-  \caption{Өгөгдлийн сангийн хүснэгт/document зохиомж}
-  \label{tab:database-table-design}\\
-\end{longtable}
-}
-
-CouchDB document бүр stable \texttt{\_id}, \texttt{\_rev}, \texttt{type}, \texttt{slug}, \texttt{created\_at}, \texttt{updated\_at} metadata-тай байх ёстой. Repository layer нь update хийх үед өмнөх revision хадгалж conflict эрсдэлийг бууруулна. Supabase талд profile role болон bookmark owner-ийн policy тодорхой байх шаардлагатай.
+Зураг \ref{fig:ch3-data-schema}-т content layer болон user/RAG layer-ийн холбоо ялгарч байна. Энэ зураг нь 3.6-д өгүүлсэн table/document field-ийн дэлгэрэнгүй тайлбарыг ерөнхий relation хэлбэрээр нэгтгэнэ.
 
 \section{UI/UX зохиомж}
-UI/UX зохиомжийн гол зарчим нь загварын сэтгүүлийн visual-first шинжийг хадгалах, гэхдээ admin болон archive workflow-г ойлгомжтой, дахин ашиглахад хялбар болгох явдал юм. Public тал editorial, archive, designer directory, collection detail, article detail, search overlay, profile, journal, careers, press гэсэн үндсэн navigation-тай байна. Admin тал dashboard, articles, collections, designers, assets, calendar гэсэн бүтэцтэй бөгөөд users хэсэг зөвхөн админд харагдана.
+UI/UX зохиомжийн гол зорилго нь Монголын загварын сэтгүүлийн visual-first шинжийг хадгалж, хэрэглэгчид контент унших, хайх, archive үзэх урсгалыг ойлгомжтой болгох явдал юм. Public хэсэгт нүүр хуудас, category/archive page, article detail page, collection/lookbook page, search overlay, designer profile, profile page орно. Admin хэсэгт login page, dashboard, article list, add/edit article form, category/tag metadata, media asset, user management орно.
 
-\begin{table}[htbp]
+Design concept нь том зураг, цэвэр typography, богино navigation, card-based content preview, detail page дээр уншихад төвлөрсөн layout, archive дээр metadata-based шүүлтүүр ашиглахад чиглэнэ. Responsive design-д mobile дэлгэц дээр grid нэг багана болж, table overflow зохицож, form талбарууд босоо байрлалтай болно. Admin UI нь маркетингийн hero бус, ажил гүйцэтгэхэд тохиромжтой нягт бөгөөд эмхтэй layout-тай байна.
+
+\begin{figure}[htbp]
   \centering
-  \small
-  \begin{tabular}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
-    \hline
-    \textbf{Хэсэг} & \textbf{Navigation} & \textbf{UX зорилго} \\ \hline
-    Public site & Home, Archive, Designers, Editorial, Journal, Careers, Press, Search, Login/Profile & Уншигч контент хурдан олох \\ \hline
-    Article detail & Title, cover image, body, tag, related looks & Сэтгүүлийн унших туршлага бүрдүүлэх \\ \hline
-    Collection detail & Hero image, designer, season/year, look gallery, materials & Зурагт archive-ийг ойлгомжтой үзүүлэх \\ \hline
-    Search overlay & Query input, grouped result, recent search, season filter & Олон entity-г нэг дор хайх \\ \hline
-    Admin CMS & Dashboard, Articles, Collections, Designers, Assets, Calendar, Users & Контент удирдах ажлыг төвлөрүүлэх; Users хэсгийг зөвхөн админд харуулах \\ \hline
-  \end{tabular}
-\vspace{0.4em}
-  \caption{Навигацийн бүтэц}
-  \label{tab:navigation-structure}
-\end{table}
+  \resizebox{0.86\textwidth}{!}{\input{Diagrams/tikz/wireframe_home.tex}}
+  \caption[Нүүр хуудасны wireframe]{Нүүр хуудасны wireframe}
+  \label{fig:ch3-wireframe-home}
+\end{figure}
 
-Responsive layout-д card grid, image ratio, filter bar, table overflow, button label, form field, modal/overlay зэрэг элементүүд viewport өөрчлөгдөхөд давхцахгүй байх шаардлагатай. Public тал зураг том, текст богино, scan хийхэд хялбар байх ёстой бол admin тал мэдээлэл нягт боловч эмхтэй, form label болон status badge ойлгомжтой байх ёстой.
+\begin{figure}[htbp]
+  \centering
+  \resizebox{0.86\textwidth}{!}{\input{Diagrams/tikz/wireframe_article_detail.tex}}
+  \caption[Нийтлэлийн дэлгэрэнгүй хуудасны wireframe]{Нийтлэлийн дэлгэрэнгүй хуудасны wireframe}
+  \label{fig:ch3-wireframe-article}
+\end{figure}
 
-\section{Аюулгүй байдлын зохиомж}
-Аюулгүй байдлын зохиомж нь authentication, authorization, protected route, input validation, upload validation, secret management, AI context boundary гэсэн чиглэлтэй. Client дээр admin link нуух нь хангалтгүй тул server-side API route бүр role шалгах шаардлагатай. Password authentication болон session management-д Supabase Auth ашиглана.
+\begin{figure}[htbp]
+  \centering
+  \resizebox{0.86\textwidth}{!}{\input{Diagrams/tikz/wireframe_admin_dashboard.tex}}
+  \caption[Admin dashboard-ийн wireframe]{Admin dashboard-ийн wireframe}
+  \label{fig:ch3-wireframe-admin}
+\end{figure}
+
+Нүүр хуудасны wireframe нь hero image, brand title, featured content, article/collection card-уудыг агуулна. Нийтлэлийн detail wireframe нь cover image, title/meta, article body, tag/related look хэсгийг ялгана. Admin dashboard wireframe нь sidebar navigation, summary card, recent content table гэсэн ажиллахад чиглэсэн бүтэцтэй.
+
+\section{Платформын прототип}
+Прототип нь бодит хөгжүүлэлтээс өмнө хэрэглэгчийн урсгал, layout, navigation, visual hierarchy-г шалгах зорилготой. Прототипийн түвшинд home page, article page, archive page, search overlay, admin dashboard, add/edit article form гэсэн дэлгэцүүдийг төлөвлөсөн. Public prototype нь хэрэглэгчийн анхны сэтгэгдэл, зурагт өгүүлэмж, category/archive navigation-г шалгасан бол admin prototype нь контент нэмэх дараалал, form field, validation, status сонголтыг шалгах зорилготой.
 
 \begin{longtable}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
   \hline
+  \textbf{Prototype дэлгэц} & \textbf{Шалгах зүйл} & \textbf{Гарсан сайжруулалт} \\ \hline
+  Home page & Hero, brand signal, discover navigation & Collection болон editorial entry-г эхний viewport-д илүү тодруулах \\ \hline
+  Article page & Унших урсгал, cover image, tag, related content & Body width болон meta хэсгийг уншихад төвлөрсөн болгох \\ \hline
+  Archive page & Filter, card grid, collection detail руу шилжих & Season/designer filter-ийг илүү ойлгомжтой байрлуулах \\ \hline
+  Search page/overlay & Query input, grouped result, empty state & Article/collection/designer result-ийг бүлэглэж харуулах \\ \hline
+  Admin page & Dashboard, table, status badge, quick action & Table scan хийхэд status badge болон action icon ашиглах \\ \hline
+  Add/edit article & Required field, image upload, draft/publish & Form validation болон error message-г ил тод болгох \\ \hline
+  \caption{Платформын прототипийн дэлгэцүүд}
+  \label{tab:ch3-prototype-screens}\\
+\end{longtable}
+
+Энэ prototype нь дөрөвдүгээр бүлгийн бодит интерфэйсээс өмнөх төлөвлөлт бөгөөд хэрэгжилтийн явцад component, route, API, data model-той уялдан нарийвчилсан.
+
+\section{Удирдлагын хэсгийн зохиомж}
+Удирдлагын хэсэг нь админ болон редакторын өдөр тутмын content management workflow-д зориулагдана. Админ login хийсний дараа dashboard нээгдэж, articles, collections, designers, assets, calendar, users гэсэн navigation харагдана. Редактор нийтлэл, collection, designer, asset дээр ажиллах боломжтой боловч user invite болон role update хийх эрх зөвхөн админд байна.
+
+\begin{longtable}{|L{0.22\textwidth}|L{0.30\textwidth}|L{0.34\textwidth}|}
+  \hline
+  \textbf{Admin үйлдэл} & \textbf{Зорилго} & \textbf{Шаардлагатай талбар/шалгалт} \\ \hline
+  Нэвтрэх & CMS-д хамгаалалттай орох & email, password, Supabase session, role \\ \hline
+  Dashboard үзэх & Контентын төлөвийг хурдан харах & Article count, review count, recent activity \\ \hline
+  Нийтлэл нэмэх & Шинэ editorial контент бүртгэх & title, subtitle, body, category, tag, image, status \\ \hline
+  Нийтлэл засах & Өмнөх контент шинэчлэх & article id, updated fields, role check \\ \hline
+  Нийтлэл устгах & Илүүдэл контент хасах & article id, delete confirmation, role check \\ \hline
+  Collection удирдах & Archive content бүртгэх & title, designer, season, year, looks, images \\ \hline
+  Designer удирдах & Designer profile болон brand story бүртгэх & name, slug, bio, image, tier \\ \hline
+  Зураг удирдах & Cover/look/profile image хадгалах & file, folder, content type, size validation \\ \hline
+  User role удирдах & Багийн гишүүний эрх зохицуулах & admin role, user id, target role \\ \hline
+  Publish/unpublish & Контентын харагдах төлөв өөрчлөх & draft/review/published/archived status \\ \hline
+  \caption{Удирдлагын хэсгийн зохиомж}
+  \label{tab:ch3-admin-design}\\
+\end{longtable}
+
+Form validation нь title, body, category, read time, publish хийх үед cover image зэрэг талбаруудыг шалгана. Алдаа гарвал form дээр тухайн талбарын доор message харуулж, API алдаа гарвал banner хэлбэрээр харуулна.
+
+\section{Аюулгүй байдлын зохиомж}
+Аюулгүй байдлын зохиомж нь authentication, authorization, admin-only route, request validation, upload validation, secret management, error handling, session expire гэсэн хэсгүүдээс бүрдэнэ. Client дээр admin link нуух нь хангалтгүй тул server-side API бүр role шалгах шаардлагатай. Supabase Auth нь хэрэглэгчийг таних, \texttt{profiles.role} нь эрхийн түвшинг ялгахад ашиглагдана.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.72\textwidth}{!}{\input{Diagrams/tikz/ch3_auth_flow.tex}}
+  \caption[Authentication ба authorization урсгал]{Authentication ба authorization урсгал}
+  \label{fig:ch3-auth-flow}
+\end{figure}
+
+\begin{longtable}{|L{0.24\textwidth}|L{0.38\textwidth}|L{0.24\textwidth}|}
+  \hline
   \textbf{Хамгаалалт} & \textbf{Зохиомж} & \textbf{Хэрэглэх хэсэг} \\ \hline
-  Password/session & Supabase Auth ашиглан session удирдах & Login, profile, admin access \\ \hline
-  Role-based access control & admin/editor/reader role шалгах & Admin route, admin API \\ \hline
-  Admin-only user management & Хэрэглэгч урих, эрх өөрчлөх үйлдлийг зөвхөн админд нээх & \path{/admin/users}, invite/role API \\ \hline
-  Protected API & Unauthorized үед 401, forbidden үед 403 буцаах & \path{/api/admin/content/*} \\ \hline
-  Input validation & Required field, slug, status, category шалгах & Article/collection/designer form \\ \hline
-  Upload validation & File type, size, folder metadata хянах & Asset upload \\ \hline
-  Secret management & Provider key, DB credential-ийг server-side env-д хадгалах & Chat API, CouchDB, Supabase service \\ \hline
-  AI grounding & Live/RAG context байхгүй үед зохиомол баримт өгөхгүй байх & Chatbot prompt/fallback \\ \hline
+  Authentication & Supabase Auth ашиглан email/password session удирдах & Login, profile, admin access \\ \hline
+  Authorization & admin/editor/viewer role шалгаж, зөвшөөрөлгүй үйлдлийг хаах & Admin route, admin API \\ \hline
+  Admin-only route & Users, invite, role update үйлдлийг зөвхөн admin-д нээх & \path{/admin/users}, invite API \\ \hline
+  Token/session handling & Request бүр дээр server-side session авах & Protected API \\ \hline
+  Input validation & Required field, status, category, slug, read time шалгах & Article/collection/designer form \\ \hline
+  Upload validation & File байгаа эсэх, folder metadata, content type шалгах & Asset upload API \\ \hline
+  Secret management & DB credential, AI provider key-г environment variable-д хадгалах & API route, repository, chat \\ \hline
+  Error handling & 400/401/403/404/500 response-ийг ойлгомжтой JSON алдаагаар буцаах & Бүх API \\ \hline
+  AI grounding & Context байхгүй үед зохиомол хариу үүсгэхгүй fallback ашиглах & Chat API \\ \hline
   \caption{Аюулгүй байдлын зохиомж}
-  \label{tab:security-design}\\
+  \label{tab:ch3-security-design}\\
 \end{longtable}
 
 \section{Ашигласан технологийн сонголт}
-Технологийн сонголтыг фронтэнд, бэкенд/API, өгөгдлийн сан, нэвтрэлт танилт, загварчлал, AI, байршуулах орчин гэсэн давхаргаар авч үзэв. Next.js нь App Router, dynamic route, API route, server/client component зэрэг боломжтой тул нэг codebase дотор public site, admin CMS, backend API-г зохион байгуулахад тохиромжтой \cite{nextjs_docs}. React component-based UI-д, TypeScript typed domain model-д, Tailwind CSS responsive layout-д, CouchDB уян JSON document store-д, Supabase auth/role/bookmark/RAG layer-д, RAG арга AI context grounding-д ашиглагдана \cite{react_learn,tailwind_docs,couchdb_docs,supabase_docs,rag_lewis_2020}.
+Нэгдүгээр бүлэгт технологийн онолын үндэслэл дурдагдсан тул энэ хэсэгт тухайн технологиуд энэ платформын зохиомжид ямар үүрэгтэй байрлаж байгааг тайлбарлана. Project дээр байхгүй технологи оруулахгүйгээр \texttt{package.json} болон кодын бүтцэд байгаа технологиудыг авч үзэв.
 
-\begin{longtable}{|L{0.17\textwidth}|L{0.25\textwidth}|L{0.33\textwidth}|L{0.15\textwidth}|}
+\begin{longtable}{|L{0.18\textwidth}|L{0.26\textwidth}|L{0.40\textwidth}|}
   \hline
-  \textbf{Давхарга} & \textbf{Технологи} & \textbf{Сонгосон шалтгаан} & \textbf{Төлөв} \\ \hline
-  Фронтэнд & Next.js, React, TypeScript & Component-based, typed, route зохион байгуулалт сайн & Хэрэгжсэн \\ \hline
-  Styling/UI & Tailwind CSS, Framer Motion & Responsive visual archive, animation, хурдан prototype & Хэрэгжсэн \\ \hline
-  Бэкенд/API & Next.js API routes & Public/admin/chat API-г нэг codebase-д байрлуулах & Хэрэгжсэн \\ \hline
-  Контентын өгөгдлийн сан & CouchDB & Article, collection, designer, asset JSON document уян хадгалах & Хэрэгжсэн \\ \hline
-  Auth/user data & Supabase & Auth, profile role, bookmark, RAG index хурдан хэрэгжүүлэх & Хэрэгжсэн \\ \hline
-  Хайлт & Client lexical scoring + search index API & MVP-д хурдан, ойлгомжтой, өргөтгөх боломжтой & Хэрэгжсэн \\ \hline
-  AI & RAG + Gemini/Ollama fallback & Archive context-д тулгуурласан хариулт, provider уян хатан & Хэрэгжсэн \\ \hline
-  Байршуулах орчин & Vercel/Render/Supabase managed services & Deploy хийхэд хялбар, managed backend ашиглах боломжтой & Төлөвлөсөн \\ \hline
+  \textbf{Технологи} & \textbf{Ашиглах хэсэг} & \textbf{Сонгосон шалтгаан} \\ \hline
+  Next.js 16 & Routing, public/admin page, API route, build & App Router болон API route-оор нэг codebase-д frontend/backend зохион байгуулах боломжтой \cite{nextjs_docs} \\ \hline
+  React 19 & UI component & Component-based бүтэцтэй тул card, form, overlay, dashboard зэрэг UI-г дахин ашиглахад тохиромжтой \cite{react_learn} \\ \hline
+  TypeScript & Domain type, API data safety & Article, collection, designer, asset зэрэг object-ийн талбарын алдааг багасгана \cite{typescript_docs} \\ \hline
+  Tailwind CSS 4 & Styling, responsive layout & Utility-first class-аар responsive visual layout хурдан хэрэгжүүлэхэд тохиромжтой \cite{tailwind_docs} \\ \hline
+  Framer Motion & UI animation & Search overlay, transition, visual interaction-д ашиглаж болно \cite{framer_motion_docs} \\ \hline
+  Lucide React & Icon UI & Admin action, search, upload, edit/delete зэрэг товчнуудад icon ашиглахад хөнгөн \\ \hline
+  CouchDB & Content repository & Article, collection, designer, asset зэрэг уян JSON document хадгалахад тохиромжтой \cite{couchdb_docs} \\ \hline
+  Supabase & Auth, profile, bookmark, RAG document & Authentication, user profile role, relational/RLS шинжтэй өгөгдөлд тохиромжтой \cite{supabase_docs,supabase_auth_docs} \\ \hline
+  Fetch API & API communication & Client болон server route хооронд JSON/form-data хүсэлт илгээхэд project-д шууд ашиглагдсан \\ \hline
+  tsx/npm scripts & Seed, test, validation & TypeScript script ажиллуулах, CouchDB/RAG seed хийхэд ашиглагдсан \\ \hline
+  RAG арга & AI chatbot context & Archive болон curated document дээр тулгуурласан хариулт үүсгэхэд ашиглагдана \cite{rag_lewis_2020} \\ \hline
   \caption{Ашигласан технологийн сонголт}
-  \label{tab:technology-choice}\\
+  \label{tab:ch3-technology-choice}\\
 \end{longtable}
 
-\section{Бүлгийн дүгнэлт}
-Гуравдугаар бүлгээр платформыг хэрхэн байгуулахыг архитектур, дотоод бүтэц, API, өгөгдлийн сан, UI/UX, аюулгүй байдал, технологийн сонголтын түвшинд тодорхойлов. Энэхүү зохиомж нь хоёрдугаар бүлгийн шаардлагыг хэрэгжилттэй холбох гүүр болж, дараагийн бүлэгт бодит frontend, backend, database, authentication, туршилтын үр дүнг тайлбарлах суурь болно.
+\section*{Бүлгийн дүгнэлт}
+\addcontentsline{toc}{section}{Бүлгийн дүгнэлт}
+
+Гуравдугаар бүлгээр хоёрдугаар бүлгийн шаардлагад үндэслэн платформын ерөнхий архитектур, дотоод бүтэц, module design, API зохиомж, design class diagram, database design, өгөгдлийн ерөнхий схем, UI/UX wireframe, prototype, admin CMS, security design, технологийн сонголтыг боловсруулав. Энэ зохиомж нь дөрөвдүгээр бүлэгт тайлбарлах бодит frontend, backend/API, database, authentication, content management, туршилтын хэрэгжилтийн шууд суурь болно.

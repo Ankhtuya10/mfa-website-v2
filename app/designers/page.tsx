@@ -151,9 +151,9 @@ export default function DesignersPage() {
                 delay: 0.1,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="font-serif text-6xl md:text-7xl lg:text-[5.5rem] leading-[0.95] text-white mb-6"
+              className="max-w-[92vw] font-serif text-6xl leading-[0.95] text-white mb-6 [overflow-wrap:anywhere] md:text-7xl lg:text-[5.5rem]"
             >
-              Дизайнерууд
+              Брэнд/Дизайнерууд
             </motion.h1>
 
             <motion.p
@@ -167,7 +167,7 @@ export default function DesignersPage() {
               className="font-sans text-white/38 text-sm tracking-[0.18em]"
             >
               {!loading && designers.length > 0
-                ? `${designers.length} ордон · ${activeTiersCount} ангилал`
+                ? `${designers.length} профайл · ${activeTiersCount} ангилал`
                 : "\u00A0"}
             </motion.p>
           </div>
@@ -267,7 +267,7 @@ export default function DesignersPage() {
                 {designers.length === 0 && (
                   <div className="text-center py-32">
                     <p className="font-sans text-sm tracking-[0.2em] text-white/25">
-                      Дизайнер олдсонгүй
+                      Брэнд/дизайнер олдсонгүй
                     </p>
                   </div>
                 )}
@@ -280,7 +280,7 @@ export default function DesignersPage() {
               (filteredDesigners.length === 0 ? (
                 <div className="text-center py-32">
                   <p className="font-sans text-sm tracking-[0.2em] text-white/25">
-                    Дизайнер олдсонгүй
+                    Брэнд/дизайнер олдсонгүй
                   </p>
                 </div>
               ) : (

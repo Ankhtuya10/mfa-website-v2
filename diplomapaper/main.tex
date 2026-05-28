@@ -41,16 +41,15 @@ headsepline, % Толгой мөрийн доогуур шугам татахы�
 \usepackage{iftex}
 \ifPDFTeX
 \usepackage[utf8]{inputenc} % Олон улсын тэмдэгт оруулахад хэрэгтэй
-\usepackage[T2A]{fontenc} % Олон улсын тэмдэгтийн гаралтын кодчилол
+\usepackage[T2A]{fontenc} % CM-Super (Computer Modern with Cyrillic/Mongolian)
 \else
 \usepackage{fontspec}
 \defaultfontfeatures{Ligatures=TeX}
-\setmainfont{Times New Roman}
-\setsansfont{Arial}
-\setmonofont{Menlo}
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
 \fi
 \usepackage[mongolian]{babel}
-\ifPDFTeX\else
 \addto\captionsmongolian{%
   \renewcommand{\contentsname}{Гарчиг}%
   \renewcommand{\listfigurename}{Зургийн жагсаалт}%
@@ -61,9 +60,9 @@ headsepline, % Толгой мөрийн доогуур шугам татахы�
   \renewcommand{\figurename}{Зураг}%
   \renewcommand{\tablename}{Хүснэгт}%
 }
-\fi
 
 \usepackage{titlesec}
+\synctex=1
 \usepackage[table]{xcolor}
 \usepackage{rotating} % эргүүлэх
 \usepackage{array}
@@ -83,6 +82,7 @@ headsepline, % Толгой мөрийн доогуур шугам татахы�
    {\endoldverse\egroup}
 
 \usepackage{caption,longtable,ltcaption}
+\usepackage{float}
 \DeclareCaptionJustification{nohyphen}{\hyphenpenalty=10000}
 \captionsetup{justification=nohyphen}
 \captionsetup[table]{position=bottom}
@@ -90,7 +90,7 @@ headsepline, % Толгой мөрийн доогуур шугам татахы�
 
 \usepackage{pgf}
 \usepackage{tikz} % зураг зурах
-\usetikzlibrary{shapes,arrows,automata}
+\usetikzlibrary{shapes,arrows,arrows.meta,automata}
 
 \definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}
 \definecolor{CadetBlue}{cmyk}{0.62,0.57,0.23,0}
@@ -139,11 +139,11 @@ morekeywords={__global__, __device__},  % CUDA specific keywords
 %	THESIS INFORMATION
 %-------------------------------------------------------------------------------
 
-\thesistitle{Монголын загварын сэтгүүлийн платформ хөгжүүлэх нь} % Таны ажлын нэр, нүүр болон хураангуй хуудсанд ашигласан. Өөр газарт бол \ttitle командыг хэрэглэнэ
+\thesistitle{Монгол улсын загварын сэтгүүлийн платформ хөгжүүлэх} % Таны ажлын нэр, нүүр болон хураангуй хуудсанд ашигласан. Өөр газарт бол \ttitle командыг хэрэглэнэ
 \thesistype{БАКАЛАВРЫН ДИПЛОМЫН АЖИЛ} % Удирдагчийн нэр, нүүр хуудсанд ашиглана. Дурын газарт бол \thesisname командыг хэрэглэнэ
 \supervisor{Магистр (MSc), Э.Батцэцэг} % Удирдагчийн нэр, нүүр хуудсанд ашиглана. Дурын газарт бол \supname командыг хэрэглэнэ
 \reader{---} % Шүүмжлэгчийн нэр, Дурын газарт бол \readname командыг хэрэглэнэ
-\advisor{Доктор (Ph.D), дэд профессор Б.Туяацэцэг}  % Зөвлөгчийн нэр, Дурын газарт бол \advicename командыг хэрэглэнэ
+\advisor{Доктор (Ph.D), Дэд профессор Б.Туяацэцэг}  % Зөвлөгчийн нэр, Дурын газарт бол \advicename командыг хэрэглэнэ
 \degreeind{061301000000002306} % Мэргэжлийн индекс, нүүр болон хураангуй хуудсанд ашигласан. Өөр газарт бол \degreeid командыг хэрэглэнэ
 \degree{Компьютерын ухаан} % Боловсролын зэрэг, нүүр болон хураангуй хуудсанд ашигласан. Дурын газарт бол \degreename командыг хэрэглэнэ
 \authorshort{Ө.Анхтуяа} % Таны товч нэр, нүүр болон хураангуй хуудсанд ашигласан. Дурын газарт бол \shortname командыг хэрэглэнэ 
@@ -153,7 +153,7 @@ morekeywords={__global__, __device__},  % CUDA specific keywords
 \keywords{Монголын загвар, дижитал архив, веб платформ, Next.js, React, CouchDB, Supabase, RAG, AI чатбот} % Түлхүүр үгс, одоогоор ашиглаагүй. Дурын газарт бол \keywordnames командыг хэрэглэнэ
 \university{\href{http://www.must.edu.mn}{Шинжлэх Ухаан Технологийн Их Сургууль}} % Их сургуулийн нэр ба веб хаяг. Дурын газарт бол \univname командыг хэрэглэнэ 
 \department{Компьютерын ухааны тэнхим} % Сургууль/тэнхмийн нэр, нүүр болон хураангуй хуудсанд ашигласан. Дурын газарт бол\deptname командыг хэрэглэнэ
-\deptchair{Доктор (Ph.D), дэд профессор А.Хүдэр} % Тэнхим/эрхлэгчийн нэр, нүүр болон хураангуй хуудсанд ашигласан. Дурын газарт бол\chairname командыг хэрэглэнэ
+\deptchair{Доктор (Ph.D), Дэд профессор А.Хүдэр} % Тэнхим/эрхлэгчийн нэр, нүүр болон хураангуй хуудсанд ашигласан. Дурын газарт бол\chairname командыг хэрэглэнэ
 \group{Робот техникийн баг} % Судалгааны баг/тэнхмийн нэр, нүүр хуудсанд ашигласан. Дурын газарт бол \groupname командыг хэрэглэнэ
 \faculty{\href{http://www.sict.edu.mn}{Мэдээлэл, Холбооны Технологийн Сургууль}} % Салбар сургууль/факультетийн нэр, нүүр болон хураангуй хуудсанд ашигласан. Дурын газарт бол \facname командыг ашиглана
 
@@ -164,8 +164,9 @@ morekeywords={__global__, __device__},  % CUDA specific keywords
 
 \usepackage{longtable}
 \usepackage{bookmark}
-\setcounter{secnumdepth}{1}
-\setcounter{tocdepth}{1}
+\geometry{inner=3.0cm, outer=2.0cm, top=2.0cm, bottom=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
 
 % MUST-Thesis.cls uses \bffamily in chapter headings; keep chapter titles non-bold.
 \let\bffamily\mdseries
@@ -183,9 +184,6 @@ morekeywords={__global__, __device__},  % CUDA specific keywords
 \include{FrontBackMatter/Abstract} % Ажлын хураангуй
 \include{FrontBackMatter/Acknowledgments} % Талархлын хуудас
 \include{FrontBackMatter/Abbreviations} % Товчилсон үгс
-\include{FrontBackMatter/Constants} % Ашигласан тогтмолууд
-\include{FrontBackMatter/Symbols} % Ашгласан таних тэмдгүүд
-\include{FrontBackMatter/Dedication} % Ажлыг хэнд зориулсан
 
 %-------------------------------------------------------------------------------
 %	LIST OF CONTENTS/FIGURES/TABLES PAGES
@@ -215,17 +213,17 @@ morekeywords={__global__, __device__},  % CUDA specific keywords
 \include{Chapters/Chapter2} 
 \include{Chapters/Chapter3}
 \include{Chapters/Chapter4} 
-%\include{Chapters/Chapter5}
 
 %-------------------------------------------------------------------------------
 %	THESIS CONTENT - APPENDICES
 %-------------------------------------------------------------------------------
 
+\include{Chapters/Conclusion}
+
 \appendix % Дараах "chapters" нь Хавсралт болохыг LaTex -д хэлэх
 
 % Тезисийн бүлгүүдийг Appendices хавтаснаас бие даасан файл байдлаар оруулах
 
-\include{Appendices/AppendixA}
 %\include{Appendices/AppendixB}
 %\include{Appendices/AppendixC}
 

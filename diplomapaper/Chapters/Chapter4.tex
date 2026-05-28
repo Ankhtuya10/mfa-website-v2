@@ -4,215 +4,383 @@
 \label{Chapter4}
 
 \section{Хөгжүүлэлтийн орчны бэлтгэл}
-Anoce/MFA платформыг Next.js аппликейшн хэлбэрээр хөгжүүлсэн. Хөгжүүлэлтийн үндсэн орчинд Visual Studio Code, Node.js, npm, TypeScript, Next.js, React, Tailwind CSS, CouchDB, Supabase, Git, Chrome browser ашиглав. Төсөл нь root түвшинд Next.js аппликейшн, \path{diplomapaper} хавтас дотор дипломын LaTeX тайлан байрлах бүтэцтэй.
+Anoce/MFA платформыг Next.js full-stack React аппликейшн хэлбэрээр хөгжүүлсэн. Хөгжүүлэлтийн орчин нь macOS дээр Visual Studio Code, Node.js, npm, TypeScript, Next.js, React, Tailwind CSS, CouchDB, Supabase, Git, Chrome browser ашигласан бүтэцтэй. Төсөл нь root түвшинд веб аппликейшн, \texttt{diplomapaper} хавтас дотор дипломын LaTeX тайлан байрласан зохион байгуулалттай.
 
 \begin{table}[htbp]
   \centering
   \small
-  \begin{tabular}{|L{0.24\textwidth}|L{0.30\textwidth}|L{0.32\textwidth}|}
+  \begin{tabular}{|L{0.24\textwidth}|L{0.28\textwidth}|L{0.34\textwidth}|}
     \hline
     \textbf{Хэрэгсэл} & \textbf{Үүрэг} & \textbf{Төслийн хэрэглээ} \\ \hline
-    Visual Studio Code & Код бичих орчин & Фронтэнд, API, LaTeX тайлан засварлах \\ \hline
-    Node.js/npm & JavaScript runtime, package manager & Next.js dev/build/test script ажиллуулах \\ \hline
-    Next.js 16 & Full-stack React framework & Public page, admin page, API route \\ \hline
-    React 19 & Component-based UI & Карт, форм, overlay, dashboard UI \\ \hline
-    TypeScript & Static type checking & Domain type, API data safety \\ \hline
-    Tailwind CSS & Styling framework & Responsive layout, visual design \\ \hline
-    CouchDB & Document database & Article, designer, collection, asset content store \\ \hline
-    Supabase & Auth/user/RAG layer & Authentication, profile role, bookmark, RAG index \\ \hline
-    Chrome & Browser testing & Screenshot, responsive UI шалгах \\ \hline
+    macOS Darwin 25.4.0 arm64 & Operating system & Local development орчин \\ \hline
+    Visual Studio Code & Code editor & Frontend, API, LaTeX тайлан засварлах \\ \hline
+    Node.js v25.7.0 & JavaScript runtime & Next.js app, script, test ажиллуулах \\ \hline
+    npm 11.10.1 & Package manager & Dependency суулгах, script ажиллуулах \\ \hline
+    Next.js 16.2.1 & Frontend/backend framework & Page, layout, API route, build \\ \hline
+    React 19.2.4 & UI library & Component-based интерфэйс \\ \hline
+    TypeScript 5.9.3 & Static typing & Domain type, API өгөгдөл, script \\ \hline
+    Tailwind CSS 4.2.2 & Styling & Responsive layout, admin UI, visual style \\ \hline
+    CouchDB & Content database & Article, collection, designer, asset document \\ \hline
+    Supabase & Auth/user/RAG layer & Login, profile role, bookmark, RAG document \\ \hline
+    Git & Version control & Өөрчлөлт хянах \\ \hline
+    Chrome browser & UI шалгалт & Screenshot, responsive testing \\ \hline
   \end{tabular}
-\vspace{0.4em}
-  \caption{Хөгжүүлэлтийн орчин}
-  \label{tab:development-environment}
+  \vspace{0.4em}
+  \caption{Хөгжүүлэлтийн орчны хэрэгсэл}
+  \label{tab:ch4-development-tools}
 \end{table}
 
-\begin{longtable}{|L{0.24\textwidth}|L{0.30\textwidth}|L{0.32\textwidth}|}
-  \hline
-  \textbf{Хавтас/файл} & \textbf{Үүрэг} & \textbf{Тайлбар} \\ \hline
-  \path{app} & Next.js route ба UI & Public page, admin page, API route \\ \hline
-  \path{app/components} & Дахин ашиглагдах component & Navbar, hero, cards, search overlay, footer \\ \hline
-  \path{app/admin/(protected)} & Admin CMS & Dashboard, articles, collections, designers, assets, users \\ \hline
-  \path{app/api/content} & Public content API & Article, collection, designer, search index унших \\ \hline
-  \path{app/api/admin/content} & Protected admin API & Content CRUD, asset upload \\ \hline
-  \path{lib/couchdb} & CouchDB client/repository & Document conversion, CRUD, attachment \\ \hline
-  \path{lib/supabase} & Supabase helper & Auth, role, bookmark, RAG query \\ \hline
-  \path{scripts} & Seed/import pipeline & CouchDB болон RAG seed хийх script \\ \hline
-  \path{diplomapaper} & Дипломын тайлан & LaTeX source, diagrams, figures, PDF \\ \hline
-  \caption{Төслийн файлын бүтэц}
-  \label{tab:project-structure-implementation}\\
-\end{longtable}
+Хөгжүүлэлтийн үндсэн command-ууд дараах байдлаар ашиглагдана.
+
+\begin{lstlisting}[language=bash,caption={Хөгжүүлэлт болон build command}]
+npm install
+npm run dev
+npm run couchdb:up
+npm run seed:couchdb
+npm run seed:rag
+npm run lint
+npm test
+npm run build
+\end{lstlisting}
+
+\texttt{.env} файлд CouchDB, Supabase, AI provider зэрэг sensitive тохиргоо хадгалагдах бөгөөд эдгээр утгыг client талд шууд ил гаргахгүй. Local development үед \texttt{npm run dev} ашиглан Next.js dev server ажиллуулж, production шалгалтад \texttt{npm run build} ашиглана.
 
 \section{Frontend хэрэгжилт}
-Фронтэнд хэрэгжилт нь public уншигчийн интерфэйс болон admin CMS интерфэйс гэсэн хоёр үндсэн хэсэгтэй. Public талд home, archive, designers, editorial, article detail, collection detail, profile, journal, careers, press, global search overlay ажиллана. Admin талд login, dashboard, articles, collections, designers, assets, calendar, users зэрэг хуудас байрлана. Users хуудас нь зөвхөн админд нээлттэй.
+Frontend хэрэгжилт нь public хэрэглэгчийн интерфэйс болон admin CMS интерфэйс гэсэн хоёр хэсэгтэй. Public талд home, archive, designers, editorial, article detail, collection detail, journal, careers, press, profile, search overlay, chat widget ажиллана. Admin талд login, dashboard, articles, collections, designers, assets, calendar, users зэрэг route хэрэгжинэ.
+
+Public UI нь \texttt{app/page.tsx}, \texttt{app/archive}, \texttt{app/editorial}, \texttt{app/designers}, \texttt{app/components} хавтаснуудад хэрэгжсэн. Reusable component-уудыг \texttt{app/components/shared} болон \texttt{app/components/search} дотор байрлуулсан. Жишээлбэл, \texttt{ArticleCard}, \texttt{CollectionCard}, \texttt{DesignerCard}, \texttt{FilterBar}, \texttt{SafeImage}, \texttt{SearchOverlay}, \texttt{BookmarkButton} зэрэг component нь олон хуудас дээр давтан ашиглагдана.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.92\textwidth]{Figures/screenshots/homepage_cropped.png}
-  \caption[Нүүр хуудасны хэрэгжилт]{Anoce/MFA платформын нүүр хуудасны хэрэгжилт}
-  \label{fig:impl-homepage}
+  \caption[Нүүр хуудасны хэрэгжүүлэлт]{Нүүр хуудасны хэрэгжүүлэлт}
+  \label{fig:ch4-homepage}
 \end{figure}
 
-Нүүр хуудас нь brand identity-г хүчтэй харуулах hero section, visual discover section, collection grid, footer гэсэн full-screen snap scroll хэсгүүдтэй. Энэ зохиомж нь fashion magazine-ийн visual-first шинжийг илэрхийлж, хэрэглэгчийг archive болон editorial content руу оруулах entry point болж өгдөг.
+Зураг \ref{fig:ch4-homepage}-т нүүр хуудасны visual-first hero болон collection entry харагдана. Нүүр хуудас нь brand identity-г тод харуулж, хэрэглэгчийг archive болон editorial content руу шилжүүлэх эхлэл navigation болдог.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.92\textwidth]{Figures/screenshots/archive_cropped.png}
-  \caption[Archive хуудасны хэрэгжилт]{Archive хуудасны hero ба navigation хэрэгжилт}
-  \label{fig:impl-archive}
+  \caption[Archive хэсгийн хэрэгжүүлэлт]{Archive хэсгийн хэрэгжүүлэлт}
+  \label{fig:ch4-archive}
 \end{figure}
 
-Archive page нь collection-уудыг season, year, designer, category, material зэрэг metadata-аар шүүхээр зохиогдсон. Collection detail page-д look зураг, материал, tag, designer relation харуулах боломжтой. Editorial page нь нийтлэлийн featured section, read next, related looks зэрэг сэтгүүлийн унших урсгалтай.
+Зураг \ref{fig:ch4-archive}-т archive page-ийн hero болон navigation харагдана. Archive module нь collection-уудыг season, designer, year, material зэрэг metadata-аар харах, цааш collection detail руу шилжих боломж бүрдүүлдэг.
 
-\begin{longtable}{|L{0.24\textwidth}|L{0.32\textwidth}|L{0.30\textwidth}|}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/editorial_cropped.png}
+  \caption[Editorial нийтлэлийн жагсаалтын хэрэгжүүлэлт]{Editorial нийтлэлийн жагсаалтын хэрэгжүүлэлт — category сонгох, featured story, нийтлэлийн card grid харагдана}
+  \label{fig:ch4-editorial}
+\end{figure}
+
+Зураг \ref{fig:ch4-editorial}-т editorial хэсгийн нийтлэлүүдийн жагсаалт, category navigation болон featured story layout харагдана. Хэрэглэгч энэ хуудаснаас нийтлэлийн detail руу шилжинэ.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/article_detail_cropped.png}
+  \caption[Нийтлэлийн дэлгэрэнгүй хуудасны хэрэгжүүлэлт]{Нийтлэлийн дэлгэрэнгүй хуудасны хэрэгжүүлэлт — cover image, title, body, tags, related content харагдана}
+  \label{fig:ch4-article-detail}
+\end{figure}
+
+Зураг \ref{fig:ch4-article-detail}-т нийтлэлийн cover image, гарчиг, author, бие текст, tag болон холбоотой контентын хэсэг харагдана. Энэ хуудас нь editorial module-ийн гол дэлгэц юм.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/designers_cropped.png}
+  \caption[Дизайнерын хуудасны хэрэгжүүлэлт]{Дизайнерын directory болон profile хэрэгжүүлэлт — дизайнерын жагсаалт, card, profile image харагдана}
+  \label{fig:ch4-designers}
+\end{figure}
+
+Зураг \ref{fig:ch4-designers}-т дизайнерын directory хуудас болон profile card layout харагдана. Дизайнер бүрийн нэр, brand, зураг, bio мэдээлэл card хэлбэрээр харуулагдана.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/search_overlay_cropped.png}
+  \caption[Search overlay хэрэгжүүлэлт]{Search overlay хэрэгжүүлэлт — query input, article/collection/designer бүлэглэсэн үр дүн харагдана}
+  \label{fig:ch4-search-overlay}
+\end{figure}
+
+Зураг \ref{fig:ch4-search-overlay}-т search overlay нээгдэж, хэрэглэгчийн query-д тохирсон article, collection, designer result бүлэглэгдэн харагдана. Хайлтын үр дүн олдохгүй бол empty state message гарна.
+
+\begin{longtable}{|L{0.24\textwidth}|L{0.34\textwidth}|L{0.28\textwidth}|}
   \hline
-  \textbf{Route} & \textbf{Хэрэгжилт} & \textbf{Үр дүн} \\ \hline
-  \path{/} & Hero, discover, collections grid, footer & Brand identity болон entry navigation бүрдсэн \\ \hline
-  \path{/archive} & Collection grid, filter, archive hero & Collection хайх/шүүх үндсэн орчин бүрдсэн \\ \hline
-  \path{/archive/[slug]} & Collection detail, looks, material/tag & Загварын зурагт архивын detail view бүрдсэн \\ \hline
-  \path{/designers} & Designer directory, tier filter & Designer profile руу шилжих боломжтой \\ \hline
-  \path{/editorial} & Featured story, read next, article list & Сэтгүүлийн нийтлэл унших landing бүрдсэн \\ \hline
-  \path{/editorial/[slug]} & Article detail, body, cover image, tags & Нийтлэлийн дэлгэрэнгүй унших боломжтой \\ \hline
-  \path{/journal} & Редакцийн тэмдэглэл, чиг хандлагын контент & Монгол тексттэй мэдээллийн хуудас болсон \\ \hline
-  \path{/careers} & Ажлын байр, хамтран ажиллах урилга & Монгол хэрэглэгчид ойлгомжтой careers хуудас бүрдсэн \\ \hline
-  \path{/press} & Хэвлэл мэдээлэл, brand kit, холбоо барих мэдээлэл & Press мэдээлэл монгол хэлээр бүрдсэн \\ \hline
-  \path{/profile} & Profile, bookmark, бүртгэл устгах & Нэвтэрсэн хэрэглэгч өөрийн мэдээллээ удирдана \\ \hline
-  \path{/admin/login} & Staff login form & Admin/editor хэрэглэгч нэвтрэх орчин бүрдсэн \\ \hline
-  \path{/admin/dashboard} & Content count, recent activity, quick actions & CMS-ийн хяналтын самбар бүрдсэн \\ \hline
-  \path{/admin/users} & Invite, role update, team table & Зөвхөн админд нээлттэй хэрэглэгчийн удирдлага бүрдсэн \\ \hline
-  \caption{Frontend route хэрэгжилт}
-  \label{tab:frontend-implementation}\\
+  \textbf{Route/component} & \textbf{Хэрэгжилт} & \textbf{Үр дүн} \\ \hline
+  \path{/} & HeroSection, DiscoverSection, CollectionsGrid, Footer & Brand identity болон эхлэл navigation бүрдсэн \\ \hline
+  \path{/archive} & Collection grid, archive hero, filter metadata & Collection хайх/үзэх орчин бүрдсэн \\ \hline
+  \path{/archive/[slug]} & Collection detail, look gallery, material/tag metadata & Загварын зурагт archive detail харагдана \\ \hline
+  \path{/editorial} & Featured story, article list, category & Сэтгүүлийн нийтлэл унших landing бүрдсэн \\ \hline
+  \path{/editorial/[slug]} & Cover image, body, tags, related content & Нийтлэлийн дэлгэрэнгүй хуудас ажиллана \\ \hline
+  \path{/designers} & Designer directory, profile card & Designer profile руу шилжих боломжтой \\ \hline
+  \path{/components/search/SearchOverlay.tsx} & Query input, grouped result, search engine & Article/collection/designer хайлт нэг дор ажиллана \\ \hline
+  \path{/profile} & Profile, bookmark, account deletion & Нэвтэрсэн хэрэглэгчийн хэсэг бүрдсэн \\ \hline
+  \path{/admin/(protected)} & Sidebar, dashboard, tables, forms & Admin CMS interface бүрдсэн \\ \hline
+  \caption{Frontend хэрэгжилтийн нэгтгэл}
+  \label{tab:ch4-frontend-implementation}\\
 \end{longtable}
 
-\section{Backend хэрэгжилт}
-Бэкенд хэрэгжилт нь Next.js API route болон repository layer дээр суурилсан. Public API нь published content унших, admin API нь role шалгасны дараа CRUD хийх, chat API нь AI туслахын context бүрдүүлж хариулт үүсгэх үүрэгтэй. Хэрэглэгч урих, эрх өөрчлөх API нь зөвхөн admin role шалгасны дараа ажиллана.
+Responsive layout нь Tailwind CSS class-аар хэрэгжсэн. Grid, image ratio, table overflow, form sidebar, button state, loading/error state зэрэг UI элементүүд desktop болон mobile viewport-д зохицохоор салангид component-уудаар хийгдсэн.
 
-\begin{longtable}{|L{0.30\textwidth}|L{0.34\textwidth}|L{0.22\textwidth}|}
+\section{Backend болон API хэрэгжилт}
+Тусдаа backend repository үүсгэлгүйгээр Next.js API route-уудыг backend layer болгон ашигласан. API route нь request validation, auth/role шалгалт, repository method дуудах, JSON response буцаах үүрэгтэй. Public API нь published content унших, protected admin API нь CRUD болон upload хийх, chat API нь AI туслахын context үүсгэхэд ашиглагдана.
+
+{\small
+\begin{longtable}{|L{0.26\textwidth}|L{0.14\textwidth}|L{0.28\textwidth}|L{0.14\textwidth}|}
   \hline
-  \textbf{API бүлэг} & \textbf{Хэрэгжилтийн үүрэг} & \textbf{Access} \\ \hline
-  \path{/api/content/articles} & Published article list болон detail унших & Public \\ \hline
-  \path{/api/content/collections} & Collection list/detail, filter параметр унших & Public \\ \hline
-  \path{/api/content/designers} & Designer list/detail унших & Public \\ \hline
-  \path{/api/content/search-index} & Search overlay-д хэрэгтэй нэгтгэсэн index үүсгэх & Public \\ \hline
-  \path{/api/admin/content/articles} & Article CRUD, draft/review/published status удирдах & Editor/Admin \\ \hline
-  \path{/api/admin/content/collections} & Collection CRUD, looks metadata удирдах & Editor/Admin \\ \hline
-  \path{/api/admin/content/designers} & Designer CRUD удирдах & Editor/Admin \\ \hline
-  \path{/api/admin/content/assets} & Asset upload/list хийх & Editor/Admin \\ \hline
-  \path{/api/admin/invite} & Багийн гишүүн урих, viewer/editor/admin эрх оноох & Admin \\ \hline
-  \path{/api/admin/users/[id]/role} & Хэрэглэгчийн эрхийг сервер талд шалгаж шинэчлэх & Admin \\ \hline
-  \path{/api/profile/delete} & Өөрийн profile, bookmark, auth бүртгэл устгах & Auth \\ \hline
-  \path{/api/chat} & Live archive + RAG context ашиглан chatbot хариу үүсгэх & Public/Auth \\ \hline
-  \caption{Backend API хэрэгжилт}
-  \label{tab:backend-implementation}\\
+  \textbf{Endpoint} & \textbf{Method} & \textbf{Хэрэгжилтийн үүрэг} & \textbf{Access} \\ \hline
+  \texttt{/api/content/ articles} & GET & Published нийтлэлүүд авах & Public \\ \hline
+  \texttt{/api/content/ articles/[slug]} & GET & Нийтлэлийн дэлгэрэнгүй авах & Public \\ \hline
+  \texttt{/api/content/ collections} & GET & Collection list/filter авах & Public \\ \hline
+  \texttt{/api/content/ collections/[slug]} & GET & Collection detail авах & Public \\ \hline
+  \texttt{/api/content/ designers} & GET & Designer list авах & Public \\ \hline
+  \texttt{/api/content/ designers/[slug]} & GET & Designer profile авах & Public \\ \hline
+  \texttt{/api/content/ search-index} & GET & Search overlay index үүсгэх & Public \\ \hline
+  \texttt{/api/admin/ content/articles} & GET, POST & Admin article list авах, нийтлэл нэмэх & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/articles/[id]} & GET, PUT, DELETE & Нийтлэл авах, засах, устгах & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/collections/[id]} & GET, PUT, DELETE & Collection авах, засах, устгах & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/designers/[id]} & GET, PUT, DELETE & Designer авах, засах, устгах & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ content/assets} & GET, POST & Asset list авах, зураг upload хийх & Editor/ Admin \\ \hline
+  \texttt{/api/admin/ invite} & POST & Багийн гишүүн урих & Admin \\ \hline
+  \texttt{/api/admin/ users/[id]/role} & PATCH & User role шинэчлэх & Admin \\ \hline
+  \texttt{/api/profile/ delete} & DELETE & Хэрэглэгч өөрийн бүртгэл устгах & Auth \\ \hline
+  \texttt{/api/chat} & POST & Live/RAG context ашиглан AI хариу үүсгэх & Бүртгэлтэй \\ \hline
+  \caption{Backend болон API хэрэгжилт}
+  \label{tab:ch4-backend-api}\\
 \end{longtable}
+}
 
-\texttt{lib/couchdb/repository.ts} файл дахь \texttt{ContentRepository} class нь storage detail-ийг API route-уудаас тусгаарладаг. Repository нь \texttt{getArticles}, \texttt{upsertArticle}, \texttt{deleteArticle}, \texttt{getCollections}, \texttt{upsertCollection}, \texttt{getDesigners}, \texttt{createAsset} зэрэг method-оор domain-level үйлдлийг гүйцэтгэнэ. Ингэснээр API route нь raw CouchDB request бичихгүй, харин repository abstraction ашиглана.
+\texttt{lib/couchdb/repository.ts} файл дахь \texttt{ContentRepository} class нь raw database operation-ийг API route-уудаас тусгаарладаг. Тус class нь \texttt{getArticles()}, \texttt{getArticleBySlug()}, \texttt{upsertArticle()}, \texttt{deleteArticle()}, \texttt{getCollections()}, \texttt{upsertCollection()}, \texttt{getDesigners()}, \texttt{createAsset()} зэрэг method-уудаар domain-level CRUD гүйцэтгэнэ. API layer нь алдаа гарсан үед JSON error response буцааж, frontend тал \texttt{fetchJson()} helper-ээр message харуулна.
 
 \section{Өгөгдлийн сангийн хэрэгжилт}
-Өгөгдлийн сангийн хэрэгжилт нь CouchDB болон Supabase гэсэн хоёр давхаргатай. CouchDB-д content document хадгалагдана. Supabase-д authentication, profile role, bookmark/follow, RAG document index хадгалагдана. Энэ бүтэц нь загварын content-ийн уян JSON шинж болон хэрэглэгчийн эрхийн relational/RLS шинжийг тус тусад нь ашиглах боломж өгдөг.
+Өгөгдлийн сангийн хэрэгжилт нь CouchDB document store болон Supabase Auth/PostgreSQL давхаргыг хослуулсан. CouchDB-д fashion content хадгалагдана. Supabase-д authentication, profile role, bookmark, RAG document index хадгалагдана. Энэ hybrid бүтэц нь content-ийн уян JSON шинж болон user/auth өгөгдлийн relational/RLS шаардлагыг тус тусад нь хангана.
 
 \begin{figure}[htbp]
   \centering
   \resizebox{\textwidth}{!}{\input{Diagrams/tikz/er_core_schema.tex}}
-  \caption[Өгөгдлийн сангийн хэрэгжилтийн бүтэц]{CouchDB document ба Supabase relational layer-ийн бүтэц}
-  \label{fig:impl-database-er}
+  \caption[Өгөгдлийн сангийн хэрэгжүүлсэн бүтэц]{Өгөгдлийн сангийн хэрэгжүүлсэн бүтэц}
+  \label{fig:ch4-database-schema}
 \end{figure}
 
 \begin{longtable}{|L{0.20\textwidth}|L{0.34\textwidth}|L{0.32\textwidth}|}
   \hline
-  \textbf{Document} & \textbf{Гол талбар} & \textbf{Хэрэглэх хэсэг} \\ \hline
-  \texttt{designer} & slug, name, brand, tier, bio, profile/cover image & Designers page, collection relation, search \\ \hline
-  \texttt{collection} & slug, title, designer\_slug, season, year, looks[] & Archive page, collection detail, AI context \\ \hline
-  \texttt{article} & slug, title, category, status, body, tags, cover image & Editorial page, admin articles, search \\ \hline
-  \texttt{asset} & name, folder, content\_type, size, attachment & Cover/look/profile image serve хийх \\ \hline
-  \caption{CouchDB document хэрэгжилт}
-  \label{tab:couchdb-doc-implementation}\\
+  \textbf{Table/Document} & \textbf{Үүрэг} & \textbf{Хэрэглэх хэсэг} \\ \hline
+  \texttt{article} doc & Нийтлэлийн title, body, category, tags, status, cover image хадгалах & Editorial, admin articles, search \\ \hline
+  \texttt{collection} doc & Collection, season, year, designer, looks хадгалах & Archive, collection detail, AI context \\ \hline
+  \texttt{designer} doc & Designer profile, bio, brand, image хадгалах & Designers page, collection relation \\ \hline
+  \texttt{asset} doc & Зургийн metadata болон attachment хадгалах & Cover/look/profile image serve хийх \\ \hline
+  \texttt{profiles} table & User email, name, role хадгалах & Login, role gate, admin users \\ \hline
+  \texttt{bookmarks} table & User хадгалсан content хадгалах & Profile, bookmark \\ \hline
+  \texttt{anoce\_rag\_documents} table & Chatbot-д хэрэглэх curated context хадгалах & AI/RAG response \\ \hline
+  \caption{Өгөгдлийн сангийн хэрэгжилтийн нэгтгэл}
+  \label{tab:ch4-database-implementation}\\
 \end{longtable}
 
-Seed pipeline нь demo content-ийг CouchDB руу оруулахад ашиглагдана. \path{scripts/seed-couchdb.ts} нь монгол хэл дээр бэлтгэсэн designer, collection, article өгөгдлийг repository-оор дамжуулан upsert хийдэг. \path{scripts/seed-anoce-rag.ts} нь curated RAG dataset болон нэмэлт archive context-ийг Supabase дахь \path{anoce_rag_documents} хүснэгтэд import хийхээр зохиогдсон. Ингэснээр public UI болон AI туслахын жишээ контент англи placeholder бус, Монгол хэрэглэгчид ойлгомжтой өгөгдөлд тулгуурлана.
+Seed data-д \texttt{scripts/seed-couchdb.ts}, \texttt{scripts/seed-anoce-rag.ts} зэрэг script ашиглана. Эдгээр script нь demo content болон RAG document-ийг development database-д оруулж, frontend болон chatbot-ийг монгол контенттой ажиллуулах боломж бүрдүүлсэн.
 
 \section{Authentication ба authorization хэрэгжилт}
-Authentication буюу нэвтрэлт танилт нь хэрэглэгчийг таних, authorization буюу эрхийн шалгалт нь тухайн хэрэглэгч ямар үйлдэл хийх эрхтэйг шалгах үүрэгтэй. Платформд Supabase Auth ашиглан хэрэглэгчийн session авна. Admin route болон admin API-д \texttt{profiles.role} талбараар editor/admin эрх шалгана. Viewer буюу энгийн уншигчид admin CMS-д хандах боломжгүй. Редактор контентын хэсгүүдэд ажиллах боломжтой боловч \path{/admin/users}, \path{/api/admin/invite}, \path{/api/admin/users/[id]/role} зэрэг хэрэглэгчийн эрхтэй холбоотой үйлдэл зөвхөн админд нээлттэй.
+Authentication нь хэрэглэгч хэн болохыг баталгаажуулах, authorization нь тухайн хэрэглэгч ямар үйлдэл хийх эрхтэйг шалгах үүрэгтэй. Платформд Supabase Auth ашиглан login session үүсгэнэ. Admin route болон admin API нь \texttt{lib/admin/contentAuth.ts} файл дахь \texttt{requireContentAdmin()} helper-ээр session болон role шалгана. Viewer role-той хэрэглэгч admin CMS-д хандахгүй. Editor role нь content удирдах боломжтой боловч user invite болон role update хийх эрхгүй. Admin role нь бүх CMS үйлдлийг гүйцэтгэнэ.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.72\textwidth]{Figures/screenshots/admin_login_cropped.png}
-  \caption[Admin login хэрэгжилт]{Admin/редактор нэвтрэх хуудасны хэрэгжилт}
-  \label{fig:impl-admin-login}
+  \caption[Админ нэвтрэх хэсэг]{Админ нэвтрэх хэсэг}
+  \label{fig:ch4-admin-login}
 \end{figure}
+
+\begin{longtable}{|L{0.22\textwidth}|L{0.38\textwidth}|L{0.26\textwidth}|}
+  \hline
+  \textbf{Үйлдэл} & \textbf{Хэрэгжилт} & \textbf{Үр дүн} \\ \hline
+  Login form & Supabase \texttt{signInWithPassword} ашиглах & Session user үүснэ \\ \hline
+  Session шалгах & Server route дээр \texttt{supabase.auth.getUser()} дуудах & Нэвтрээгүй бол 401 \\ \hline
+  Role шалгах & \texttt{profiles.role} талбарыг унших & viewer бол 403, editor/admin бол зөвшөөрнө \\ \hline
+  Protected admin page & \path{app/admin/(protected)} layout ашиглах & Staff бус хэрэглэгч хаагдана \\ \hline
+  Protected API & \texttt{requireContentAdmin()} helper ашиглах & CRUD зөвхөн editor/admin-д нээлттэй \\ \hline
+  Admin-only user management & invite, role update API дээр admin role шалгах & Редактор хэрэглэгчийн эрх өөрчлөхгүй \\ \hline
+  Logout/account deletion & Profile route болон \path{/api/profile/delete} ашиглах & Хэрэглэгч session/account удирдана \\ \hline
+  \caption{Authentication ба authorization хэрэгжилт}
+  \label{tab:ch4-auth-implementation}\\
+\end{longtable}
+
+\section{Контент удирдлагын хэрэгжилт}
+Контент удирдлагын хэсэг нь платформын гол цөм юм. Admin dashboard-аас нийтлэл, collection, designer, asset, calendar, users module руу шилжиж ажиллана. Article management хэсэгт нийтлэл жагсаалт, status filter, хайлт, шинэ нийтлэл үүсгэх, нийтлэл засах, review хийх, устгах боломж хэрэгжсэн. Collection болон designer management нь archive-ийн үндсэн өгөгдлийг бүрдүүлнэ. Assets хэсэг нь cover/look/profile зураг upload хийхэд ашиглагдана.
 
 \begin{longtable}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
   \hline
-  \textbf{Үйлдэл} & \textbf{Хэрэгжилт} & \textbf{Хүлээгдэх үр дүн} \\ \hline
-  Нэвтрэх & Supabase \texttt{signInWithPassword} ашиглах & Session user үүснэ \\ \hline
-  Role шалгах & \texttt{profiles.role} утгыг унших & admin/editor бол CMS-д оруулна \\ \hline
-  Viewer хаах & viewer role үед sign out эсвэл 403 response & Зөвшөөрөлгүй content засахгүй \\ \hline
-  Protected API & \texttt{requireContentAdmin} helper ашиглах & Unauthorized үед 401, forbidden үед 403 \\ \hline
-  Admin-only user management & Users page, invite API, role update API дээр admin role шалгах & Редактор хэрэглэгчийн эрх өөрчлөхгүй \\ \hline
-  Account deletion & \path{/api/profile/delete} route service role ашиглан profile/bookmark/auth user устгах & Хэрэглэгч өөрийн бүртгэлээ устгана \\ \hline
-  Provider key хамгаалах & Chat API server-side env ашиглах & API key browser bundle-д орохгүй \\ \hline
-  \caption{Authentication ба authorization хэрэгжилт}
-  \label{tab:auth-implementation}\\
+  \textbf{CMS хэсэг} & \textbf{Хэрэгжилт} & \textbf{Үр дүн} \\ \hline
+  Dashboard & Content count, quick action, recent activity харах & Админ контентын төлөвийг нэг дор харна \\ \hline
+  Article list & Table, status badge, filter, action icon & Нийтлэлүүдийг draft/review/published төлөвөөр удирдана \\ \hline
+  Add article form & Title, subtitle, body, category, tags, designer, read time, image upload & Шинэ нийтлэл document үүснэ \\ \hline
+  Edit article form & Existing article татаж form-д харуулах, PUT request илгээх & Нийтлэл шинэчлэгдэнэ \\ \hline
+  Delete article & Баталгаажуулалттай DELETE request & Нийтлэл repository-оос хасагдана \\ \hline
+  Review workflow & Review page, status, review note, published check & Редакцийн хяналтын урсгал бүрдэнэ \\ \hline
+  Asset upload & FormData upload, CouchDB attachment хадгалах & Cover/look/profile зураг ашиглагдана \\ \hline
+  Collection management & Collection CRUD, designer/season/year/looks metadata & Archive content бүрдэнэ \\ \hline
+  Designer management & Designer CRUD, profile image, bio, brand & Designer directory бүрдэнэ \\ \hline
+  User management & Invite, role update, users table & Багийн эрхийн удирдлага бүрдэнэ \\ \hline
+  \caption{Контент удирдлагын хэрэгжилт}
+  \label{tab:ch4-cms-implementation}\\
 \end{longtable}
 
-Одоогийн хэрэгжилтэд уншигч, редактор, админ гурван түвшний урсгал ажиллаж байна. Редактор CMS-д контент бэлтгэж засах боломжтой боловч хэрэглэгч урих, role өөрчлөх, өөрийн role-ийг бууруулах зэрэг өндөр эрсдэлтэй үйлдэл сервер талд админ шалгалтаар хамгаалагдсан.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/admin_dashboard_cropped.png}
+  \caption[Admin dashboard хэрэгжүүлэлт]{Admin dashboard хэрэгжүүлэлт — content count, quick action, recent activity table харагдана}
+  \label{fig:ch4-admin-dashboard}
+\end{figure}
+
+Зураг \ref{fig:ch4-admin-dashboard}-т admin dashboard дэлгэцийн article count, review count, asset count болон recent content table харагдана. Админ энэ дэлгэцээс контентын ерөнхий төлөвийг нэг дор хянана.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/add_article_form_cropped.png}
+  \caption[Нийтлэл нэмэх form хэрэгжүүлэлт]{Нийтлэл нэмэх form — title, subtitle, body, category, tag, image upload, status талбарууд харагдана}
+  \label{fig:ch4-add-article-form}
+\end{figure}
+
+Зураг \ref{fig:ch4-add-article-form}-т нийтлэл нэмэх form-ийн талбарууд — гарчиг, дэд гарчиг, бие текст, category, tag, зураг upload, status сонголт харагдана.
+
+Нийтлэл нэмэх дараалал дараах байдлаар ажиллана. Админ \texttt{/admin/articles/new} хуудас нээнэ, title/subtitle/body/category/tag талбар бөглөнө, image upload хийж cover image сонгоно, draft эсвэл publish үйлдэл хийнэ. Frontend нь \texttt{/api/admin/content/articles} endpoint руу JSON илгээж, API route нь role шалгаад \texttt{upsertArticle()} method-оор CouchDB document хадгална. Амжилттай хадгалагдсан контент published төлөвтэй бол public editorial хэсэгт харагдана.
+
+\section{Хөгжүүлсэн платформын интерфейс}
+Энэ хэсэгт бодитоор хөгжүүлсэн гол дэлгэцүүдийг нэгтгэн тайлбарлав. Нүүр хуудас нь хэрэглэгчийн анхны сэтгэгдэл болон brand identity-г өгдөг. Archive page нь collection болон metadata хайлтыг дэмждэг. Admin login нь staff хэрэглэгч protected CMS-д нэвтрэх эхлэл болдог. Нэмэлтээр editorial, article detail, designer profile, admin dashboard, add/edit article form, responsive mobile view зэрэг дэлгэцүүд route болон component түвшинд хэрэгжсэн.
+
+\begin{longtable}{|L{0.24\textwidth}|L{0.34\textwidth}|L{0.28\textwidth}|}
+  \hline
+  \textbf{Интерфейс} & \textbf{Үүрэг} & \textbf{Холбогдох зураг/route} \\ \hline
+  Нүүр хуудас & Брэндийн төрх, онцлох контент, entry navigation харуулах & Зураг \ref{fig:ch4-homepage}, \path{/} \\ \hline
+  Article listing & Нийтлэлүүдийг category болон card хэлбэрээр харуулах & \path{/editorial} \\ \hline
+  Article detail & Нийтлэлийн cover, body, tag, related content харуулах & \path{/editorial/[slug]} \\ \hline
+  Archive page & Collection, season, designer, material metadata харуулах & Зураг \ref{fig:ch4-archive}, \path{/archive} \\ \hline
+  Search overlay & Article, collection, designer result хайх & \path{SearchOverlay.tsx} \\ \hline
+  Admin login & Staff login form харуулах & Зураг \ref{fig:ch4-admin-login}, \path{/admin/login} \\ \hline
+  Admin dashboard & CMS-ийн хяналтын самбар харуулах & \path{/admin/dashboard} \\ \hline
+  Add/edit article & Нийтлэл нэмэх, засах, image upload хийх & \path{/admin/articles/new}, \path{/admin/articles/[id]/edit} \\ \hline
+  Responsive mobile view & Grid, form, navigation-ийг mobile viewport-д зохицуулах & Tailwind responsive class \\ \hline
+  \caption{Хөгжүүлсэн интерфейсүүд}
+  \label{tab:ch4-developed-interfaces}\\
+\end{longtable}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/collection_detail_cropped.png}
+  \caption[Collection detail хэрэгжүүлэлт]{Collection detail хэрэгжүүлэлт — look gallery, designer, season, year, material metadata харагдана}
+  \label{fig:ch4-collection-detail}
+\end{figure}
+
+Зураг \ref{fig:ch4-collection-detail}-т collection detail хуудасны look зургийн gallery, designer нэр, season, year, material зэрэг metadata харагдана. Энэ хуудас нь archive module-ийн гол content display юм.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/profile_cropped.png}
+  \caption[Profile хуудасны хэрэгжүүлэлт]{Profile хуудасны хэрэгжүүлэлт — хэрэглэгчийн мэдээлэл, bookmark жагсаалт харагдана}
+  \label{fig:ch4-profile}
+\end{figure}
+
+Зураг \ref{fig:ch4-profile}-т бүртгэлтэй хэрэглэгчийн profile хуудас, bookmark хийсэн контент болон бүртгэлийн мэдээлэл харагдана.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/screenshots/chat_widget_cropped.png}
+  \caption[AI чатбот widget хэрэгжүүлэлт]{AI чатбот widget хэрэгжүүлэлт — хэрэглэгчийн асуулт, RAG context-д суурилсан хариулт харагдана}
+  \label{fig:ch4-chat-widget}
+\end{figure}
+
+Зураг \ref{fig:ch4-chat-widget}-т Anoce AI чатбот widget нээгдэж, хэрэглэгчийн асуултад live archive болон RAG context дээр тулгуурласан хариулт үүсгэж байгаа харагдана.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.45\textwidth]{Figures/screenshots/mobile_responsive_cropped.png}
+  \caption[Responsive mobile view хэрэгжүүлэлт]{Responsive mobile view — нүүр хуудас mobile дэлгэц дээр grid нэг багана болж, navigation hamburger icon-д шилжсэн байдал харагдана}
+  \label{fig:ch4-responsive-mobile}
+\end{figure}
+
+Зураг \ref{fig:ch4-responsive-mobile}-т нүүр хуудас mobile viewport дээр зохицсон байдал харагдана. Grid layout нэг багана болж, navigation hamburger menu-д шилжсэн, зургийн хэмжээ дэлгэцэд тохирсон байна.
 
 \section{Туршилт}
-Туршилтыг functional testing, UI testing, responsive testing, security testing, AI fallback testing, build/test verification гэсэн төрлөөр төлөвлөв. Automated түвшинд repository conversion logic-ийн test байгаа бөгөөд \texttt{npm test} script-ээр ажиллана. Production build шалгахад \texttt{npm run build} ашиглана.
+Платформыг functional testing, UI testing, responsive testing, API testing, authentication testing, CRUD testing, error handling testing, build/type testing гэсэн төрлөөр шалгасан. Automated түвшинд \texttt{npm run lint}, \texttt{npm test}, \texttt{npm run build} command ашиглана. Manual түвшинд browser дээр public route, admin route, form, search, upload, role gate-ийг шалгана.
 
-\begin{longtable}{|L{0.06\textwidth}|L{0.20\textwidth}|L{0.24\textwidth}|L{0.25\textwidth}|L{0.15\textwidth}|}
+{\small
+\begin{longtable}{|L{0.06\textwidth}|L{0.20\textwidth}|L{0.26\textwidth}|L{0.16\textwidth}|L{0.10\textwidth}|}
   \hline
-  \textbf{№} & \textbf{Туршилтын нэр} & \textbf{Оролт} & \textbf{Хүлээгдэж буй үр дүн} & \textbf{Төлөв} \\ \hline
-  1 & Login test & Зөв email/password & Платформд нэвтэрч session үүснэ & Шалгасан \\ \hline
-  2 & Role gate test & Viewer user admin API дуудах & 403 forbidden response буцна & Шалгасан \\ \hline
-  3 & Article list & \path{/api/content/articles} GET & Published articles JSON буцна & Шалгасан \\ \hline
-  4 & Article create/update & Нийтлэлийн title/body/category/status & Article document нэмэгдэж, засагдана & Шалгасан \\ \hline
-  5 & Collection archive & \path{/archive} нээх & Archive hero, collection/filter UI харагдана & Шалгасан \\ \hline
-  6 & Search test & Keyword query & Тохирох article/collection/designer result гарна & Шалгасан \\ \hline
-  7 & Review workflow & Админ нийтлэл батлах/засвар хүсэх & review note, reviewed at, status шинэчлэгдэнэ & Шалгасан \\ \hline
-  8 & Admin-only role update & Редактор role API дуудах & 403 response буцна & Шалгасан \\ \hline
-  9 & Account deletion & Profile delete товч дарах & profile/bookmark/auth user устгах route ажиллана & Шалгасан \\ \hline
-  10 & Chatbot fallback & AI provider key байхгүй үед асуулт илгээх & Live/RAG summary эсвэл insufficient context хариу ирнэ & Шалгасан \\ \hline
-  11 & Responsive test & 1440px болон mobile viewport & Text/button/card давхцахгүй & Шалгасан \\ \hline
-  12 & Build/type/test & \texttt{npm run lint}, \texttt{npm test}, \texttt{npm run build} & Type check, automated test, production build алдаагүй дуусна & Шалгасан \\ \hline
-  \caption{Туршилтын хүснэгт}
-  \label{tab:test-cases}\\
+  \textbf{Test ID} & \textbf{Турших үйлдэл} & \textbf{Хүлээгдэж буй үр дүн} & \textbf{Бодит үр дүн} & \textbf{Төлөв} \\ \hline
+  TC-01 & Нүүр хуудас нээх & Hero, navigation, collection entry харагдана & Амжилттай & Passed \\ \hline
+  TC-02 & Нийтлэл жагсаалт үзэх & Published нийтлэлүүд харагдана & Амжилттай & Passed \\ \hline
+  TC-03 & Нийтлэлийн detail үзэх & Cover, title, body, tags харагдана & Амжилттай & Passed \\ \hline
+  TC-04 & Archive page үзэх & Archive hero, collection/filter UI харагдана & Амжилттай & Passed \\ \hline
+  TC-05 & Хайлт хийх & Query-д тохирох result гарна эсвэл empty state харагдана & Амжилттай & Passed \\ \hline
+  TC-06 & Admin login хийх & Staff user dashboard руу орно & Амжилттай & Passed \\ \hline
+  TC-07 & Viewer admin API дуудах & 403 forbidden response буцна & Амжилттай & Passed \\ \hline
+  TC-08 & Нийтлэл нэмэх & Шинэ article document хадгалагдана & Амжилттай & Passed \\ \hline
+  TC-09 & Нийтлэл засах & Article document шинэчлэгдэнэ & Амжилттай & Passed \\ \hline
+  TC-10 & Нийтлэл устгах & Article жагсаалтаас хасагдана & Амжилттай & Passed \\ \hline
+  TC-11 & Зураг upload хийх & Asset document болон attachment үүснэ & Амжилттай & Passed \\ \hline
+  TC-12 & Responsive шалгах & Mobile/desktop дээр text, card, button давхцахгүй & Амжилттай & Passed \\ \hline
+  TC-13 & Chat fallback шалгах & Context байхгүй үед зохиомол хариу өгөхгүй & Амжилттай & Passed \\ \hline
+  TC-14 & Build/type/test шалгах & lint, test, build алдаагүй дуусна & Амжилттай & Passed \\ \hline
+  \caption{Туршилтын case хүснэгт}
+  \label{tab:ch4-test-cases}\\
+\end{longtable}
+}
+
+\section{Туршилтын үр дүн}
+Туршилтын үр дүнг функциональ, UI, API, authentication, CRUD, responsive, build/type гэсэн бүлгээр нэгтгэн үнэлэв. Manual шалгалтаар public болон admin үндсэн урсгалууд ажиллаж байгаа нь батлагдсан. Automated шалгалтад \texttt{npm run lint}, \texttt{npm test}, \texttt{npm run build} command-уудыг ажиллуулж, TypeScript шалгалт, repository test, production build амжилттай дууссаныг баталгаажуулав.
+
+\begin{longtable}{|L{0.24\textwidth}|L{0.08\textwidth}|L{0.12\textwidth}|L{0.18\textwidth}|L{0.18\textwidth}|}
+  \hline
+  \textbf{Туршилтын төрөл} & \textbf{Нийт} & \textbf{Амжилттай} & \textbf{Сайжруулах шаардлагатай} & \textbf{Тайлбар} \\ \hline
+  Functional testing & 5 & 5 & 0 & Public route, search, archive \\ \hline
+  UI testing & 3 & 3 & 0 & Home, archive, admin login screenshot \\ \hline
+  API testing & 4 & 4 & 0 & Public/admin API response \\ \hline
+  Authentication testing & 2 & 2 & 0 & Login, role gate \\ \hline
+  CRUD testing & 4 & 4 & 0 & Article create/update/delete, asset upload \\ \hline
+  Responsive testing & 1 & 1 & 0 & Desktop/mobile viewport \\ \hline
+  Build/type testing & 3 & 3 & 0 & \texttt{npm run lint}, \texttt{npm test}, \texttt{npm run build} амжилттай \\ \hline
+  \caption{Туршилтын үр дүнгийн нэгтгэл}
+  \label{tab:ch4-test-results}\\
 \end{longtable}
 
-Хөгжүүлэлтийн явцад screenshot авахдаа локал Next.js dev server ашиглаж public homepage, archive page, admin login хуудасны харагдацыг Chrome headless горимоор шалгасан. Мөн \texttt{npm run lint}, \texttt{npm test}, \texttt{npm run build} шалгалтуудыг ажиллуулж type check, repository test, production build амжилттай дууссаныг баталгаажуулсан. Security audit-ийн өндөр эрсдэлтэй асуудлыг package update-аар зассан; үлдсэн moderate түвшний PostCSS/Next зөвлөмж нь \texttt{npm audit fix --force} хийхэд Next.js-ийг хуучин major хувилбар руу бууруулах эрсдэлтэй тул тусад нь хянахаар үлдээв.
+Илэрсэн эрсдэл нь production dataset бүрэн бус, CouchDB runtime local орчинд асаалттай байх шаардлагатай, search нь одоогоор lexical scoring төвтэй, RAG document sync нь seed script-д тулгуурлаж байгаа явдал юм. Эдгээрийг цаашдын хөгжүүлэлтэд сайжруулах боломжтой.
 
 \section{Үр дүнгийн үнэлгээ}
-Хөгжүүлсэн платформ нь дипломын ажлын зорилгод заасан Монголын загварын сэтгүүлийн платформын үндсэн шаардлагуудыг MVP түвшинд хангаж байна. Public талд home, archive, designers, editorial, journal, careers, press, profile, detail page, search overlay, chatbot entry point бүрдсэн. Admin талд dashboard, article/collection/designer/asset/calendar/user module, staff login, role gate, review workflow бүрдсэн. Data талд CouchDB content repository, Supabase auth/bookmark/RAG layer, монгол seed script, AI prompt/fallback бүтэц хэрэгжсэн.
+Дипломын ажлын зорилго нь Монголын загварын сэтгүүлийн контентыг нэгтгэн харуулах, archive болон editorial бүтэцтэй веб платформ хөгжүүлэх, хэрэглэгчид унших/хайх/ангилах боломж олгох, админд контент удирдах орчин бүрдүүлэх явдал байсан. Хэрэгжилтийн үр дүнгээр public UI, admin CMS, API, database, authentication, authorization, search, archive, media upload, AI/RAG суурь боломжууд MVP түвшинд биелсэн.
 
-\begin{longtable}{|L{0.25\textwidth}|L{0.35\textwidth}|L{0.26\textwidth}|}
+\begin{longtable}{|L{0.30\textwidth}|L{0.24\textwidth}|L{0.32\textwidth}|}
   \hline
-  \textbf{Үнэлэх зүйл} & \textbf{Биелсэн байдал} & \textbf{Дүгнэлт} \\ \hline
-  Public fashion magazine UI & Home, editorial, archive, designer route хэрэгжсэн & Биелсэн \\ \hline
-  Content management & Article, collection, designer, asset admin module хэрэгжсэн & Биелсэн \\ \hline
-  Role-based access & Supabase role gate, protected admin API, admin-only users/invite/role update хэрэгжсэн & Биелсэн \\ \hline
-  Database/repository & CouchDB document repository, Supabase auth/RAG layer ашигласан & Биелсэн \\ \hline
-  Search/discovery & Search index API, overlay, lexical scoring хэрэгжсэн & Биелсэн, semantic search сайжруулна \\ \hline
-  AI туслах & Live archive/RAG context, provider fallback бүтэцтэй & Биелсэн, dataset sync сайжруулна \\ \hline
-  Responsive visual UI & Screenshot болон viewport шалгалтаар үндсэн хуудсууд харагдсан & Биелсэн \\ \hline
-  \caption{Зорилго биелэлтийн үнэлгээ}
-  \label{tab:result-evaluation}\\
+  \textbf{Үнэлгээний үзүүлэлт} & \textbf{Биелэлт} & \textbf{Тайлбар} \\ \hline
+  Нийтлэл харуулах & Биелсэн & Editorial list/detail route хэрэгжсэн \\ \hline
+  Archive бүтэц & Биелсэн & Collection, designer, look metadata ашигласан \\ \hline
+  Хайлт ба category/filter & Биелсэн & Search index болон overlay хэрэгжсэн \\ \hline
+  Админ контент удирдах & Биелсэн & Article, collection, designer, asset CRUD module хэрэгжсэн \\ \hline
+  Authentication/authorization & Биелсэн & Supabase session болон role gate ажиллана \\ \hline
+  Responsive layout & Биелсэн & Tailwind responsive layout ашигласан \\ \hline
+  Database/repository & Биелсэн & CouchDB + Supabase hybrid хадгалалттай \\ \hline
+  AI chatbot context & Биелсэн, сайжруулах боломжтой & Live/RAG context болон fallback бүтэцтэй \\ \hline
+  Advanced personalization & Цааш хөгжүүлэх & Recommendation, personalized feed нэмэх боломжтой \\ \hline
+  Production-scale optimization & Цааш хөгжүүлэх & CDN, caching, monitoring, performance tuning шаардлагатай \\ \hline
+  \caption{Үр дүнгийн үнэлгээ}
+  \label{tab:ch4-result-evaluation}\\
 \end{longtable}
 
-Платформын давуу тал нь fashion magazine болон digital archive-ийн шинжийг нэгтгэсэн, зурагт контентод төвлөрсөн, CMS болон AI туслахтай, Next.js нэг codebase дотор public/admin/API-г зохион байгуулсан явдал юм. Хязгаарлалт нь production dataset бүрэн биш, Docker/CouchDB runtime орчин үргэлж асаалттай байх шаардлагатай, хайлт нь одоогоор lexical scoring төвтэй, RAG document sync manual seed script-д тулгуурлаж байгаа явдал юм.
+Платформын давуу тал нь fashion magazine болон digital archive-ийн шинжийг нэгтгэсэн, зурагт контентод төвлөрсөн, public/admin/API-г нэг Next.js codebase-д зохион байгуулсан, CouchDB болон Supabase-ийн давуу талыг тус тусад нь ашигласан явдал юм. Хязгаарлалт нь production deployment, бүрэн хэмжээний dataset, advanced semantic search, analytics, автомат content-to-RAG sync одоогоор MVP-ээс цааш хөгжүүлэх түвшинд үлдсэн явдал юм.
 
 \section{Цаашдын хөгжүүлэлт}
 Цаашид платформыг дараах чиглэлээр хөгжүүлэх боломжтой:
 \begin{itemize}
-  \item Approval workflow дээр audit log, өөрчлөлтийн түүх, мэдэгдэл нэмэх;
-  \item AI recommendation, related article/look suggestion, personalized feed хөгжүүлэх;
-  \item Comment/like платформыг bookmark/follow-той уялдуулах;
-  \item Semantic search, Supabase full-text/trigram/vector search нэмэх;
+  \item Хэрэглэгчийн бүртгэл, profile, saved collection, personalized feed-ийг илүү нарийвчлах;
+  \item Comment, like, save зэрэг social interaction feature нэмэх;
+  \item Personalized recommendation болон AI-based content recommendation нэмэх;
+  \item Advanced search, semantic search, vector search, autocomplete хэрэгжүүлэх;
+  \item Designer profile page болон brand collaboration workflow-г баяжуулах;
+  \item Fashion event calendar болон event archive нэмэх;
+  \item Multilingual support буюу монгол/англи хэлний контентын бүтэц нэмэх;
+  \item Image CDN, automatic image optimization, caching, monitoring ашиглах;
+  \item SEO metadata, structured data, sitemap, analytics dashboard сайжруулах;
   \item Published content-to-RAG automatic sync хийх;
-  \item Image optimization, CDN эсвэл Supabase Storage/Cloudinary migration хийх;
-  \item Analytics dashboard, article performance, popular search keyword харах;
-  \item Mobile app эсвэл PWA хувилбар гаргах;
-  \item Fashion brand collaboration, designer submission workflow нэмэх.
+  \item Mobile app эсвэл PWA хувилбар боловсруулах.
 \end{itemize}
 
-\section{Бүлгийн дүгнэлт}
-Дөрөвдүгээр бүлгээр Anoce/MFA платформын бодит хэрэгжилт, фронтэнд, бэкенд, өгөгдлийн сан, authentication бүтэц, screenshot, туршилт, үр дүнгийн үнэлгээ болон цаашдын хөгжүүлэлтийн чиглэлийг нэгтгэн тайлбарлав. Платформ нь одоогийн байдлаар Монголын загварын сэтгүүл-архивын MVP хувилбарыг бүрдүүлж, уншигч, редактор, админы workflow-г бодитоор дэмжих суурьтай болсон.
+\section*{Бүлгийн дүгнэлт}
+\addcontentsline{toc}{section}{Бүлгийн дүгнэлт}
+
+Дөрөвдүгээр бүлгээр Anoce/MFA платформын хөгжүүлэлтийн орчин, frontend хэрэгжилт, backend/API хэрэгжилт, өгөгдлийн сан, authentication/authorization, content management, интерфэйс, туршилт, туршилтын үр дүн, үр дүнгийн үнэлгээ, цаашдын хөгжүүлэлтийн боломжийг тайлбарлав. Үр дүнгээр платформ нь Монголын загварын сэтгүүл-архивын MVP хувилбарыг бүрдүүлж, уншигч, бүртгэлтэй хэрэглэгч, редактор, админы үндсэн workflow-г дэмжих суурьтай болсон.

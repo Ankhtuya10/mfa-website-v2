@@ -5,7 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from "lucide-react";
 import { getDesigners } from "@/lib/supabase/queries";
+import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
+import { ARCHIVE_SEASON_OPTIONS } from "@/lib/content/archiveTaxonomy";
 import { postJson, uploadContentAsset } from "@/lib/content/client";
+import {
+  ArchiveFilterFields,
+  type ArchiveFilterFieldValue,
+} from "../ArchiveFilterFields";
 
 interface Designer {
   id: string;
@@ -13,17 +19,30 @@ interface Designer {
   name: string;
 }
 
+type CollectionFormData = {
+  title: string;
+  designer_name: string;
+  designer_slug: string;
+  season: string;
+  year: number;
+  description: string;
+} & ArchiveFilterFieldValue;
+
 export default function NewCollectionPage() {
   const router = useRouter();
   const localPreviewRef = useRef<string | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CollectionFormData>({
     title: "",
     designer_name: "",
     designer_slug: "",
-    season: "SS" as "SS" | "FW",
+    season: "SS",
     year: new Date().getFullYear(),
     description: "",
+    categories: [],
+    materials: [],
+    colors: [],
+    occasions: [],
   });
   const [selectedDesignerId, setSelectedDesignerId] = useState("");
   const [coverImage, setCoverImage] = useState<string | null>(null);
@@ -80,7 +99,7 @@ export default function NewCollectionPage() {
     const next: Record<string, string> = {};
     if (!formData.title.trim()) next.title = "Гарчиг оруулна уу";
     if (!formData.designer_name.trim())
-      next.designer_name = "Дизайнер сонгоно уу";
+      next.designer_name = "Брэнд/дизайнер сонгоно уу";
     if (!formData.season) next.season = "Улирал сонгоно уу";
     const yr = Number(formData.year);
     if (!yr || yr < 2000 || yr > 2030)
@@ -108,6 +127,10 @@ export default function NewCollectionPage() {
         year: formData.year,
         description: formData.description.trim() || null,
         cover_image: coverImage,
+        categories: formData.categories,
+        materials: formData.materials,
+        colors: formData.colors,
+        occasions: formData.occasions,
       };
       if (selectedDesignerId) payload.designer_id = selectedDesignerId;
 
@@ -138,7 +161,7 @@ export default function NewCollectionPage() {
     setErrors((prev) => ({ ...prev, coverImage: "" }));
 
     try {
-      const asset = await uploadContentAsset(file, "collections");
+      const asset = await uploadContentAsset(file, ASSET_FOLDERS.collection);
       setCoverImage(asset.url);
       setCoverPreview(`${asset.url}?v=${Date.now()}`);
       if (localPreviewRef.current) {
@@ -256,14 +279,14 @@ export default function NewCollectionPage() {
               {/* Designer select */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Дизайнер *
+                  Брэнд/Дизайнер *
                 </label>
                 <select
                   value={selectedDesignerId}
                   onChange={handleDesignerSelect}
                   className="w-full border border-[rgba(0,0,0,0.15)] bg-white px-3 py-2 font-sans text-[12px] outline-none"
                 >
-                  <option value="">— Дизайнер сонгох —</option>
+                  <option value="">— Брэнд/дизайнер сонгох —</option>
                   {designers.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}
@@ -275,7 +298,7 @@ export default function NewCollectionPage() {
               {/* Manual designer name */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Дизайнерын нэр *
+                  Брэнд/дизайнерын нэр *
                 </label>
                 <input
                   type="text"
@@ -306,7 +329,7 @@ export default function NewCollectionPage() {
               {/* Designer slug */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Дизайнерын slug
+                  Брэнд/дизайнерын slug
                 </label>
                 <input
                   type="text"
@@ -332,7 +355,7 @@ export default function NewCollectionPage() {
                   onChange={(e) => {
                     setFormData((prev) => ({
                       ...prev,
-                      season: e.target.value as "SS" | "FW",
+                      season: e.target.value,
                     }));
                     setErrors((prev) => ({ ...prev, season: "" }));
                   }}
@@ -342,8 +365,11 @@ export default function NewCollectionPage() {
                       : "border-[rgba(0,0,0,0.15)]"
                   }`}
                 >
-                  <option value="SS">SS — Хавар/Зун</option>
-                  <option value="FW">FW — Намар/Өвөл</option>
+                  {ARCHIVE_SEASON_OPTIONS.map((season) => (
+                    <option key={season.value} value={season.value}>
+                      {season.value} — {season.label}
+                    </option>
+                  ))}
                 </select>
                 {errors.season && (
                   <p className="mt-1 flex items-center gap-1 font-sans text-[10px] text-red-500">
@@ -385,6 +411,18 @@ export default function NewCollectionPage() {
               </div>
             </div>
           </div>
+
+          <ArchiveFilterFields
+            value={{
+              categories: formData.categories,
+              materials: formData.materials,
+              colors: formData.colors,
+              occasions: formData.occasions,
+            }}
+            onChange={(nextFilters) =>
+              setFormData((prev) => ({ ...prev, ...nextFilters }))
+            }
+          />
 
           {/* ── Cover Image ── */}
           <div>

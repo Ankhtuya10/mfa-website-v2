@@ -5,6 +5,11 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from "lucide-react";
 import { getDesigners } from "@/lib/supabase/queries";
+import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
+import {
+  dateTimeLocalToIso,
+  normalizeDateTimeLocalValue,
+} from "@/lib/content/calendarSchedule";
 import { fetchJson, postJson, uploadContentAsset } from "@/lib/content/client";
 
 type Designer = { id: string; slug: string; name: string };
@@ -26,6 +31,7 @@ export default function EditArticlePage() {
     tags: "",
     designer_slug: "",
     status: "draft",
+    published_at: "",
     read_time: 5,
   });
   const [coverImage, setCoverImage] = useState<string | null>(null);
@@ -68,6 +74,7 @@ export default function EditArticlePage() {
         tags: Array.isArray(data.tags) ? data.tags.join(", ") : "",
         designer_slug: data.designer_slug ?? "",
         status: data.status ?? "draft",
+        published_at: normalizeDateTimeLocalValue(data.published_at),
         read_time: data.read_time ?? 5,
       });
       setCoverImage(data.cover_image ?? null);
@@ -112,6 +119,7 @@ export default function EditArticlePage() {
 
     setLoading(true);
     try {
+      const scheduledPublishedAt = dateTimeLocalToIso(formData.published_at);
       const updateData: ArticleRow = {
         slug: slug || `article-${Date.now()}`,
         title: formData.title,
@@ -126,9 +134,11 @@ export default function EditArticlePage() {
         status: publish ? "published" : formData.status,
         cover_image: coverImage,
         read_time: formData.read_time,
+        published_at: publish
+          ? scheduledPublishedAt || article?.published_at || new Date().toISOString()
+          : scheduledPublishedAt,
         updated_at: new Date().toISOString(),
       };
-      if (publish) updateData.published_at = new Date().toISOString();
 
       await postJson(
         `/api/admin/content/articles/${encodeURIComponent(params.id as string)}`,
@@ -155,7 +165,7 @@ export default function EditArticlePage() {
 
     setUploading(true);
     try {
-      const asset = await uploadContentAsset(file, "articles");
+      const asset = await uploadContentAsset(file, ASSET_FOLDERS.editorial);
       setCoverImage(asset.url);
       setErrors((prev) => {
         const copy = { ...prev };
@@ -389,6 +399,34 @@ export default function EditArticlePage() {
 
             <div className="border-t border-[#F0EDE8]" />
 
+            {/* ── Schedule ───────────────────────────────────────────── */}
+            <section>
+              <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
+                Товлох огноо
+              </p>
+              <input
+                type="datetime-local"
+                value={formData.published_at}
+                onChange={(e) =>
+                  setFormData({ ...formData, published_at: e.target.value })
+                }
+                className="w-full border border-[#E8E4DD] rounded-lg px-3 py-2.5 font-sans text-[12px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors"
+              />
+              {formData.published_at && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({ ...formData, published_at: "" })
+                  }
+                  className="mt-2 font-sans text-[10px] uppercase tracking-[0.08em] text-[#9E9B94] hover:text-[#1A1A18] transition-colors"
+                >
+                  Цэвэрлэх
+                </button>
+              )}
+            </section>
+
+            <div className="border-t border-[#F0EDE8]" />
+
             {/* ── Taxonomy ───────────────────────────────────────────── */}
             <section>
               <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
@@ -438,7 +476,7 @@ export default function EditArticlePage() {
                 {/* Designer */}
                 <div>
                   <label className="block font-sans text-[10px] text-[#9E9B94] mb-1">
-                    Дизайнер
+                    Брэнд/Дизайнер
                   </label>
                   <select
                     value={formData.designer_slug}

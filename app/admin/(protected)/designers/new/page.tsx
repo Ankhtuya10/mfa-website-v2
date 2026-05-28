@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from 'lucide-react'
+import { ASSET_FOLDERS } from '@/lib/content/assetFolders'
 import { postJson, uploadContentAsset } from '@/lib/content/client'
 
 type Tier = 'high-end' | 'contemporary' | 'emerging'
@@ -99,7 +100,7 @@ export default function NewDesignerPage() {
       setSaved(true)
       router.push('/admin/designers')
     } catch (err: any) {
-      setSaveError(err.message || 'Дизайнер хадгалж чадсангүй. Дахин оролдоно уу.')
+      setSaveError(err.message || 'Брэнд/дизайнер хадгалж чадсангүй. Дахин оролдоно уу.')
     } finally {
       setLoading(false)
     }
@@ -118,7 +119,7 @@ export default function NewDesignerPage() {
     setErrors((prev) => ({ ...prev, profile_image: '' }))
 
     try {
-      const asset = await uploadContentAsset(file, 'designers')
+      const asset = await uploadContentAsset(file, ASSET_FOLDERS.designer)
       setFormData((prev) => ({ ...prev, profile_image: asset.url }))
       setProfilePreview(`${asset.url}?v=${Date.now()}`)
       if (profilePreviewRef.current) {
@@ -150,7 +151,7 @@ export default function NewDesignerPage() {
     setErrors((prev) => ({ ...prev, cover_image: '' }))
 
     try {
-      const asset = await uploadContentAsset(file, 'designers')
+      const asset = await uploadContentAsset(file, ASSET_FOLDERS.designer)
       setFormData((prev) => ({ ...prev, cover_image: asset.url }))
       setCoverPreview(`${asset.url}?v=${Date.now()}`)
       if (coverPreviewRef.current) {
@@ -223,7 +224,7 @@ export default function NewDesignerPage() {
               type="text"
               value={formData.name}
               onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="Дизайнерын нэр..."
+              placeholder="Брэнд/дизайнерын нэр..."
               className={`w-full bg-transparent font-serif text-4xl text-[#2A2522] outline-none placeholder:text-[#B7AEA9] ${
                 errors.name ? 'border-b-2 border-red-400' : ''
               }`}
@@ -285,7 +286,7 @@ export default function NewDesignerPage() {
             <textarea
               value={formData.bio}
               onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
-              placeholder="Дизайнерын намтар, түүх, дэлгэрэнгүй агуулга..."
+              placeholder="Брэнд/дизайнерын түүх, дэлгэрэнгүй агуулга..."
               className="w-full min-h-[300px] resize-none bg-transparent font-sans text-[15px] leading-[1.8] text-[#3A3530] outline-none placeholder:text-[#B7AEA9]"
             />
           </div>
@@ -489,7 +490,7 @@ export default function NewDesignerPage() {
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Дизайнер хадгалах'
+              'Брэнд/дизайнер хадгалах'
             )}
           </button>
         </div>

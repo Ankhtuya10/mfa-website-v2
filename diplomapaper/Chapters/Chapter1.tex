@@ -1,282 +1,336 @@
-% Бүлэг 1
+% ============================================================
+% Бүлэг 1 — Платформ хөгжүүлэх онол, арга зүйн судалгаа
+% ============================================================
 
 \chapter{Платформ хөгжүүлэх онол, арга зүйн судалгаа}
 \label{Chapter1}
 
-\section{Бүлгийн зорилго ба судалгааны хүрээ}
-Энэ бүлэг нь Anoce буюу Монголын загварын архивын веб платформыг хөгжүүлэх үндэслэл, төслийн үүсэл, хэрэглэгчийн хэрэгцээ, шаардлага болон сонгосон хөгжүүлэх арга зүйг тайлбарлана. Системийн техникийн хэрэгжилт дараагийн бүлгүүдэд дэлгэрэнгүй орох тул энэ бүлэгт \textit{“яагаад ийм архивын платформ хэрэгтэй вэ, ямар ижил төстэй системүүдтэй харьцуулж болох вэ, ямар арга зүйгээр хөгжүүлэх нь зохистой вэ?”} гэсэн асуултад хариулна.
+\section{Дижитал сэтгүүл ба онлайн мэдээний онолын үндэс}
 
-Судалгааны хүрээг дараах байдлаар тогтоов.
-\begin{itemize}
-  \item Монголын загварын мэдээллийг дижитал архив болгон бүтэцжүүлэх хэрэгцээг тодорхойлох;
-  \item Public archive, editorial site, headless CMS, global search, AI assistant бүхий системүүдийн нийтлэг шинжийг судлах;
-  \item Зочин, бүртгэлтэй хэрэглэгч, редактор, админ, систем хөгжүүлэгчийн хэрэгцээг шинжлэх;
-  \item Функциональ болон функциональ бус шаардлагын эхний түвшний жагсаалт гаргах;
-  \item Agile, Prototype, Spiral, Kanban, Design Science Research зэрэг аргачлалыг харьцуулж, төслийн нөхцөлд тохирох хосолсон арга зүй сонгох.
-\end{itemize}
+Дижитал хэвлэл мэдээлэл нь хэвлэмэл хэлбэрээс цахим орчинд шилжихдээ зөвхөн нийтлэлийн сувгаа өөрчилсөн хэрэг биш, харин контент бэлтгэх, нийтлэх, түгээх, хэрэглэгчтэй харилцах арга барилыг өөрчилсөн медиа хэлбэр юм. Онлайн орчинд нийтлэл нь текст, зураг, холбоос, видео, ангилал, хайлт зэрэг олон бүрэлдэхүүнээр дамжин хэрэглэгчид хүрдэг тул редакцийн төлөвлөлт болон хэрэглэгчийн унших туршлага нэгэн зэрэг чухал болдог \cite{kung_strategic_2017}.
 
-\section{Төслийн үүсэл, хөгжлийн түүх}
-Төсөл нь анх Монголын загварын брэнд, collection, editorial content-ийг визуал төвтэй байдлаар харуулах вебсайт гэсэн санаанаас эхэлсэн. Хөгжүүлэлтийн явцад зөвхөн static showcase бус, харин content repository, admin CMS, global search, Supabase authentication, bookmark/follow, RAG chatbot, asset management бүхий илүү бүрэн платформ болж өргөжив. Репозиторийн route, library, seed script, diagram бүтэц нь энэ төслийг нэг мэдээллийн системийн артефакт гэж авч үзэх үндэслэл болно.
+Дижитал сэтгүүл нь уламжлалт сэтгүүлийн редакцийн логик, дугаарын бүтэц, визуал зохиомж, сэдвийн сонголтыг веб орчинд шилжүүлсэн хэлбэр гэж ойлгож болно. Ийм орчинд нийтлэл дангаар бус, зураг, нүүр зураг, layout, цуврал нийтлэл, archive, category болон tag зэрэг бүтэцтэй хамт уншигчид хүрдэг \cite{garrett_uxe_2011}.
 
-\begin{figure}[htbp]
-  \centering
-  \resizebox{\textwidth}{!}{\input{Diagrams/tikz/ch1_project_timeline.tex}}
-  \caption[Төслийн хөгжлийн үе шат]{Anoce/MFA платформын хөгжлийн үндсэн үе шат}
-  \label{fig:project-timeline}
+\textbf{Мэдээний сайт ба загварын сэтгүүлийн ялгаа}
+
+Мэдээний сайт нь цаг үеийн үйл явдлыг богино хугацаанд олон давтамжтай хүргэхэд төвлөрдөг. Онлайн мэдээний орчинд шуурхай байдал, тасралтгүй шинэчлэлт, линкээр холбогдох мэдээлэл, олон сувгаар түгээх боломж нь гол шинж болдог бөгөөд хэрэглэгчид тухайн үеийн мэдээлэлд хурдан хүрэх хэрэгцээг хангадаг \cite{deuze_2003_web_journalisms}.
+
+Загварын сэтгүүл нь зөвхөн мэдээлэл дамжуулах бус, зураг, editorial агуулга, collection, lookbook, trend, brand storytelling болон archive зэрэг контентыг төлөвлөгдсөн редакцийн бүтэцтэйгээр хүргэдэг. Загварын медиа нь хувцас, дүр төрх, соёл, хэрэглээний утгыг визуал өгүүлэмжээр тайлбарлаж, уншигчид aesthetic болон lifestyle context бүхий туршлага үүсгэдгээрээ онцлогтой \cite{rocamora_2017_digital_fashion}.
+
+Иймээс мэдээний сайтын үндсэн ялгарах шинж нь мэдээллийн шуурхай байдал бол загварын сэтгүүлийн гол ялгарах шинж нь visual identity, aesthetic presentation, editorial curation болон fashion context юм. Монголын загварын сэтгүүлийн платформ нь ердийн мэдээний сайт хэлбэрээр бус, зураг болон редакцийн бүтэц тэргүүлсэн, collection ба archive-тай контентын орчин хэлбэрээр хөгжих шаардлагатай \cite{lynge_jorlen_2012}.
+
+\section{Загварын медиа ба визуал редакцийн бүтэц}
+
+Загварын медиа нь хувцас, гоёл, брэнд, дизайнер, runway, street style, beauty болон lifestyle агуулгыг зөвхөн мэдээллийн түвшинд бус соёлын утга, хэрэглэгчийн хүсэл сонирхол, дүр төрхийн хэлээр тайлбарладаг. Дижитал загварын медиа нь сошиал медиа, веб нийтлэл, зураг, видео болон хэрэглэгчийн оролцоотой хамт хөгжиж байгаа тул загварын агуулга нь өнөө үед олон сувгийн нэгдсэн редакцийн хэлбэртэй болсон \cite{rocamora_2017_digital_fashion}.
+
+Загварын сэтгүүлийн визуал редакцийн бүтэц нь том хэмжээний зураг, нүүр зураг, typography, whitespace, image grid, editorial hierarchy, нийтлэлийн дэс дараалал зэргээр илэрдэг. Нийтлэл бүр тусдаа мэдээлэл байхын зэрэгцээ сэтгүүлийн visual identity-г бүрдүүлэх нэгж болдог тул загварын платформд харааны зохиомж нь контентын утгатай шууд холбоотой \cite{lynge_jorlen_2012}.
+
+Монголын загварын контент өнөөдөр олон сувгаар тархаж байгаа боловч дизайнер, collection, trend, lookbook болон брэндийн өгүүллэгийг нэг дор архивлан харах боломж хязгаарлагдмал байна. Ийм нөхцөлд дотоодын загварын сэтгүүлийн платформ нь мэдээллийг цуглуулах төдий бус, редакцийн сонголт, ангилал, визуал дараалал, archive-ийн бүтэцтэйгээр Монголын загварын агуулгыг тогтвортой хадгалах үүрэгтэй.
+
+\section{Веб платформ хөгжүүлэх арга зүйн үндэс}
+
+Веб платформ хөгжүүлэх ажил нь шаардлага тодорхойлох, хэрэглэгчийн үйлдлийг загварчлах, өгөгдлийн бүтэц төлөвлөх, интерфейс зохиомжлох, хэрэгжүүлэх, турших гэсэн шат дараалалтай явагдана. Шаардлагын инженерчлэл нь хэрэглэгч, зорилго, хязгаарлалт, функциональ болон функциональ бус шаардлагыг тодорхойлох үндсэн арга зүй тул дараагийн бүлгүүдийн шинжилгээний суурь болдог \cite{iso_29148_2018}.
+
+UML диаграммууд нь хэрэглэгчийн үйлдэл, объектын холбоо, процессын дараалал, үйл ажиллагааны урсгалыг зураглан тайлбарлахад хэрэглэгддэг. Use case, class, sequence, activity diagram нь нэг платформын шаардлагаас архитектур болон хэрэгжилт рүү шилжих холбоосыг ойлгомжтой болгодог \cite{omg_uml_251}.
+
+Энэхүү дипломын хүрээнд платформ хөгжүүлэхдээ судалгаа, шаардлага, зохиомж, хэрэгжилт, туршилт гэсэн үе шатыг баримтална. Ингэснээр 2-р бүлэгт хэрэглэгч болон шаардлагыг тодорхойлж, 3-р бүлэгт архитектур ба өгөгдлийн зохиомж гаргаж, 4-р бүлэгт бодит хэрэгжилт, туршилтын үр дүнг тайлбарлах боломж бүрдэнэ.
+
+\section{Төстэй платформуудын судалгаа}
+
+Судалгааны зорилго нь Монголын загварын сэтгүүлийн платформд хэрэглэх боломжтой editorial layout, visual-first presentation, category, search, archive болон content management-ийн санааг тодорхойлох явдал юм.
+
+\textbf{Гадаадын төстэй платформууд}
+
+\textbf{Vogue}
+
+Vogue нь загвар, beauty, culture, runway болон celebrity style чиглэлийн редакцийн контент нийтэлдэг олон улсын загварын сэтгүүлийн платформ юм \cite{vogue_site}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/vogue.png}
+    \caption{Vogue платформын нүүр хуудас}
+    \label{fig:vogue-platform}
 \end{figure}
 
-\begin{longtable}{|L{0.12\textwidth}|L{0.22\textwidth}|L{0.27\textwidth}|L{0.25\textwidth}|}
-  \caption{Төслийн хөгжлийн үе шат ба судалгааны утга}
-  \label{tab:project-history}\\
-  \hline
-  \textbf{Үе шат} & \textbf{Гол зорилго} & \textbf{Бодит материал} & \textbf{Судалгааны ач холбогдол} \\ \hline
-  I үе шат & Нүүр хуудас ба archive identity бүрдүүлэх & Hero, Discover, Collections grid, navigation & Визуал төвтэй fashion archive-ийн хэрэглэгчийн анхны сэтгэгдэл тодорсон. \\ \hline
-  II үе шат & Domain content model үүсгэх & Designer, Collection, Look, Article, User type & Загварын өгөгдлийг нэг хэлбэрт оруулж, дахин ашиглах боломж бүрдсэн. \\ \hline
-  III үе шат & Content repository ба public API холбох & CouchDB repository, \path{/api/content/*} routes & Static data-аас CMS-driven платформ руу шилжих суурь тавигдсан. \\ \hline
-  IV үе шат & Admin CMS ба asset workflow хөгжүүлэх & Content CRUD, asset upload & Редакцийн ажлыг frontend кодоос салгаж, админ хэрэглэгч удирдах боломжтой болсон. \\ \hline
-  V үе шат & Search ба AI туслах нэгтгэх & Search overlay, RAG seed, \path{/api/chat} & Archive discovery болон context-aware лавлах боломж нэмэгдсэн. \\ \hline
-\end{longtable}
+Зураг \ref{fig:vogue-platform}-т Vogue-ийн нүүр хуудас нь төвийн том visual story, зүүн талын shopping нийтлэл, баруун талын celebrity style жагсаалтыг зэрэгцүүлсэн editorial grid хэлбэртэй харагдаж байна. Дээд navigation хэсэгт Fashion, Runway, Shopping, Beauty, Culture зэрэг ангилал тодорхой байрласан нь олон төрлийн загварын контентыг сэдвээр нь чиглүүлэх бүтэцтэй болохыг харуулна.
 
-\section{Судалгааны асуудал}
-Загварын архив нь энгийн article list-ээс ялгаатай. Нэг designer олон collection гаргана, collection бүр олон look-тэй, look бүр материал ба tag-тэй, нийтлэл нь дизайнер, collection, trend, зурагтай холбогдоно. Ийм өгөгдөл public user-д ойлгомжтой харагдах, редакторт засварлахад хялбар байх, API-аар тогтвортой дамжих, хайлт болон AI туслахад context болж ашиглагдах ёстой.
-
-Энэхүү асуудлыг дараах түвшинд авч үзэв.
-\begin{enumerate}
-  \item \textbf{Архивын бүтэц:} дизайнер, collection, look, нийтлэл, asset хоорондын холбоог уян хатан боловч тогтвортой model-д оруулах шаардлагатай.
-  \item \textbf{Редакцийн workflow:} article, designer, collection нэмэх, засах, review хийх, publish хийх ажиллагаа protected admin орчинд төвлөрөх ёстой.
-  \item \textbf{Хэрэглэгчийн нээлт:} хэрэглэгч улирал, designer, материал, trend, article-аар хайж, шүүж, холбоотой content руу шилжих боломжтой байх шаардлагатай.
-  \item \textbf{AI туслахын найдвартай байдал:} chatbot нь archive-д байхгүй мэдээллийг зохиохгүй, live content болон curated RAG context-д тулгуурлах ёстой.
-\end{enumerate}
-
-Иймээс судалгааны асуудлыг дараах байдлаар тодорхойлов.
-
-\begin{quote}
-Монголын загварын designer, collection, look, article, asset өгөгдлийг нэгтгэн хадгалах, удирдах, хайх, AI туслахаар лавлах боломжтой веб архивын платформыг хэрхэн хэрэглэгч төвтэй, өргөтгөх боломжтой, өгөгдлийн хяналттай байдлаар зохион бүтээх вэ?
-\end{quote}
-
-\section{Хэрэглэгч ба оролцогч талуудын шинжилгээ}
-Систем нь public хэрэглэгчдэд архив үзэх, бүртгэлтэй хэрэглэгчдэд bookmark ба follow ашиглах, редактор ба админд content удирдах, хөгжүүлэгчид системийг өргөтгөх боломж олгоно.
-
-\begin{table}[htbp]
-  \centering
-  \caption{Оролцогч талууд ба хэрэгцээ}
-  \label{tab:stakeholders}
-  \small
-  \begin{tabular}{|L{0.17\textwidth}|L{0.33\textwidth}|L{0.36\textwidth}|}
-    \hline
-    \textbf{Оролцогч} & \textbf{Гол хэрэгцээ} & \textbf{Системийн хариу шийдэл} \\ \hline
-    Зочин хэрэглэгч & Монголын дизайнер, collection, article, trend-тэй танилцах & Home, archive, designers, editorial, global search \\ \hline
-    Бүртгэлтэй хэрэглэгч & Сонирхсон article/look хадгалах, брэнд дагах, профайл ашиглах & Supabase Auth, bookmark, follow, profile page \\ \hline
-    Редактор & Нийтлэл бичих, зураг сонгох, publish status удирдах & Admin articles, review/edit page, asset library \\ \hline
-    Админ & Designer, collection, user role, asset, content state удирдах & Protected admin dashboard, CRUD routes, role gate \\ \hline
-    Систем хөгжүүлэгч & Модульчлагдсан, засварлахад ойлгомжтой codebase & Next.js App Router, repository abstraction, shared types \\ \hline
-  \end{tabular}
-\end{table}
-
-\section{Функциональ шаардлагын эхний шинжилгээ}
-Функциональ шаардлагыг тодорхойлохдоо хэрэглэгчийн үндсэн аялал, админ редакцийн ажил, өгөгдлийн загвар, хайлт болон AI туслахын хэрэглээг хамтад нь авч үзэв. Энэхүү систем нь зөвхөн мэдээлэл харуулах нүүр хуудас биш тул шаардлага бүрийг ``хэн ашиглах вэ'', ``ямар өгөгдөлд хүрэх вэ'', ``амжилттай ажилласныг яаж таних вэ'' гэсэн гурван өнцгөөс тодорхойлсон.
-
-Шаардлагыг эхний түвшинд дараах бүлэгт ангилав.
 \begin{itemize}
-  \item Public archive шаардлага нь зочин хэрэглэгч дизайнер, коллекц, нийтлэл, look мэдээлэл үзэх болон хайх боломжийг хамарна.
-  \item Редакцийн шаардлага нь админ болон редактор хэрэглэгч контент үүсгэх, засах, нийтлэх, asset удирдах урсгалыг хамарна.
-  \item Хэрэглэгчийн хувийн шаардлага нь bookmark, follow, profile зэрэг бүртгэлтэй хэрэглэгчийн үйлдлийг хамарна.
-  \item AI туслахын шаардлага нь архивын live content болон curated RAG dataset-д тулгуурлан асуултад хариулах үйл ажиллагааг хамарна.
-  \item Өгөгдлийн pipeline шаардлага нь demo content, CouchDB seed, RAG import, search index шинэчлэлтийг хамарна.
+    \item \textbf{Үндсэн зорилго:} Загварын чиг хандлага, designer collection, runway, beauty болон culture контентыг редакцийн зохион байгуулалттай хүргэх.
+    \item \textbf{Контентын төрөл:} Загварын нийтлэл, runway, trend, beauty, culture, celebrity style.
+    \item \textbf{Загвартай холбоотой байдал:} Дизайнер, collection, fashion week болон чиг хандлагын мэдээллийг төвлөрүүлдэг.
+    \item \textbf{Визуал зохион байгуулалт:} Том хэмжээний зураг, editorial layout, visual-first presentation ашигладаг.
+    \item \textbf{Хайлтын боломж:} Нийтлэл, runway болон сэдвийн хүрээнд хайлт хийх боломжтой.
+    \item \textbf{Ангилал, navigation бүтэц:} Fashion, beauty, culture зэрэг үндсэн ангиллаар контент зохион байгуулдаг.
+    \item \textbf{Archive боломж:} Өмнөх нийтлэл, runway болон collection агуулгыг улирал, дизайнер, жилээр үзэх боломжтой.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Унших текст болон харааны материалын харьцаа тэнцвэртэй, зураг нь нийтлэлийн гол өгүүлэмжийг дэмждэг.
+    \item \textbf{Давуу тал:} Редакцийн бүтэц, visual identity, олон төрлийн fashion content.
+    \item \textbf{Хязгаарлалт:} Олон улсын хэрэглэгчдэд чиглэсэн тул Монголын дотоодын загварын контентыг шууд тусгадаггүй.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Editorial бүтэц, visual-first layout, category болон archive зохион байгуулалтыг нутагшуулах боломжтой.
 \end{itemize}
 
-\begin{longtable}{|L{0.08\textwidth}|L{0.25\textwidth}|L{0.12\textwidth}|L{0.41\textwidth}|}
-  \caption{Системийн үндсэн функциональ шаардлага}
-  \label{tab:functional-requirements}\\
-  \hline
-  \textbf{Код} & \textbf{Шаардлага} & \textbf{Priority} & \textbf{Тайлбар ба шалгах нөхцөл} \\ \hline
-  FR-01 & Дизайнерын лавлах үзүүлэх & P1 & Designer profile, tier, bio, cover/profile image, social link мэдээлэл харагдана. Хэрэглэгч дизайнерын detail хуудас руу шилжиж чадна. \\ \hline
-  FR-02 & Collection archive үзүүлэх & P1 & Collection-ийг designer, season, year, category, material-аар шүүх, detail хуудас нээх, related designer руу шилжих боломжтой байна. \\ \hline
-  FR-03 & Look мэдээлэл хадгалах & P1 & Collection дотор look number, image, description, materials, tags хадгалж, UI дээр зураг болон metadata зэрэгцэн харагдана. \\ \hline
-  FR-04 & Editorial article удирдах & P1 & Нийтлэл title, subtitle, category, body, cover image, status, tags, credits-тэй байна. Draft, review, published төлөвөөр ялгах боломжтой байна. \\ \hline
-  FR-05 & Global search ажиллуулах & P1 & Article, collection, designer, brand өгөгдлийг нэг overlay дээр оноогоор эрэмбэлж харуулна. Query бичихэд debounce хийж, result бүлгээр ангилагдана. \\ \hline
-  FR-06 & Хэрэглэгчийн bookmark/follow & P2 & Бүртгэлтэй хэрэглэгч article, look, brand хадгалж, profile хэсгээс дахин үзэх боломжтой байна. Зочин хэрэглэгч login шаардлагатайг ойлгомжтой харна. \\ \hline
-  FR-07 & Admin CMS хамгаалах & P1 & Viewer бус role-той хэрэглэгчид article, collection, designer, asset, user удирдах боломжтой байна. API түвшинд 401/403 response зөв буцна. \\ \hline
-  FR-08 & Asset upload ба serve хийх & P2 & CouchDB attachment эсвэл API-аар зурагт asset хадгалах, public URL хэлбэрээр article/collection/designer-д ашиглах боломжтой байна. \\ \hline
-  FR-09 & AI chatbot асуултад хариулах & P2 & Live archive context болон RAG document ашиглан fashion archive-ийн асуултад хариулна. Context хүрэлцэхгүй үед зохиомол хариулт өгөхгүй. \\ \hline
-  FR-10 & Seed/import pipeline & P2 & Demo content, CouchDB content, Supabase RAG document import хийх script-үүдтэй байна. Local demo орчин хурдан сэргээгдэх боломжтой байна. \\ \hline
-\end{longtable}
+\textbf{ELLE}
 
-\section{Функциональ бус шаардлагын эхний шинжилгээ}
-Функциональ бус шаардлага нь системийн ``юу хийх вэ'' гэхээс илүү ``ямар чанартай ажиллах вэ'' гэсэн асуудлыг тодорхойлно. Anoce/MFA платформын хувьд визуал контент олон, admin үйлдэл protected, AI provider external, өгөгдөл хоёр backend-д хуваагдах тул usability, security, maintainability, data integrity, performance, AI reliability зэрэг чанарын шинжүүдийг эхний шатнаас тодорхойлох шаардлагатай.
+ELLE нь fashion, beauty, culture, shopping болон magazine content чиглэлийн нийтлэлүүдийг нэгтгэн хүргэдэг олон улсын загварын сэтгүүлийн платформ юм \cite{elle_site}.
 
-Эдгээр шаардлагыг хэрэгжилтийн үед дараах байдлаар шалгана: public route нээгдэх хугацаа, mobile responsive харагдац, admin role gate, API response consistency, repository conversion logic, chatbot fallback, environment secret тусгаарлалт, table/diagram/documentation consistency. Нэг бүрийг production SLA түвшинд хэмжихээс илүү дипломын MVP-д тохирох бодит шалгуур болгон тодорхойлов.
-
-\begin{table}[htbp]
-  \centering
-  \caption{Функциональ бус шаардлагын ангилал}
-  \label{tab:nonfunctional-requirements}
-  \begin{tabular}{|L{0.20\textwidth}|L{0.30\textwidth}|L{0.36\textwidth}|}
-    \hline
-    \textbf{Чанарын шинж} & \textbf{Шаардлагын утга} & \textbf{Төслийн хүрээнд хэрэгжүүлэх чиглэл} \\ \hline
-    Ашиглахад хялбар байдал & Public archive, search overlay, admin form ойлгомжтой байх & Visual card, filter bar, empty/loading state, responsive layout, form label/error state \\ \hline
-    Өгөгдлийн бүрэн байдал & Collection, look, article relation алдагдахгүй байх & Repository normalization, stable slug, required field validation, update үед \texttt{\_rev} хадгалах \\ \hline
-    Аюулгүй байдал & Admin content зөвшөөрөлгүй өөрчлөгдөхгүй байх & Supabase Auth, profile role, protected admin route/API, provider key-г server-side байлгах \\ \hline
-    Өргөтгөх чадвар & Шинэ content type, AI provider, search logic нэмэхэд хялбар байх & Repository abstraction, shared type, provider fallback, seed/import script тусгаарлах \\ \hline
-    Гүйцэтгэл & Archive/search хуудас боломжийн хурдтай ажиллах & Search debounce, indexed CouchDB query, image asset reuse, client/server boundary тодорхойлох \\ \hline
-    Итгэлцэл & AI хариулт архивт байхгүй баримт зохиохгүй байх & RAG context, live archive result, insufficient context message, fallback summary \\ \hline
-    Засварлахад хялбар байдал & Код болон тайлангийн бүтэц ойлгомжтой байх & Route, component, repository, AI, seed pipeline-ийг тусдаа module болгон зохион байгуулах \\ \hline
-    Хүртээмж ба responsive чанар & Mobile болон desktop хэрэглээнд текст, зураг, товч давхцахгүй байх & Responsive grid, readable font size, table/diagram resize, contrast шалгах \\ \hline
-  \end{tabular}
-\end{table}
-
-\section{Ижил төстэй системүүдийн судалгаа}
-Ижил төстэй системийг зөвхөн нэг төрлийн fashion website гэж авч үзвэл Anoce/MFA-ийн онцлог бүрэн харагдахгүй. Тиймээс Монголын загварын сайт, олон улсын runway/archive платформ, музейн дижитал коллекц, digital showcase, fashion search engine гэсэн бүлгээр шинжиллээ. Судалгааны гол зорилго нь яг ижил бүтээгдэхүүн олох бус, харин archive structure, visual presentation, navigation, metadata, search, content workflow-ийн сайн жишээг ялган авах юм.
-
-\subsection{Монголын ижил төстэй вебүүд}
-Монголын зах зээлд бүрэн хэмжээний ``Монголын загварын нэгдсэн дижитал архив'' хэлбэрийн сайт ховор боловч загварын брэнд, дизайнерын portfolio, concept store, e-commerce чиглэлийн сайтууд Anoce/MFA-д хэрэгтэй олон санаа өгч байна. Amulet Mongolia нь дизайнерын уран сайхны portfolio болон collection story-г харуулдаг \cite{amulet_mongolia_site}. Deel by Michel \& Amazonka нь үндэсний хувцас, гар урлал, heritage narrative-ийг modern brand presentation-тай холбодог \cite{deel_brand_site}. Gobi Cashmere нь collection, category, product navigation-ийг тодорхой ангиллаар зохион байгуулсан e-commerce жишээ \cite{gobi_cashmere_site}. MongolianMade нь Монголд үйлдвэрлэсэн бүтээгдэхүүн, designer/artisan story-г concept store хэлбэрээр нэгтгэдэг \cite{mongolianmade_site}. Mongolian Gallery нь дизайнер брэнд, product filter, availability, brand filter зэрэг commerce metadata-г хэрэглэдэг \cite{mongolian_gallery_site}.
-
-{\small
-\begin{longtable}{|L{0.17\textwidth}|L{0.18\textwidth}|L{0.31\textwidth}|L{0.20\textwidth}|}
-  \caption{Монголын ижил төстэй вебүүдийн шинжилгээ}
-  \label{tab:mongolian-similar-systems}\\
-  \hline
-  \textbf{Вебсайт} & \textbf{Төрөл} & \textbf{Ажиллах зарчим ба UI шинж} & \textbf{Anoce/MFA-д авах санаа} \\ \hline
-  Amulet Mongolia & Designer portfolio & Том зураг, collection story, gallery, minimal navigation ашиглаж дизайнерын identity-г онцолдог. UI нь artist portfolio мэдрэмжтэй, текст бага, зураг давамгай. & Designer profile болон collection story хэсэгт visual-first layout хэрэглэх. \\ \hline
-  Deel by Michel \& Amazonka & Heritage fashion brand & Үндэсний хувцасны философи, flagship store, category navigation, appointment/contact урсгалтай. UI нь luxury brand-ийн цэвэр, editorial өнгөтэй. & Монгол соёлын тайлбарыг collection metadata болон editorial content-тэй холбох. \\ \hline
-  Gobi Cashmere & Fashion e-commerce & Category, gender, season, product grid, sale navigation-оор хэрэглэгчийг бараа руу чиглүүлдэг. & Season/material filter-ийг ойлгомжтой харагдуулах. \\ \hline
-  Mongolian Made & Concept store & Монгол брэндүүдийг ангилал, story, store location, gallery хэлбэрээр нэгтгэдэг. & Брэндийн гарал, designer story-г архивын тайлбарт тусгах. \\ \hline
-  Mongolian Gallery & Designer brand shop & Product filter, brand filter, availability, sort, price зэрэг commerce metadata ашигладаг. UI нь grid, filter sidebar, product card дээр төвлөрдөг. & Archive grid-д filter/sort, entity metadata, card scanning pattern ашиглах. \\ \hline
-\end{longtable}
-}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.31\textwidth]{Figures/similar_systems/amulet_mongolia.png}\hfill
-  \includegraphics[width=0.31\textwidth]{Figures/similar_systems/deel_brand.png}\hfill
-  \includegraphics[width=0.31\textwidth]{Figures/similar_systems/gobi_cashmere.png}\\[0.6em]
-  \includegraphics[width=0.45\textwidth]{Figures/similar_systems/mongolianmade.png}\hfill
-  \includegraphics[width=0.45\textwidth]{Figures/similar_systems/mongolian_gallery.png}
-  \caption[Монголын ижил төстэй вебүүдийн UI жишээ]{Монголын ижил төстэй вебүүдийн UI жишээ: Amulet, Deel, Gobi Cashmere, MongolianMade, Mongolian Gallery}
-  \label{fig:mongolian-similar-screens}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/elle.png}
+    \caption{ELLE платформын нүүр хуудас}
+    \label{fig:elle-platform}
 \end{figure}
 
-\subsection{Олон улсын ижил төстэй системүүд}
-Олон улсын түвшинд Anoce/MFA-д ойр санаа өгөх таван системийг сонгов. Vogue Runway нь season, designer, latest show, image archive гэсэн бүтэцтэй runway/editorial архивын хамгийн танигдсан жишээний нэг \cite{vogue_runway_site}. Tagwalk нь fashion search engine хэлбэрээр collection, season, designer, model, trend, report, dashboard зэрэг хайлт-шинжилгээний боломжийг нэгтгэдэг \cite{tagwalk_site}. The Met Costume Institute нь музейн collection metadata, exhibition history, object preservation logic-оор хүчтэй \cite{met_costume_institute_site}. Google Arts \& Culture-ийн fashion project нь олон музей, curator story, theme, zoomable artifact, educational content-ийг холбодог \cite{google_arts_fashion_site}. CFDA Runway360 нь designer collection launch, press, sales, AR/VR, live video, e-commerce extension зэрэг digital showcase боломжийг нэг платформд нэгтгэх санааг харуулдаг \cite{cfda_runway360_site}.
+Зураг \ref{fig:elle-platform}-т ELLE-ийн нүүр хуудас нь төвийн том editorial image, зүүн талын The Latest жагсаалт, баруун талын category-based story блокоор зохион байгуулагдсан байна. Search талбар, Fashion, Beauty, Culture, Horoscopes, Shopping зэрэг navigation нь хэрэглэгчид олон төрлийн lifestyle болон загварын агуулгыг хурдан сонгох боломж өгч байна.
 
-{\small
-\begin{longtable}{|L{0.15\textwidth}|L{0.17\textwidth}|L{0.32\textwidth}|L{0.22\textwidth}|}
-  \caption{Олон улсын ижил төстэй системүүдийн шинжилгээ}
-  \label{tab:international-similar-systems}\\
-  \hline
-  \textbf{Систем} & \textbf{Төрөл} & \textbf{Ажиллах зарчим ба UI шинж} & \textbf{Anoce/MFA-д авах санаа} \\ \hline
-  Vogue Runway & Runway archive & Designer, season, show, gallery, review article-ийг нэгтгэнэ. UI нь өндөр чанартай runway зураг, clear navigation, editorial headline дээр тулгуурладаг. & Designer-season-collection relation, gallery + review хослуулах. \\ \hline
-  Tagwalk & Fashion search engine & Collection, season, designer, model, trend, report, dashboard-оор хайх боломжтой. UI нь хайлт, filter, trend insight, result grid дээр төвлөрдөг. & Global search, tag taxonomy, trend/material keyword-г системтэй болгох. \\ \hline
-  The Met Costume Institute & Museum archive & Object metadata, exhibition history, preservation, acquisition information-ийг баримтжуулна. UI нь музейн тайлбар, object detail дээр төвлөрдөг. & Item бүрт эх сурвалж, metadata, тайлбар хэрэглэх. \\ \hline
-  Google Arts \& Culture Fashion & Culture platform & Museum partner, theme, story, zoomable image, lesson, curator narrative-г нэгтгэнэ. UI нь story card, image exploration, topic navigation дээр тулгуурладаг. & Archive-г curated story болон theme байдлаар үзүүлэх. \\ \hline
-  CFDA Runway360 & Digital collection showcase & Designer launch page, press kit, show/product image, live stream, commerce/social integration зэрэг collection launch хэрэгслийг нэгтгэдэг. & Designer-д зориулсан modular profile болон collection launch workflow төлөвлөх. \\ \hline
-\end{longtable}
-}
-
-\begin{figure}[htbp]
-  \centering
-  \IfFileExists{Figures/similar_systems/vogue_runway.png}{\includegraphics[width=0.31\textwidth]{Figures/similar_systems/vogue_runway.png}}{\fbox{\parbox[c][3.0cm][c]{0.31\textwidth}{\centering Vogue Runway\\official page}}}\hfill
-  \includegraphics[width=0.31\textwidth]{Figures/similar_systems/tagwalk.png}\hfill
-  \includegraphics[width=0.31\textwidth]{Figures/similar_systems/met_costume.png}\\[0.6em]
-  \includegraphics[width=0.45\textwidth]{Figures/similar_systems/google_fashion.png}\hfill
-  \includegraphics[width=0.45\textwidth]{Figures/similar_systems/cfda_runway360.png}
-  \caption[Олон улсын ижил төстэй системүүдийн UI жишээ]{Олон улсын ижил төстэй системүүдийн UI жишээ: Vogue Runway, Tagwalk, The Met Costume Institute, Google Arts \& Culture Fashion, CFDA Runway360}
-  \label{fig:international-similar-screens}
-\end{figure}
-
-\subsection{Судалгаанаас гарсан нэгтгэл}
-Дээрх системүүдээс харахад Anoce/MFA платформд дараах зарчим чухал байна.
 \begin{itemize}
-  \item Зурагт суурилсан UI нь fashion archive-ийн анхны ойлголтыг хурдан өгдөг тул card, gallery, hero, detail layout-ийн чанар өндөр байх ёстой.
-  \item Designer, collection, look, article, material, season, tag хоорондын relation тодорхой байхгүй бол хайлт болон AI туслах найдвартай ажиллахгүй.
-  \item Монголын сайтууд brand/story талдаа хүчтэй боловч нэгдсэн archive metadata, cross-brand search, AI-assisted discovery харьцангуй сул байна.
-  \item Олон улсын системүүд metadata, search, curated story, collection launch, museum credibility зэрэг тус тусын давуу талыг харуулж байна.
-  \item Anoce/MFA нь эдгээр санааг нэгтгэн Монголын загварын салбарт тохирсон public archive, editorial CMS, global search, RAG chatbot бүхий платформ болгох боломжтой.
+    \item \textbf{Үндсэн зорилго:} Загвар, гоо сайхан, соёл, shopping болон сэтгүүлийн editorial агуулгыг нэг дор хүргэх.
+    \item \textbf{Контентын төрөл:} Fashion, beauty, culture, shopping, celebrity, magazine feature.
+    \item \textbf{Загвартай холбоотой байдал:} Загварын чиг хандлага, celebrity style, designer news болон fashion advice-ийг тогтмол нийтэлдэг.
+    \item \textbf{Визуал зохион байгуулалт:} Том нүүр зураг, serif typography, latest story list болон editorial card layout ашигладаг.
+    \item \textbf{Хайлтын боломж:} Нүүр хуудасны дээд хэсэгт search талбар байрласан.
+    \item \textbf{Ангилал, navigation бүтэц:} Fashion, Beauty, Culture, Shopping зэрэг хэрэглэгчийн сонирхолд суурилсан үндсэн ангилалтай.
+    \item \textbf{Archive боломж:} Өмнөх нийтлэлүүдийг сэдэв, ангилал болон нийтлэлийн жагсаалтаар эргэн үзэх боломжтой.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Гол нийтлэлд том зураг өгч, дагалдах мэдээллийг богино жагсаалтаар байрлуулснаар хурдан scan хийх боломж бүрдүүлдэг.
+    \item \textbf{Давуу тал:} Загвар, lifestyle, beauty, culture агуулгыг нэг editorial tone-оор холбодог.
+    \item \textbf{Хязгаарлалт:} Олон улсын fashion болон lifestyle хэрэглэгчид рүү чиглэсэн тул Монголын дизайнер, брэндийн мэдээллийг тусгайлан төвлөрүүлэхгүй.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Latest story list болон том editorial visual-ийг хослуулсан нүүр хуудасны зохион байгуулалтыг ашиглаж болно.
 \end{itemize}
 
-\section{Холбоотой судалгааны ажлууд}
-Энэхүү төслийн арга зүйн үндэс нь программ хангамж хөгжүүлэх аргачлал, UX prototype, Design Science Research, AI/RAG системийн судалгаанаас бүрдэнэ. Waterfall нь дипломын баримтжуулалт, үе шат тодорхойлох тал дээр ашигтай боловч шаардлага өөрчлөгдөх веб бүтээгдэхүүнд дангаар тохиромжгүй \cite{royce_waterfall_1970}. Agile ба Kanban нь жижиг баг/ганцаарчилсан хөгжүүлэлтийн ажлыг давталттай, харагдахуйц удирдахад тохиромжтой \cite{agile_manifesto_2001,anderson_kanban_2010}. Design Science Research нь бодит артефакт бүтээж, судалгааны асуудалтай холбож үнэлэхэд тохиромжтой \cite{hevner_dsr_2004}.
+\textbf{Harper's Bazaar}
 
-\section{Систем хөгжүүлэх аргачлалуудын харьцуулалт}
-Anoce/MFA платформын хөгжүүлэлтэд нэг аргачлал дангаараа хангалттай биш. Учир нь дипломын тайлан нь шинжилгээ, зохиомж, хэрэгжилт, үнэлгээ гэсэн дараалсан баримтжуулалт шаарддаг боловч бодит веб бүтээгдэхүүн нь UI prototype, content model, admin workflow, AI provider, RAG dataset зэрэг олон хэсэг дээр давталттай өөрчлөгддөг. Тиймээс аргачлалуудыг дараах шалгуураар харьцуулсан: шаардлага өөрчлөгдөхөд хариулах чадвар, UI/UX турших боломж, эрсдэлтэй хэсгийг хянах байдал, дипломын судалгааны contribution-ийг тайлбарлах чадвар, ганцаарчилсан хөгжүүлэлтийн ажлын зохион байгуулалт.
+Harper's Bazaar нь fashion, beauty, celebrity, culture болон lifestyle чиглэлийн редакцийн нийтлэлүүдийг нэгтгэн хүргэдэг загварын сэтгүүлийн платформ юм \cite{harpersbazaar_site}.
 
-\subsection{Waterfall аргачлал}
-Waterfall нь шаардлага, шинжилгээ, зохиомж, хэрэгжилт, туршилт, нэвтрүүлэлт гэсэн дараалсан бүтэцтэй \cite{royce_waterfall_1970}. Энэ аргачлал нь дипломын тайлангийн логикийг эмхлэхэд ашигтай: эхлээд асуудал, дараа нь технологи, хэрэгжилт, архитектур, туршилт гэсэн дараалал үүсгэнэ. Гэвч Anoce/MFA-ийн UI, content model, AI provider, admin workflow хөгжүүлэлтийн явцад олон удаа өөрчлөгдсөн. Иймээс Waterfall-ийг үндсэн хөгжүүлэлтийн арга бус, харин тайлангийн баримтжуулалт болон milestone шалгалтын хүрээ болгон ашиглах нь зохистой.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/bazaar.png}
+    \caption{Harper's Bazaar платформын нүүр хуудас}
+    \label{fig:harpers-bazaar-platform}
+\end{figure}
 
-\subsection{Prototype аргачлал}
-Prototype аргачлал нь visual archive, search overlay, admin table, article editor зэрэг хэрэглэгчийн интерфейсийг хурдан гаргаж, давталтаар сайжруулахад тохиромжтой. Fashion archive-ийн хувьд image ratio, card density, hero layout, filter ergonomics зэрэг шийдвэрийг зөвхөн текст шаардлагаар тодорхойлоход хангалтгүй. Тиймээс public homepage, archive card, search overlay, admin form зэрэг хэсгийг эхлээд ажиллах prototype байдлаар гаргаж, дараа нь өгөгдлийн model болон API-тай холбосон.
+Зураг \ref{fig:harpers-bazaar-platform}-т Harper's Bazaar-ийн нүүр хуудас нь хар дээд navigation, төвийн cover-story image, зүүн талын latest list, баруун талын culture болон feature нийтлэлийн блокуудаар зохион байгуулагдсан байна. Энэ бүтэц нь fashion magazine-ийн premium visual identity болон хурдан уншигдах story hierarchy-г зэрэг хадгалж байна.
 
-\subsection{Spiral аргачлал}
-Spiral нь эрсдэлд суурилсан давталттай хөгжүүлэлт юм \cite{boehm_spiral_1988}. Энэ төсөлд AI chatbot, RAG dataset, provider fallback, admin authorization, asset upload зэрэг хэсэг эрсдэл өндөртэй. Жишээлбэл AI provider key байхгүй үед chatbot бүрэн ажиллахгүй болох, RAG dataset live content-оос хоцрох, viewer хэрэглэгч admin API дуудах зэрэг эрсдэл гарч болно. Spiral хандлагаар эдгээрийг жижиг туршилт болгон салгаж, fallback, role gate, context boundary, seed script зэрэг хамгаалалтыг давталтаар нэмсэн.
+\begin{itemize}
+    \item \textbf{Үндсэн зорилго:} Загварын чиг хандлага, гоо сайхан, соёл болон алдартнуудын стильтэй холбоотой агуулгыг сэтгүүлийн редакцийн өнгө аястайгаар хүргэх.
+    \item \textbf{Контентын төрөл:} Fashion trends, beauty, celebrity style, culture, shopping guide.
+    \item \textbf{Загвартай холбоотой байдал:} Загварын чиг хандлага, хувцаслалт, дизайнерын мэдээлэл болон street style-ийн агуулгыг тогтмол нийтэлдэг.
+    \item \textbf{Визуал зохион байгуулалт:} Зураг давамгайлсан нийтлэл, card layout, editorial headline ашигладаг.
+    \item \textbf{Хайлтын боломж:} Сэдэв болон нийтлэлээр хайх боломжтой.
+    \item \textbf{Ангилал, navigation бүтэц:} Fashion, beauty, culture, celebrity, shopping гэсэн өргөн ангилалтай.
+    \item \textbf{Archive боломж:} Өмнөх нийтлэлүүдийг ангилал болон хугацаагаар эргэн үзэх боломж бүрдсэн.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Lifestyle болон fashion контентыг богино нийтлэл, фото өгүүлэмж, shopping холбоостой хослуулдаг.
+    \item \textbf{Давуу тал:} Сэтгүүлийн өнгө аяс, өргөн lifestyle хамрах хүрээ, хэрэглэгчийн өдөр тутмын сонирхолд ойр агуулга.
+    \item \textbf{Хязгаарлалт:} Загварын мэдээлэл нь global fashion болон celebrity culture-д илүү төвлөрдөг.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Загвар, lifestyle, beauty, culture агуулгыг нэг editorial navigation-д багтаах аргачлалыг ашиглаж болно.
+\end{itemize}
 
-\subsection{Agile ба Kanban}
-Agile нь ажиллаж буй бүтээгдэхүүнийг үе шаттай хүргэх, өөрчлөлтөд хурдан хариулах зарчимтай \cite{agile_manifesto_2001}. Kanban нь backlog, in progress, review, done гэсэн урсгалаар frontend, API, data, thesis бичвэрийг зэрэг хянахад тохиромжтой \cite{anderson_kanban_2010}. Бага баг эсвэл ганцаарчилсан дипломын хөгжүүлэлтэд Scrum-ийн formal ceremony бүрийг ашиглах шаардлагагүй ч Kanban board маягийн task visibility, small batch delivery, continuous review нь тохиромжтой.
+\textbf{Highsnobiety}
 
-\subsection{Design Science Research}
-Design Science Research нь мэдээллийн системийн судалгаанд шинэ артефакт бүтээж, түүний хэрэгцээ, зохиомж, үнэлгээ, contribution-ийг тайлбарлах хандлага юм \cite{hevner_dsr_2004}. Энэ дипломын ажил нь бодит веб платформ, repository, admin CMS, AI chatbot, seed pipeline, LaTeX тайлан гэсэн артефактуудтай тул DSR хүрээтэй нийцнэ. DSR-ийн давуу тал нь кодын бүтээгдэхүүнийг судалгааны асуудалтай шууд холбож, ``ямар асуудал шийдэв, ямар артефакт бүтээв, яаж үнэлэв'' гэсэн логик үүсгэдэгт оршино.
+Highsnobiety нь streetwear, fashion, culture, lifestyle болон contemporary brand culture чиглэлээр контент нийтэлдэг дижитал медиа платформ юм \cite{highsnobiety_site}.
 
-\subsection{Lean UX ба хэрэглэгч төвтэй хандлага}
-Lean UX нь урт хугацааны том specification бичихээс илүү hypothesis, prototype, feedback, learning loop ашиглан хэрэглэгчийн туршлагыг сайжруулах хандлага юм \cite{lean_ux_2013}. Anoce/MFA-д энэ нь archive browsing, filter visibility, search overlay, card density, admin form clarity зэрэг хэрэглэгч шууд мэдрэх хэсэгт ашигтай. Хэдийгээр албан ёсны хэрэглэгчийн том судалгаа хийгдээгүй ч UI heuristic review, responsive inspection, route scenario шалгалт нь Lean UX-ийн жижиг feedback loop хэлбэрээр ашиглагдсан.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/highsnobiety.png}
+    \caption{Highsnobiety платформын нүүр хуудас}
+    \label{fig:highsnobiety-platform}
+\end{figure}
 
-\begin{longtable}{|L{0.15\textwidth}|L{0.22\textwidth}|L{0.22\textwidth}|L{0.27\textwidth}|}
-  \caption{Аргачлалуудын харьцуулсан шинжилгээ}
-  \label{tab:methodology-comparison}\\
-  \hline
-  \textbf{Аргачлал} & \textbf{Давуу тал} & \textbf{Сул тал} & \textbf{Энэ төсөлд тохирох байдал} \\ \hline
-  Waterfall & Баримтжуулалт сайн, үе шат тодорхой & Өөрчлөлтөд уян хатан бус & Тайлан, шаардлага, диаграмыг цэгцлэхэд ашиглана. \\ \hline
-  Prototype & UI/UX хурдан шалгана & Prototype code debt үүсгэж болно & Visual archive, search overlay, admin form-д тохиромжтой. \\ \hline
-  Spiral & Эрсдэлийг давталтаар бууруулна & Процесс төвөгтэй байж болно & AI, RAG, auth, asset upload-д ашиглана. \\ \hline
-  Agile ба Kanban & Давталттай хүргэлт, ажлын ил тод байдал & Ceremony-г багасгаж хэрэглэх шаардлагатай & Гол хөгжүүлэлтийн өдөр тутмын аргачлал. \\ \hline
-  Lean UX & UI hypothesis-ийг хурдан шалгана & Том хэрэглэгчийн судалгааг бүрэн орлохгүй & Search, filter, card layout, admin form clarity-д ашиглана. \\ \hline
-  Design Science Research & Судалгаа ба бүтээгдэхүүн холбогдоно & Үнэлгээний шалгуур тодорхой байх хэрэгтэй & Дипломын ерөнхий судалгааны хүрээ. \\ \hline
-\end{longtable}
+Зураг \ref{fig:highsnobiety-platform}-т Highsnobiety-ийн нүүр хуудас нэг том hero image болон маш товч navigation ашигласан байна. Latest, Shopping, Style, Sneakers, Culture, Beauty гэсэн ангилал нь streetwear болон lifestyle хэрэглэгчийн сонирхлыг шууд чиглүүлж, visual impact-ийг текстээс илүү түрүүнд тавьжээ.
 
-\section{Сонгосон арга зүйн загвар}
-Дээрх харьцуулалтаас үзэхэд \textbf{DSR-д суурилсан Agile/Kanban хөгжүүлэлт, Prototype, Lean UX болон Spiral эрсдэлийн хяналтаар баяжуулсан} загварыг сонгов. Энэ загвар нь ажиллаж буй системийг хурдан хөгжүүлэх, интерфейсийг давталтаар сайжруулах, AI ба өгөгдлийн эрсдэлийг тусад нь шалгах, дипломын баримтжуулалтыг судалгааны логиктой хадгалах давуу талтай.
+\begin{itemize}
+    \item \textbf{Үндсэн зорилго:} Залуу үеийн загвар, streetwear, sneaker culture, хөгжим, брэндийн түүх болон contemporary culture агуулгыг хүргэх.
+    \item \textbf{Контентын төрөл:} Streetwear, sneaker, fashion news, culture, shopping, brand stories.
+    \item \textbf{Загвартай холбоотой байдал:} Загварыг зөвхөн runway бус залуу үеийн соёл, хэрэглээ, брэндийн identity-тэй холбож тайлбарладаг.
+    \item \textbf{Визуал зохион байгуулалт:} Том зураг, magazine-style card, campaign image болон бүтээгдэхүүний визуал өгүүлэмж давамгайлдаг.
+    \item \textbf{Хайлтын боломж:} Нийтлэл болон сэдвээр хайх боломжтой.
+    \item \textbf{Ангилал, navigation бүтэц:} Style, sneakers, culture, shopping зэрэг сонирхолд суурилсан ангилалтай.
+    \item \textbf{Archive боломж:} Өмнөх нийтлэл, брэндийн түүх, product release зэрэг агуулгыг эргэн харах боломжтой.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Богино, динамик текстийг campaign image болон product visual-тай хослуулдаг.
+    \item \textbf{Давуу тал:} Fashion content-ыг залуу үеийн соёл, брэндийн өгүүлэмж, худалдааны туршлагатай холбодог.
+    \item \textbf{Хязгаарлалт:} Streetwear болон global consumer culture-д илүү төвлөрдөг тул үндэсний загварын архивын үүрэг сул.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Залуу хэрэглэгчдэд ойр visual storytelling, street style болон brand culture-ийн өгүүлэмжийг тусгах боломжтой.
+\end{itemize}
 
-Сонгосон арга зүйн үндсэн логик нь дараах байдалтай. Нэгдүгээрт, DSR нь судалгааны асуудал, артефакт, үнэлгээний хүрээг тогтооно. Хоёрдугаарт, Agile/Kanban нь route, API, CMS, search, chatbot зэрэг ажлыг жижиг багц болгон явуулна. Гуравдугаарт, Prototype болон Lean UX нь public болон admin UI-ийн ойлгомжтой байдлыг давталтаар сайжруулна. Дөрөвдүгээрт, Spiral risk review нь AI, RAG, auth, asset, deployment зэрэг алдаа гарахад өндөр нөлөөтэй хэсгийг тусад нь шалгана.
+\textbf{Saint Laurent}
 
-\begin{table}[htbp]
-  \centering
-  \caption{Сонгосон арга зүйн бүрэлдэхүүн}
-  \label{tab:selected-methodology}
-  \begin{tabular}{|L{0.22\textwidth}|L{0.34\textwidth}|L{0.30\textwidth}|}
-    \hline
-    \textbf{Арга зүйн бүрэлдэхүүн} & \textbf{Төслийн хэрэглээ} & \textbf{Хүлээгдэж буй үр дүн} \\ \hline
-    DSR & Судалгааны асуудал, артефакт, үнэлгээ тодорхойлох & Дипломын судалгаа ба кодын уялдаа баталгаажна. \\ \hline
-    Agile/Kanban & Route, API, admin, chatbot, thesis ажлыг backlog-оор удирдах & Хөгжүүлэлт тасралтгүй, харагдахуйц болно. \\ \hline
-    Prototype & Visual layout, search, admin form турших & UX шийдвэрийг хурдан шалгана. \\ \hline
-    Lean UX & Card density, filter, responsive UI, admin form clarity-г давталтаар сайжруулах & Хэрэглэгчийн урсгал илүү ойлгомжтой болно. \\ \hline
-    Spiral risk review & AI, RAG, auth, repository, asset upload эрсдэл шалгах & Эрсдэлтэй хэсэг бүрийн fallback ба boundary тодорхой болно. \\ \hline
-  \end{tabular}
-\end{table}
+Saint Laurent нь эмэгтэй, эрэгтэй хувцас, accessories, leather goods болон luxury fashion collection-ийг албан ёсны онлайн дэлгүүрээрээ танилцуулдаг Францын загварын брэндийн платформ юм \cite{saint_laurent_site}.
 
-\section{Арга зүйн үе шат ба ажлын төлөвлөгөө}
-\begin{enumerate}
-  \item Судалгааны асуудал, хэрэглэгчийн хэрэгцээг тодорхойлох.
-  \item Designer, collection, article, asset, user, RAG document entity-г загварчлах.
-  \item Public archive, editorial, designer directory, search overlay-ийн prototype боловсруулах.
-  \item CouchDB repository, content API, admin CMS, Supabase auth/role/bookmark холболт хэрэгжүүлэх.
-  \item AI chatbot-ийн live archive search, Supabase RAG search, provider fallback-ийг турших.
-  \item Use case, class, ER, sequence, deployment диаграм болон тайлангийн бүлгүүдийг боловсруулах.
-  \item Route, API, lint, old-domain термин шалгалт хийж, дүгнэлт гаргах.
-\end{enumerate}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/ysl.png}
+    \caption{Saint Laurent платформын нүүр хуудас}
+    \label{fig:saint-laurent-platform}
+\end{figure}
 
-\section{Үнэлгээний арга}
-\begin{table}[htbp]
-  \centering
-  \caption{Үнэлгээний шалгуур}
-  \label{tab:evaluation-criteria}
-  \begin{tabular}{|p{0.20\textwidth}|p{0.36\textwidth}|p{0.32\textwidth}|}
-    \hline
-    \textbf{Шалгуур} & \textbf{Үнэлэх зүйл} & \textbf{Баримтлах арга} \\ \hline
-    Функциональ бүрэн байдал & Public archive, admin CMS, search, chatbot ажиллах эсэх & Route scenario, manual UI check \\ \hline
-    Өгөгдлийн загвар & Designer, collection, look, article, asset relation & Type, repository, seed script review \\ \hline
-    Security & Admin role gate, API authorization, user bookmark ownership & Protected route/API scenario \\ \hline
-    AI чанар & Хариулт live archive/RAG context-д тулгуурлаж байгаа эсэх & Sample prompt, fallback inspection \\ \hline
-    UX ойлгомжтой байдал & Archive хайх, article унших, designer үзэх, admin засах урсгал & Heuristic review, responsive inspection \\ \hline
-  \end{tabular}
-\end{table}
+Зураг \ref{fig:saint-laurent-platform}-т Saint Laurent-ийн нүүр хуудас нь бүтэн дэлгэцийн campaign image, minimal navigation, төвд байрласан брэндийн лого болон улирлын collection руу чиглүүлэх товч мэдээлэлтэй байна. Энэхүү жишээ нь загварын брэндийн веб платформ visual identity-г editorial image болон product/navigation урсгалтай хэрхэн холбож болохыг харуулна.
 
-\section{Бүлгийн дүгнэлт}
-Нэгдүгээр бүлгээр Anoce/MFA веб платформын үндэслэл, хэрэглэгчийн хэрэгцээ, шаардлага, ижил төстэй системүүд болон хөгжүүлэх арга зүйг тодорхойлов. Судалгаанаас харахад энэ төсөл нь зөвхөн загварын landing page бус, харин content repository, CMS, global search, AI chatbot, user personalization-ийг нэгтгэсэн дижитал архивын систем юм. Иймээс DSR, Agile/Kanban, Prototype, Spiral risk review-ийн хосолсон арга зүйг сонгосон нь дараагийн технологи, хэрэгжилт, архитектурын бүлгүүдийн суурь болно.
+\begin{itemize}
+    \item \textbf{Үндсэн зорилго:} Luxury fashion collection, бүтээгдэхүүн, брэндийн дүр төрх болон онлайн худалдааны урсгалыг нэгтгэн танилцуулах.
+    \item \textbf{Контентын төрөл:} Women, men, product collection, campaign image, accessories, brand information.
+    \item \textbf{Загвартай холбоотой байдал:} Олон улсын luxury fashion brand-ийн collection, ready-to-wear, accessories болон campaign visual-ийг харуулдаг.
+    \item \textbf{Визуал зохион байгуулалт:} Full-bleed campaign image, minimal typography, төвлөрсөн logo, цөөн navigation сонголттой.
+    \item \textbf{Хайлтын боломж:} Дээд navigation хэсэгт search icon байрласан.
+    \item \textbf{Ангилал, navigation бүтэц:} Highlights, Women, Men, SL Productions, La Maison, Stores, Services зэрэг brand болон commerce чиглэлийн ангилалтай.
+    \item \textbf{Archive боломж:} Улирлын collection болон campaign агуулгыг үзэх боломжтой боловч сэтгүүлийн нийтлэлийн archive хэлбэрээр зохион байгуулагдаагүй.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Текст бага, visual identity хүчтэй бөгөөд хэрэглэгчийг campaign image болон product exploration руу чиглүүлдэг.
+    \item \textbf{Давуу тал:} Брэндийн өнгө төрх, premium visual presentation, navigation-ийн minimal зохион байгуулалт тодорхой.
+    \item \textbf{Хязгаарлалт:} Editorial article, designer profile болон олон эх сурвалжийн fashion coverage байхгүй.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Дотоодын брэндийн lookbook, collection болон brand story-г visual-first байдлаар харуулахдаа full-width campaign image ашиглах санааг авч болно.
+\end{itemize}
+
+\textbf{Дотоодын төстэй платформууд}
+
+\textbf{Buro 24/7 Mongolia}
+
+Buro 24/7 Mongolia нь Монголын уншигчдад fashion, beauty, culture, lifestyle болон entertainment чиглэлийн нийтлэл хүргэдэг дотоодын дижитал медиа платформ юм \cite{buro_mongolia_site}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/buro.png}
+    \caption{Buro 24/7 Mongolia платформын нүүр хуудас}
+    \label{fig:buro-mongolia-platform}
+\end{figure}
+
+Зураг \ref{fig:buro-mongolia-platform}-т Buro 24/7 Mongolia-ийн нүүр хуудас нь Монгол хэл дээрх navigation, search icon, menu icon болон runway image бүхий hero story-г харуулж байна. Загвар, урлаг соёл, гоо сайхан, амьдрал зэрэг ангилал нь fashion болон lifestyle агуулгыг нэг редакцийн орчинд холбож байна.
+
+\begin{itemize}
+    \item \textbf{Үндсэн зорилго:} Загвар, гоо сайхан, урлаг, соёл болон lifestyle агуулгыг Монгол хэлээр орчин үеийн медиа хэлбэрээр хүргэх.
+    \item \textbf{Контентын төрөл:} Fashion, beauty, culture, lifestyle, entertainment, interview.
+    \item \textbf{Загвартай холбоотой байдал:} Дотоод болон олон улсын загварын чиг хандлага, beauty, style контентыг Монгол хэрэглэгчдэд хүргэдэг.
+    \item \textbf{Визуал зохион байгуулалт:} Зураг, headline, grid бүтэц бүхий magazine-style нүүр хуудастай.
+    \item \textbf{Хайлтын боломж:} Нийтлэл хайх боломжтой.
+    \item \textbf{Ангилал, navigation бүтэц:} Fashion, beauty, culture зэрэг сэдвийн ангиллаар зохион байгуулсан.
+    \item \textbf{Archive боломж:} Өмнөх нийтлэлүүдийг ангилал болон хугацааны дарааллаар үзэх боломжтой.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Монгол хэл дээр lifestyle болон fashion нийтлэлүүдийг богино, зурагтай хэлбэрээр хүргэдэг.
+    \item \textbf{Давуу тал:} Монгол хэрэглэгчдэд чиглэсэн хэл, соёлын ойр байдалтай.
+    \item \textbf{Хязгаарлалт:} Монголын дизайнер, collection, lookbook болон загварын archive-ийг тусгайлан төвлөрүүлсэн бүтэц хязгаарлагдмал.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Монгол хэл дээрх editorial tone, lifestyle coverage болон category navigation-ийн туршлагыг ашиглаж болно.
+\end{itemize}
+
+\textbf{UB.Life}
+
+UB.Life нь хотын амьдрал, соёл, залуусын сонирхол, lifestyle болон entertainment чиглэлийн нийтлэл хүргэдэг Монголын дижитал медиа платформ юм \cite{ublife_site}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/ublife.png}
+    \caption{UB.Life платформын нүүр хуудас}
+    \label{fig:ublife-platform}
+\end{figure}
+
+Зураг \ref{fig:ublife-platform}-т UB.Life-ийн нүүр хуудас dark visual style, том campaign/banner хэсэг, trending block, search талбар болон сэдэвчилсэн navigation ашигласан байна. Энэ нь хотын соёл, entertainment, спорт, урлагийн нийтлэлүүдийг залуу хэрэглэгчдэд хурдан уншигдах хэлбэрээр хүргэхэд чиглэсэн layout юм.
+
+\begin{itemize}
+    \item \textbf{Үндсэн зорилго:} Улаанбаатар хотын залуусын амьдралын хэв маяг, соёл, үзвэр үйлчилгээ, ярилцлага болон өдөр тутмын сонирхлыг дижитал нийтлэлээр хүргэх.
+    \item \textbf{Контентын төрөл:} Lifestyle, culture, interview, city guide, entertainment, opinion.
+    \item \textbf{Загвартай холбоотой байдал:} Шууд fashion сэтгүүл биш боловч lifestyle болон хотын соёлын хүрээнд загвартай огтлолцох боломжтой.
+    \item \textbf{Визуал зохион байгуулалт:} Card-based layout, зурагтай нийтлэл, сэдэвчилсэн нүүр хуудасны бүтэцтэй.
+    \item \textbf{Хайлтын боломж:} Нийтлэл хайх боломжтой.
+    \item \textbf{Ангилал, navigation бүтэц:} Сэдэв, төрөл, хотын амьдралтай холбоотой ангиллаар навигаци хийдэг.
+    \item \textbf{Archive боломж:} Өмнөх нийтлэлүүдийг жагсаалт болон ангиллаар эргэн үзэх боломжтой.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Хөнгөн, хурдан уншигдах нийтлэлээр хотын хэрэглэгчийн өдөр тутмын сонирхолд нийцдэг.
+    \item \textbf{Давуу тал:} Монгол залуусын сонирхолд ойр хэл найруулга, төрөлжсөн нийтлэл, хотын соёлын агуулга.
+    \item \textbf{Хязгаарлалт:} Загварын collection, designer profile, lookbook болон fashion archive нь гол чиглэл биш.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Дотоод хэрэглэгчийн унших дадал, хотын соёлтой холбосон lifestyle angle-ийг загварын агуулгад ашиглаж болно.
+\end{itemize}
+
+\textbf{GOBI Cashmere}
+
+GOBI Cashmere нь Монголын ноолуурын бүтээгдэхүүнийг олон улсын хэрэглэгчдэд танилцуулж, collection болон бүтээгдэхүүний мэдээллийг цахим худалдааны хэлбэрээр хүргэдэг брэндийн веб платформ юм \cite{gobi_cashmere_site}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Figures/platforms/gobi.png}
+    \caption{GOBI Cashmere платформын нүүр хуудас}
+    \label{fig:gobi-cashmere-platform}
+\end{figure}
+
+Зураг \ref{fig:gobi-cashmere-platform}-т GOBI Cashmere-ийн нүүр хуудас full-screen campaign image, product category navigation, search, wishlist, account, cart icon болон collection promotion-ийг нэг дор харуулж байна. Брэндийн visual identity, бүтээгдэхүүний ангилал, худалдан авах урсгал нь нэг нүүр хуудасны түвшинд уялдсан байна.
+
+\begin{itemize}
+    \item \textbf{Үндсэн зорилго:} Монгол ноолуурын бүтээгдэхүүн, collection, material value болон брэндийн өгүүлэмжийг хэрэглэгчдэд танилцуулж, худалдан авах урсгалтай холбох.
+    \item \textbf{Контентын төрөл:} Бүтээгдэхүүн, collection, brand story, material information, care guide.
+    \item \textbf{Загвартай холбоотой байдал:} Монголын fashion brand-ийн бүтээгдэхүүн, улирлын collection болон материалын үнэ цэнийг харуулдаг.
+    \item \textbf{Визуал зохион байгуулалт:} Product photography, collection image, clean commerce layout давамгайлдаг.
+    \item \textbf{Хайлтын боломж:} Бүтээгдэхүүн болон ангиллын хүрээнд хайх боломжтой.
+    \item \textbf{Ангилал, navigation бүтэц:} Women, men, accessories, collection зэрэг худалдааны ангиллаар зохион байгуулагдсан.
+    \item \textbf{Archive боломж:} Худалдааны шинэ collection-ууд харагддаг боловч editorial archive-ийн бүтэц голлох үүрэгтэй биш.
+    \item \textbf{Хэрэглэгчийн унших болон үзэх туршлага:} Зураг болон бүтээгдэхүүний мэдээлэл дээр төвлөрсөн, худалдан авах урсгалд чиглэсэн.
+    \item \textbf{Давуу тал:} Монголын fashion brand-ийн визуал танилцуулга, бүтээгдэхүүний зураг, brand identity тодорхой.
+    \item \textbf{Хязгаарлалт:} Сэтгүүлийн редакцийн нийтлэл, designer profile, trend analysis, archive бүтэц хязгаарлагдмал.
+    \item \textbf{Монголын загварын сэтгүүлийн платформд тусгах санаа:} Монгол брэндийн collection болон product photography-г editorial article, lookbook, brand story хэлбэрээр холбох санааг авч болно.
+\end{itemize}
+
+Дээрх платформуудын харьцуулалтаас харахад олон улсын загварын сэтгүүлүүд visual-first layout, editorial curation, category болон archive зохион байгуулалтаар хүчтэй бол дотоодын платформууд Монгол хэл, local lifestyle, брэндийн ойр байдлаар давуу байна. Монголын загварын сэтгүүлийн платформ нь эдгээр хоёр чиглэлийн давуу талыг нэгтгэн, дотоодын дизайнер, collection, trend болон archive-ийг редакцийн бүтэцтэйгээр харуулах хэрэгцээтэй.
+
+\section{Хэрэглэгчийн туршлага ба responsive дизайны үндэс}
+
+Хэрэглэгчийн туршлага нь хэрэглэгч тухайн платформд нэвтрэх, нийтлэл хайх, category сонгох, зураг үзэх, нийтлэл унших, холбоотой агуулга руу шилжих бүх үйлдлийн чанараар тодорхойлогдоно. Garrett-ийн UX загварын дагуу стратеги, шаардлага, бүтэц, layout болон харааны түвшин хоорондоо уялдаатай байх үед хэрэглэгчийн зорилго болон платформын зорилго нийцдэг \cite{garrett_uxe_2011}.
+
+Responsive дизайн нь desktop, tablet, mobile дэлгэц бүрт агуулгын байрлал, зураг, текстийн хэмжээ, grid болон navigation-ийг уян хатнаар өөрчлөх арга зүй юм. Загварын сэтгүүлийн платформд responsive зохиомж чухал, учир нь хэрэглэгч зураг давамгайлсан контентыг олон төрлийн төхөөрөмж дээр үзэх бөгөөд layout буруу эвдэрвэл visual identity болон унших туршлага шууд муудна \cite{marcotte_rwd_2011}.
+
+Mobile-first аргачлал нь жижиг дэлгэц дээр хамгийн чухал агуулгыг тодорхой харуулах зарчмаас эхэлж, дараа нь том дэлгэцэд илүү өргөн зохион байгуулалт руу тэлэхийг санал болгодог. Монголын загварын сэтгүүлийн платформд энэ зарчим нь нүүр зураг, нийтлэлийн гарчиг, category navigation болон search-ийг гар утасны хэрэглээнд тохиромжтой төлөвлөх үндэс болно \cite{wroblewski_mobile_first_2011}.
+
+\section{Өгөгдөл, архив ба контент зохион байгуулалтын зарчим}
+
+Загварын сэтгүүлийн платформын өгөгдөл нь нийтлэл, зураг, category, tag, collection, designer, brand, author, published date, slug, status зэрэг бүтэцтэй байна. Энэ бүтэц нь хэрэглэгчийн хайлт, archive үзэх, холбоотой нийтлэл санал болгох, админ талаас контент удирдах үйлдлүүдийг дэмждэг.
+
+Archive нь загварын платформд зөвхөн хуучин нийтлэлийн жагсаалт биш, харин цаг хугацааны туршид хуримтлагдсан дизайнер, collection, trend болон visual identity-ийн баримт болдог. Загварын niche сэтгүүлүүдэд archive нь редакцийн санах ой, соёлын баримт, дахин үзэх боломжийг бүрдүүлдэг онцгой үнэ цэнтэй хэсэг юм \cite{lynge_jorlen_2012}.
+
+Контент зохион байгуулалт нь category болон tag-ийн зөв бүтэцтэй шууд холбоотой. Category нь Fashion news, Trend, Collection, Interview, Editorial, Lookbook, Brand story, Archive зэрэг үндсэн чиглэлийг ялгаж, tag нь материал, улирал, дизайнер, брэнд, өнгө, event зэрэг нарийвчилсан хайлт хийх боломжийг бүрдүүлнэ.
+
+\section{Платформ хөгжүүлэхэд ашигласан технологиудын судалгаа}
+
+Энэхүү дипломын ажлын платформ нь компонентэд суурилсан frontend, API холболт, өгөгдлийн сан, authentication, responsive styling, контент удирдлага, AI/RAG чатбот болон deployment орчноос бүрдэхээр төлөвлөгдсөн. Доорх хэсэгт платформ хөгжүүлэхэд ашигласан технологи бүрийн онолын үндэслэл, сонголтын шалтгааныг тайлбарлав.
+
+\subsection*{Frontend технологи}
+
+\textbf{Next.js framework.} Next.js нь React дээр суурилсан full-stack веб аппликейшн хөгжүүлэх framework бөгөөд routing, server-side rendering, static generation, API route зэрэг боломжийг нэг codebase дотор бүрдүүлдэг. Загварын сэтгүүлийн платформын хувьд public хэрэглэгчийн хуудас болон admin удирдлагын хэсгийг нэг төслийн дотор зохион байгуулах, хуудас бүрд тохирсон rendering стратеги сонгох боломжтой тул Next.js-ийг сонгосон \cite{nextjs_docs}.
+
+\textbf{TypeScript.} TypeScript нь JavaScript хэлний дээр бүтээгдсэн статик төрлийн шалгалт бүхий програмчлалын хэл юм. JavaScript-тэй харьцуулахад TypeScript нь хувьсагч, функцийн параметр, объектын бүтэц зэрэгт төрлийн тодорхойлолт өгснөөр кодын алдааг хөгжүүлэлтийн явцад эрт илрүүлэх, засварлахад хялбар болгож, найдвартай байдлыг нэмэгдүүлдэг. Загварын сэтгүүлийн платформд нийтлэл, category, tag, designer, collection зэрэг олон төрлийн өгөгдлийн бүтэц ашиглагддаг тул TypeScript-ийн төрлийн шалгалт нь хөгжүүлэлтийн чанарыг мэдэгдэхүйц дэмждэг \cite{typescript_docs}.
+
+\textbf{Tailwind CSS.} Tailwind CSS нь responsive layout, spacing, typography, color, grid болон component styling-ийг utility-first зарчмаар хурдан зохион байгуулах боломж олгодог. Зураг давамгайлсан сэтгүүлийн интерфейс дээр layout-ийн тогтвортой байдал, breakpoint, mobile design зэрэг шаардлагыг хэрэгжүүлэхэд энэ технологи тохиромжтой \cite{tailwind_docs}.
+
+\subsection*{Backend болон өгөгдлийн сангийн технологи}
+
+\textbf{Supabase.} Supabase нь Backend as a Service (BaaS) платформ бөгөөд authentication, хэрэглэгчийн удирдлага, өгөгдлийн сангийн үйлчилгээ, real-time subscription зэрэг backend боломжийг бэлэн API хэлбэрээр хангадаг. Supabase нь PostgreSQL буюу нээлттэй эхийн SQL өгөгдлийн сан дээр суурилсан тул өгөгдлийн бүтэц, хамаарал, хайлтын query-г стандарт SQL хэлбэрээр удирдах боломжтой. Энэхүү платформд Supabase-ийг хэрэглэгчийн authentication, profile role, bookmark болон RAG document хадгалахад ашигласан \cite{supabase_docs}.
+
+\textbf{Node.js.} Node.js нь JavaScript-ийг серверийн орчинд ажиллуулах runtime бөгөөд Next.js аппликейшний local backend орчинг бүрдүүлэхэд ашиглагдсан. Хөгжүүлэлтийн явцад seed script, validation script, RAG dataset бэлтгэх script зэргийг Node.js орчинд ажиллуулж, өгөгдлийн сангийн анхны утгыг бүрдүүлсэн.
+
+\textbf{CouchDB.} CouchDB нь Apache Software Foundation-ийн нээлттэй эхийн NoSQL өгөгдлийн сан бөгөөд JSON document хэлбэрээр өгөгдөл хадгалдаг. Энэхүү платформд CouchDB-г зураг, видео болон бусад медиа контентын metadata хадгалах, нийтлэл, collection, designer зэрэг уян бүтэцтэй fashion content-ийн document store болгон ашигласан. Document-oriented шинж нь загварын агуулгын олон төрлийн бүтцийг schema-гүйгээр уян хатнаар хадгалахад тохиромжтой \cite{couchdb_docs}.
+
+\subsection*{RAG чатботын технологи}
+
+\textbf{Ollama.} Платформын RAG (Retrieval-Augmented Generation) чатботын хэсэгт Ollama програм хангамжийг ашигласан. Ollama нь томоохон хэлний загвар (LLM)-ийг локал орчинд RAM болон GPU нөөц ашиглан ажиллуулах боломж олгодог нээлттэй эхийн хэрэгсэл юм. Gemini API зэрэг үүлэн үйлчилгээний хэрэглээний хязгаарлалттай (rate limit) байгаа тул дипломын ажлын хүрээнд локал загвар дээр суурилсан аргачлалыг сонгосон.
+
+\textbf{Qwen3:8B загвар.} RAG чатботын хариулт үүсгэхэд Qwen3:8B загварыг ашигласан. Энэ загвар нь 8 тэрбум параметртэй бөгөөд локал орчинд хангалттай чанартай хариулт үүсгэх чадвартай, RAM/GPU-ийн боломжийн хэмжээнд ажилладаг тул дипломын ажлын туршилтын орчинд тохиромжтой сонголт болсон.
+
+\subsection*{Docker контейнер технологи}
+
+Docker нь програм хангамжийн шаардлагатай орчныг тусгаарлагдсан контейнер дотор ажиллуулах боломж олгодог виртуалчлалын технологи юм. Энэхүү платформд CouchDB өгөгдлийн сангийн локал орчинг Docker контейнер ашиглан бүрдүүлсэн. Docker ашигласнаар хөгжүүлэгч компьютерийн бусад орчинд нөлөөлөхгүйгээр шаардлагатай өгөгдлийн сангийн орчинг хурдан эхлүүлэх, зогсоох, дахин тохируулах боломжтой болсон.
+
+\subsection*{Deployment технологи}
+
+Vercel нь Next.js төслийг байршуулахад зориулагдсан үүлэн платформ бөгөөд Git repository-тэй шууд холбогдон, код өөрчлөгдөх бүрт автоматаар deploy хийх боломж олгодог. Vercel нь үнэгүй deployment сонголттой тул дипломын ажлын туршилтын орчинд Next.js платформыг хурдан, зардалгүй байршуулахад тохиромжтой шийдэл болсон.
+
+\subsection*{Өгөгдөл бэлтгэх технологи}
+
+Платформын контент болон RAG чатботын мэдлийн санг бүрдүүлэхэд Google Gemma 3:12B загварыг ашиглан өгөгдөл бэлтгэсэн. Нийт 400 өгөгдлийн бичлэг ашиглагдсан бөгөөд үүний 250 нь бодит мэдээлэлд суурилсан, 150 нь загвар ашиглан үүсгэсэн жишиг өгөгдөл юм. Эдгээр өгөгдөл нь RAG чатботын контекст болон платформын агуулгын туршилтын зорилгоор ашиглагдсан.
+
+\subsection*{UI/UX зохиомжийн судалгаа ба лавлагаа}
+
+Платформын хэрэглэгчийн интерфэйс зохиомжлохдоо орчин үеийн загварын болон технологийн платформуудын визуал шийдлийг судалж, тухайн санааг платформын зорилго болон хэрэглэгчийн хэрэгцээнд нийцүүлэн өөрчлөн хэрэгжүүлсэн.
+
+\begin{itemize}
+    \item \textbf{Hero section:} Нүүр хуудасны hero хэсгийн санааг орчин үеийн веб компонент шийдлүүд, тухайлбал 21st.dev зэрэг платформын бүтцээс судалж авсан.
+    \item \textbf{Full-screen snap scrolling:} Бүтэн дэлгэцийн snap scroll эффектийг YSL (Saint Laurent) брэндийн вебсайтын танилцуулгын хэв маягаас судалж, хэрэгжүүлсэн.
+    \item \textbf{Ерөнхий layout бүтэц:} Платформын ерөнхий зохион байгуулалтын бүтэц нь Rolex-ийн минимал, тансаг хэв маягийн веб бүтцийн нөлөөг судалсан.
+    \item \textbf{Админ хэсгийн зохиомж:} Удирдлагын хэсгийн layout-г Figma дизайн хэрэгсэл дээр урьдчилан төлөвлөсөн.
+    \item \textbf{Navigation bar:} Навигацийн мөрний glass effect-ийг Apple-ийн интерфэйсийн хэв маягаас судалж нутагшуулсан.
+    \item \textbf{Хайлтын хэсэг:} Хайлтын хэсгийн хэрэглэгчийн туршлагыг Reddit-ийн хайлтын зохион байгуулалтаас лавлан боловсруулсан.
+\end{itemize}
+
+Дээрх лавлагаа бүрийг шууд хуулбарлаагүй бөгөөд тухайн платформуудын визуал шийдэл, хэрэглэгчийн туршлагын давуу талыг академик түвшинд судалж, Монголын загварын сэтгүүлийн платформын зорилго, хэрэглэгчийн хэрэгцээ болон контентын онцлогт нийцүүлэн дасан зохицуулсан болно.
+
+\section*{Бүлгийн дүгнэлт}
+\addcontentsline{toc}{section}{Бүлгийн дүгнэлт}
+
+Нэгдүгээр бүлэгт дижитал сэтгүүл ба онлайн мэдээний онолын үндэс, загварын медиа ба визуал редакцийн бүтэц, веб платформ хөгжүүлэх арга зүй, дотоод болон гадаадын төстэй платформуудын судалгаа, хэрэглэгчийн туршлага ба responsive дизайны үндэс, өгөгдөл ба контент зохион байгуулалтын зарчим, платформ хөгжүүлэхэд ашигласан технологиудын судалгааг авч үзэв. Эдгээр судалгаа нь загварын сэтгүүлийн платформын онолын суурийг тавьж, ашиглах технологийн сонголтыг үндэслэлтэй болгосон. Энэхүү онол, арга зүйн судалгаан дээр тулгуурлан хоёрдугаар бүлэгт хэрэглэгч, үйлдэл, өгөгдөл болон процессын шаардлагын шинжилгээг боловсруулна.

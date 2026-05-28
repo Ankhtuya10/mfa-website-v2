@@ -20,7 +20,7 @@ const TABS = [
   { id: "articles", label: "Хадгалсан нийтлэл", eyebrow: "Сан" },
   { id: "looks", label: "Хадгалсан төрх", eyebrow: "Сан" },
   { id: "collections", label: "Хадгалсан цуглуулга", eyebrow: "Архив" },
-  { id: "following", label: "Дагаж буй", eyebrow: "Дизайнерууд" },
+  { id: "following", label: "Дагаж буй", eyebrow: "Брэнд/Дизайнерууд" },
   { id: "settings", label: "Тохиргоо", eyebrow: "Бүртгэл" },
 ];
 
@@ -704,7 +704,7 @@ export default function ProfilePage() {
                     }
                     title="Одоогоор хэнийг ч дагаагүй байна"
                     description="Дуртай дизайнеруудаа ойр байлгахын тулд профайлаас нь дагаарай."
-                    cta="Дизайнер нээх"
+                    cta="Брэнд/дизайнер нээх"
                     href="/designers"
                     quote={EMPTY_QUOTES.following}
                   />

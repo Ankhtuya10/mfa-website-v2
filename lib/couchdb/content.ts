@@ -46,6 +46,10 @@ export type CouchCollectionDoc = CouchBaseDoc & {
   year: number;
   description?: string;
   cover_image?: string;
+  categories?: string[];
+  materials?: string[];
+  colors?: string[];
+  occasions?: string[];
   looks: CouchLookDoc[];
 };
 
@@ -196,6 +200,10 @@ export const toCouchCollection = (
     year: Number(input.year) || new Date().getFullYear(),
     description: String(input.description || ""),
     cover_image: String(input.cover_image || input.coverImage || ""),
+    categories: toArray(input.categories),
+    materials: toArray(input.materials),
+    colors: toArray(input.colors),
+    occasions: toArray(input.occasions),
     looks: looks.map((look, index) => {
       const item = look as Partial<Look> & Record<string, unknown>;
       return {
@@ -229,6 +237,10 @@ export const fromCouchCollection = (doc: CouchCollectionDoc) => ({
   description: doc.description || "",
   cover_image: doc.cover_image || "",
   coverImage: doc.cover_image || "",
+  categories: doc.categories || [],
+  materials: doc.materials || [],
+  colors: doc.colors || [],
+  occasions: doc.occasions || [],
   looks: doc.looks || [],
   created_at: doc.created_at,
   updated_at: doc.updated_at,

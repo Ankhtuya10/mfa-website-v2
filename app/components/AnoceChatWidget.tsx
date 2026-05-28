@@ -126,7 +126,7 @@ function useLinkPreview(path: string) {
 }
 
 const typeLabel: Record<string, string> = {
-  designer: "Дизайнер",
+  designer: "Брэнд/Дизайнер",
   article: "Нийтлэл",
   collection: "Цуглуулга",
 };

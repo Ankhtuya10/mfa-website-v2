@@ -5,13 +5,29 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Check, ChevronLeft, Loader2, Upload, AlertCircle } from "lucide-react";
 import { getDesigners } from "@/lib/supabase/queries";
+import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
+import { ARCHIVE_SEASON_OPTIONS } from "@/lib/content/archiveTaxonomy";
 import { fetchJson, postJson, uploadContentAsset } from "@/lib/content/client";
+import {
+  ArchiveFilterFields,
+  type ArchiveFilterFieldValue,
+} from "../../ArchiveFilterFields";
 
 interface Designer {
   id: string;
   slug: string;
   name: string;
 }
+
+type CollectionFormData = {
+  title: string;
+  designer_name: string;
+  designer_slug: string;
+  season: string;
+  year: number;
+  description: string;
+  slug: string;
+} & ArchiveFilterFieldValue;
 
 export default function EditCollectionPage() {
   const router = useRouter();
@@ -30,14 +46,18 @@ export default function EditCollectionPage() {
   const [designers, setDesigners] = useState<Designer[]>([]);
   const [selectedDesignerId, setSelectedDesignerId] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CollectionFormData>({
     title: "",
     designer_name: "",
     designer_slug: "",
-    season: "SS" as "SS" | "FW",
+    season: "SS",
     year: new Date().getFullYear(),
     description: "",
     slug: "",
+    categories: [],
+    materials: [],
+    colors: [],
+    occasions: [],
   });
 
   // Load collection + designers in parallel
@@ -65,6 +85,10 @@ export default function EditCollectionPage() {
         year: d.year || new Date().getFullYear(),
         description: d.description || "",
         slug: d.slug || "",
+        categories: Array.isArray(d.categories) ? d.categories : [],
+        materials: Array.isArray(d.materials) ? d.materials : [],
+        colors: Array.isArray(d.colors) ? d.colors : [],
+        occasions: Array.isArray(d.occasions) ? d.occasions : [],
       });
       if (d.designer_id) setSelectedDesignerId(d.designer_id);
       setCoverImage(d.cover_image || null);
@@ -110,7 +134,7 @@ export default function EditCollectionPage() {
     const next: Record<string, string> = {};
     if (!formData.title.trim()) next.title = "Гарчиг оруулна уу";
     if (!formData.designer_name.trim())
-      next.designer_name = "Дизайнер сонгоно уу";
+      next.designer_name = "Брэнд/дизайнер сонгоно уу";
     if (!formData.season) next.season = "Улирал сонгоно уу";
     const yr = Number(formData.year);
     if (!yr || yr < 2000 || yr > 2030)
@@ -136,6 +160,10 @@ export default function EditCollectionPage() {
         year: formData.year,
         description: formData.description.trim() || null,
         cover_image: coverImage,
+        categories: formData.categories,
+        materials: formData.materials,
+        colors: formData.colors,
+        occasions: formData.occasions,
       };
       if (selectedDesignerId) payload.designer_id = selectedDesignerId;
 
@@ -170,7 +198,7 @@ export default function EditCollectionPage() {
     setErrors((prev) => ({ ...prev, coverImage: "" }));
 
     try {
-      const asset = await uploadContentAsset(file, "collections");
+      const asset = await uploadContentAsset(file, ASSET_FOLDERS.collection);
       setCoverImage(asset.url);
       setCoverPreview(`${asset.url}?v=${Date.now()}`);
       if (localPreviewRef.current) {
@@ -314,14 +342,14 @@ export default function EditCollectionPage() {
               {/* Designer select */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Дизайнер *
+                  Брэнд/Дизайнер *
                 </label>
                 <select
                   value={selectedDesignerId}
                   onChange={handleDesignerSelect}
                   className="w-full border border-[rgba(0,0,0,0.15)] bg-white px-3 py-2 font-sans text-[12px] outline-none"
                 >
-                  <option value="">— Дизайнер сонгох —</option>
+                  <option value="">— Брэнд/дизайнер сонгох —</option>
                   {designers.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}
@@ -333,7 +361,7 @@ export default function EditCollectionPage() {
               {/* Manual designer name */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Дизайнерын нэр *
+                  Брэнд/дизайнерын нэр *
                 </label>
                 <input
                   type="text"
@@ -364,7 +392,7 @@ export default function EditCollectionPage() {
               {/* Designer slug */}
               <div>
                 <label className="mb-1 block font-sans text-[10px] text-[#9B9590]">
-                  Дизайнерын slug
+                  Брэнд/дизайнерын slug
                 </label>
                 <input
                   type="text"
@@ -390,7 +418,7 @@ export default function EditCollectionPage() {
                   onChange={(e) => {
                     setFormData((prev) => ({
                       ...prev,
-                      season: e.target.value as "SS" | "FW",
+                      season: e.target.value,
                     }));
                     setErrors((prev) => ({ ...prev, season: "" }));
                   }}
@@ -400,8 +428,11 @@ export default function EditCollectionPage() {
                       : "border-[rgba(0,0,0,0.15)]"
                   }`}
                 >
-                  <option value="SS">SS — Хавар/Зун</option>
-                  <option value="FW">FW — Намар/Өвөл</option>
+                  {ARCHIVE_SEASON_OPTIONS.map((season) => (
+                    <option key={season.value} value={season.value}>
+                      {season.value} — {season.label}
+                    </option>
+                  ))}
                 </select>
                 {errors.season && (
                   <p className="mt-1 flex items-center gap-1 font-sans text-[10px] text-red-500">
@@ -443,6 +474,18 @@ export default function EditCollectionPage() {
               </div>
             </div>
           </div>
+
+          <ArchiveFilterFields
+            value={{
+              categories: formData.categories,
+              materials: formData.materials,
+              colors: formData.colors,
+              occasions: formData.occasions,
+            }}
+            onChange={(nextFilters) =>
+              setFormData((prev) => ({ ...prev, ...nextFilters }))
+            }
+          />
 
           {/* ── Cover Image ── */}
           <div>

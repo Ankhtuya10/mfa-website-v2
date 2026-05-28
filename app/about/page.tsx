@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { Footer, StickyNavbar } from "../components";
+import { USAGE_MEDIA } from "@/lib/usageMedia";
 
 export const metadata = {
   title: "ANOCE-ийн тухай",
@@ -9,8 +10,7 @@ export const metadata = {
     "ANOCE бол Монгол загвар, ур хийц, орчин үеийн дизайны амьд архив ба редакцийн платформ юм.",
 };
 
-const heroImageUrl =
-  "https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennie-complex-3840x2160-23175.jpg";
+const heroImageUrl = USAGE_MEDIA.jennieImage;
 
 const pillars = [
   {
@@ -31,7 +31,7 @@ const pillars = [
 ];
 
 const measures = [
-  { value: "01", label: "Дизайнер ба загварын ордон" },
+  { value: "01", label: "Брэнд/дизайнер ба загварын ордон" },
   { value: "02", label: "Цуглуулга ба төрх" },
   { value: "03", label: "Редакцийн тайлбар" },
 ];
@@ -53,13 +53,13 @@ export default function AboutPage() {
           <div className="safe-shell relative z-10 flex h-full w-full items-center">
             <div className="max-w-4xl">
               <span className="mb-6 block font-sans text-[10px] uppercase tracking-[0.32em] text-[#D4C9B8]/80">
-                Anoce-ийн тухай
+                Бидний тухай
               </span>
               <h1 className="max-w-[11ch] font-serif text-[clamp(3.25rem,8vw,8rem)] leading-[0.92] text-white [text-wrap:balance]">
-                Монгол загварын амьд архив.
+                Загварын салбарын дижитал өв
               </h1>
               <p className="mt-8 max-w-2xl font-sans text-base leading-8 text-white/68 md:text-lg">
-                ANOCE нь өв урлалаас орчин үеийн тайз хүртэл Монголын загварын хэлийг бүрдүүлж буй дизайнер, цуглуулга, материал, түүхийг баримтжуулдаг.
+                Бид Монголын хувцас загварын салбарын хөгжлийг дижитал орон зайд түүчээлж, олон улсын стандартад нийцсэн цахим сэтгүүлийг бүтээж байна.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-6">
                 <Link
@@ -73,7 +73,7 @@ export default function AboutPage() {
                   href="/designers"
                   className="font-sans text-[11px] uppercase tracking-[0.24em] text-white/46 transition-colors hover:text-white/76"
                 >
-                  Дизайнер үзэх
+                  Брэнд/дизайнер үзэх
                 </Link>
               </div>
             </div>
@@ -85,18 +85,18 @@ export default function AboutPage() {
             <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
               <div>
                 <span className="mb-5 block font-sans text-[10px] uppercase tracking-[0.32em] text-[#8A8178]">
-                  Яагаад хэрэгтэй вэ
+                  Яагаад хэрэгтэй вэ?
                 </span>
                 <h2 className="font-serif text-[clamp(2.6rem,5vw,5.5rem)] leading-[0.98] text-[#1F1B17]">
-                  Загвар урагшлахын тулд ой санамжтай байх хэрэгтэй.
+                  Загварыг урагшлуулах хүч бол бүтээлч сэтгэлгээ
                 </h2>
               </div>
               <div className="space-y-7 border-l border-[#D7D1C9] pl-8">
                 <p className="font-sans text-lg leading-8 text-[#5F574F] md:text-xl md:leading-9">
-                  ANOCE нь лүүкбук, тайзны зураг, студийн тэмдэглэл, материалын түүх гэх мэт тасархай хэлбэрээр харагддаг орчинд архивын бүтэц өгдөг.
+                  Энэ бол зөвхөн хувцас төдийхнөөр хязгаарлагдахгүй, түүнийг амилуулж буй уран бүтээлчдийн түүх, дотоод ертөнц, урам зоригийг хуваалцах орон зай юм.
                 </p>
                 <p className="font-sans text-base leading-8 text-[#7A7168]">
-                  Энэ платформ нээлт, үргэлжлэлд зориулагдсан. Хуудас бүр дизайнер, судлаач, худалдан авагч, оюутан, сонирхогч уншигчдад юу бүтээгдсэн, хэн бүтээсэн, яагаад үнэ цэнтэйг илүү тод ойлгуулна.
+                  Манай хамт олон салбартаа манлайлагч дэлхийн брэндүүдээс эхлээд шинээр гарч ирж буй авьяаслаг дизайнеруудыг олон нийтэд таниулахыг зорьдог.
                 </p>
               </div>
             </div>

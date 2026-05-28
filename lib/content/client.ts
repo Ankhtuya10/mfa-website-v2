@@ -1,3 +1,5 @@
+import { ASSET_FOLDERS, type AssetFolder } from "./assetFolders";
+
 type QueryValue = string | number | boolean | null | undefined;
 
 const buildUrl = (path: string, query?: Record<string, QueryValue>) => {
@@ -52,7 +54,10 @@ export const postJson = <T>(path: string, body: unknown, method = "POST") =>
 
 export const deleteJson = <T>(path: string) => fetchJson<T>(path, { method: "DELETE" });
 
-export async function uploadContentAsset(file: File, folder = "assets") {
+export async function uploadContentAsset(
+  file: File,
+  folder: AssetFolder = ASSET_FOLDERS.general,
+) {
   const formData = new FormData();
   formData.set("file", file);
   formData.set("folder", folder);

@@ -2,12 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { USAGE_MEDIA } from '@/lib/usageMedia';
 
 export const HeroSection = () => {
-  const bgImageUrl =
-    'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennie-complex-3840x2160-23175.jpg';
-  const mediaVideoUrl =
-    'https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/public/videos/images/jennieklunklun.mp4';
+  const bgImageUrl = USAGE_MEDIA.jennieImage;
+  const mediaVideoUrl = USAGE_MEDIA.jennieVideo;
 
   const ref = useRef<HTMLDivElement | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);

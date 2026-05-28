@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from 'lucide-react'
+import { ASSET_FOLDERS } from '@/lib/content/assetFolders'
 import { fetchJson, postJson, uploadContentAsset } from '@/lib/content/client'
 
 type Tier = 'high-end' | 'contemporary' | 'emerging'
@@ -121,7 +122,7 @@ export default function EditDesignerPage() {
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } catch (err: any) {
-      setSaveError(err?.message || 'Дизайнерын мэдээллийг шинэчилж чадсангүй. Дахин оролдоно уу.')
+      setSaveError(err?.message || 'Брэнд/дизайнерын мэдээллийг шинэчилж чадсангүй. Дахин оролдоно уу.')
     } finally {
       setLoading(false)
     }
@@ -140,7 +141,7 @@ export default function EditDesignerPage() {
     setErrors((prev) => ({ ...prev, profile_image: '' }))
 
     try {
-      const asset = await uploadContentAsset(file, 'designers')
+      const asset = await uploadContentAsset(file, ASSET_FOLDERS.designer)
       setFormData((prev) => ({ ...prev, profile_image: asset.url }))
       setProfilePreview(`${asset.url}?v=${Date.now()}`)
       if (profilePreviewRef.current) {
@@ -173,7 +174,7 @@ export default function EditDesignerPage() {
     setErrors((prev) => ({ ...prev, cover_image: '' }))
 
     try {
-      const asset = await uploadContentAsset(file, 'designers')
+      const asset = await uploadContentAsset(file, ASSET_FOLDERS.designer)
       setFormData((prev) => ({ ...prev, cover_image: asset.url }))
       setCoverPreview(`${asset.url}?v=${Date.now()}`)
       if (coverPreviewRef.current) {
@@ -210,12 +211,12 @@ export default function EditDesignerPage() {
   if (notFound) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="font-sans text-[13px] text-[#9B9590]">Дизайнер олдсонгүй.</p>
+        <p className="font-sans text-[13px] text-[#9B9590]">Брэнд/дизайнер олдсонгүй.</p>
         <Link
           href="/admin/designers"
           className="font-sans text-[11px] uppercase tracking-[2px] text-[#2A2522] underline"
         >
-          Дизайнерууд руу буцах
+          Брэнд/Дизайнерууд руу буцах
         </Link>
       </div>
     )
@@ -233,7 +234,7 @@ export default function EditDesignerPage() {
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <h1 className="font-sans text-[11px] uppercase tracking-[2px] text-[#2A2522]">
-            Дизайнер засах
+            Брэнд/Дизайнер засах
           </h1>
         </div>
         <button
@@ -274,7 +275,7 @@ export default function EditDesignerPage() {
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
                 if (e.target.value.trim()) setErrors((prev) => ({ ...prev, name: '' }))
               }}
-              placeholder="Дизайнерын нэр..."
+              placeholder="Брэнд/дизайнерын нэр..."
               className={`w-full bg-transparent font-serif text-4xl text-[#2A2522] outline-none placeholder:text-[#B7AEA9] ${
                 errors.name ? 'border-b-2 border-red-400' : ''
               }`}
@@ -347,7 +348,7 @@ export default function EditDesignerPage() {
             <textarea
               value={formData.bio}
               onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
-              placeholder="Дизайнерын намтар, түүх, дэлгэрэнгүй агуулга..."
+              placeholder="Брэнд/дизайнерын түүх, дэлгэрэнгүй агуулга..."
               className="w-full min-h-[300px] resize-none bg-transparent font-sans text-[15px] leading-[1.8] text-[#3A3530] outline-none placeholder:text-[#B7AEA9]"
             />
           </div>

@@ -586,7 +586,7 @@ export default function ArticlePage({
                       </p>
                       <div className="inline-flex items-center gap-2">
                         <span className="font-sans text-[11px] tracking-[0.22em] uppercase text-white/58 transition-colors group-hover:text-white">
-                          Дизайнерын профайл үзэх
+                          Брэнд/дизайнерын профайл үзэх
                         </span>
                         <ArrowRight className="h-4 w-4 text-white/38 transition-all group-hover:translate-x-1 group-hover:text-white" />
                       </div>

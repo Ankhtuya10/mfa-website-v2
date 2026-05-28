@@ -71,7 +71,7 @@ function formatCollection(c: any): string {
   const looks: any[] = Array.isArray(c.looks) ? c.looks : []
   const lines = [
     `[Цуглуулга] ${c.title}`,
-    `Дизайнер: ${c.designer_name} | Улирал: ${c.season} ${c.year}`,
+    `Брэнд/Дизайнер: ${c.designer_name} | Улирал: ${c.season} ${c.year}`,
   ]
   if (c.description) lines.push(`Тайлбар: ${c.description}`)
   lines.push(`Лүүкийн тоо: ${looks.length}`)
@@ -91,7 +91,7 @@ function formatCollection(c: any): string {
 
 function formatDesigner(d: any): string {
   const lines = [
-    `[Дизайнер] ${d.name}`,
+    `[Брэнд/Дизайнер] ${d.name}`,
     `Түвшин: ${d.tier} | Байгуулагдсан: ${d.founded || '?'} | Харьяалал: ${d.nationality || 'Монгол'}`,
   ]
   if (d.short_bio) lines.push(`Товч: ${d.short_bio}`)

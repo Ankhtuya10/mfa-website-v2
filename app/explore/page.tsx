@@ -7,8 +7,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Clock3, Search, Sparkles } from "lucide-react";
 import { StickyNavbar, Footer } from "@/app/components";
 import { fetchSearchIndex } from "@/app/components/search/searchEngine";
+import {
+  SEARCH_CONTENT_FILTER_LABEL,
+  SEARCH_PLACEHOLDER,
+} from "@/lib/content/platformCopy";
 
-type SearchCategory = "articles" | "collections" | "designers" | "brands";
+type SearchCategory = "articles" | "collections" | "designers";
 type SeasonFilter = "all" | "current" | "archive";
 
 type SearchResultItem = {
@@ -29,8 +33,7 @@ const categoryLabels: Record<"all" | SearchCategory, string> = {
   all: "Бүгд",
   articles: "Нийтлэл",
   collections: "Цуглуулга",
-  designers: "Дизайнер",
-  brands: "Брэнд",
+  designers: "Брэнд/Дизайнер",
 };
 
 const RECENT_HISTORY_KEY = "anoce_explore_recent_searches";
@@ -340,7 +343,6 @@ export default function ExplorePage() {
         (item) => item.category === "collections",
       ),
       designers: rankedResults.filter((item) => item.category === "designers"),
-      brands: rankedResults.filter((item) => item.category === "brands"),
     };
   }, [rankedResults]);
 
@@ -349,7 +351,6 @@ export default function ExplorePage() {
       articles: groupedResults.articles.slice(0, 3),
       collections: groupedResults.collections.slice(0, 3),
       designers: groupedResults.designers.slice(0, 3),
-      brands: groupedResults.brands.slice(0, 3),
     }),
     [groupedResults],
   );
@@ -400,7 +401,7 @@ export default function ExplorePage() {
                       ref={inputRef}
                       value={query}
                       onChange={(event) => setQuery(event.target.value)}
-                      placeholder="Ноолуур, FW2025, ногоон ноос, Gobi гэж хайх..."
+                      placeholder={SEARCH_PLACEHOLDER}
                       className="min-w-0 flex-1 truncate bg-transparent font-serif text-xl leading-tight text-white outline-none placeholder:text-white/25 md:text-[1.8rem] xl:text-[2.05rem]"
                     />
                   </div>
@@ -549,13 +550,15 @@ export default function ExplorePage() {
                 </h2>
               </div>
               <div className="flex flex-wrap gap-2">
+                <span className="flex items-center pr-1 font-sans text-[10px] tracking-[0.22em] uppercase text-white/34">
+                  {SEARCH_CONTENT_FILTER_LABEL}
+                </span>
                 {(
                   [
                     "all",
                     "articles",
                     "collections",
                     "designers",
-                    "brands",
                   ] as const
                 ).map((category) => (
                   <button
@@ -589,7 +592,6 @@ export default function ExplorePage() {
                       "articles",
                       "collections",
                       "designers",
-                      "brands",
                     ] as SearchCategory[]
                   )
                     .filter(

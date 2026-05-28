@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireContentAdmin } from "@/lib/admin/contentAuth";
+import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
 import { createContentRepository } from "@/lib/couchdb/repository";
 import { adminJsonError } from "../utils";
 
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "Файл илгээгээгүй байна" }, { status: 400 });
     }
-    const folder = String(formData.get("folder") || "assets");
+    const folder = String(formData.get("folder") || ASSET_FOLDERS.general);
     const asset = await createContentRepository().createAsset(file, folder);
     return NextResponse.json(asset, { status: 201 });
   } catch (error) {

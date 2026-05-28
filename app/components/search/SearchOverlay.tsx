@@ -6,6 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Clock3, Search, X } from "lucide-react";
+import {
+  SEARCH_CONTENT_FILTER_LABEL,
+  SEARCH_PLACEHOLDER,
+} from "@/lib/content/platformCopy";
 import { deriveTopTags, expandQueryTerms } from "./searchEngine";
 import { useGlobalSearch } from "./useGlobalSearch";
 import type { SearchCategory, SearchResultItem, SeasonFilter } from "./types";
@@ -20,15 +24,13 @@ const categories = [
   "articles",
   "collections",
   "designers",
-  "brands",
 ] as const;
 
 const categoryLabels: Record<(typeof categories)[number], string> = {
   all: "Бүгд",
   articles: "Нийтлэл",
   collections: "Цуглуулга",
-  designers: "Дизайнер",
-  brands: "Брэнд",
+  designers: "Брэнд/Дизайнер",
 };
 
 const highlightMatch = (text: string, query: string) => {
@@ -164,7 +166,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
   const groupedEntries = useMemo(
     () =>
-      (["articles", "collections", "designers", "brands"] as SearchCategory[])
+      (["articles", "collections", "designers"] as SearchCategory[])
         .filter(
           (category) => activeCategory === "all" || activeCategory === category,
         )
@@ -227,7 +229,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     ref={inputRef}
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Ноолуур, FW2025, ногоон ноос, Gobi гэж хайх..."
+                    placeholder={SEARCH_PLACEHOLDER}
                     className="h-11 min-w-0 flex-1 truncate bg-transparent font-sans text-xl leading-none text-white/92 outline-none placeholder:text-white/36 md:h-12 md:text-2xl"
                   />
                   <button
@@ -269,7 +271,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   {/* Type group */}
                   <div className="flex items-center gap-2">
                     <span className="font-sans text-[11px] tracking-[0.18em] uppercase text-white/38">
-                      Төрөл
+                      {SEARCH_CONTENT_FILTER_LABEL}
                     </span>
                     {categories.map((category) => (
                       <FilterPill

@@ -8,6 +8,7 @@ import { SafeImage } from "@/app/components/shared/SafeImage";
 import { ChevronRight, Play, Pause, ArrowRight } from "lucide-react";
 import { getArticles, getCollections } from "@/lib/supabase/queries";
 import { formatSeasonYear, getArticleCategoryLabel } from "@/lib/localization";
+import { USAGE_MEDIA } from "@/lib/usageMedia";
 
 interface EditorialArticle {
   id: string;
@@ -85,8 +86,7 @@ const formatDate = (dateString: string): string => {
   }
 };
 
-const editorialHeroFallbackImage =
-  "https://feiffroacxipvonvmecs.supabase.co/storage/v1/object/sign/videos/images/pexels-ron-lach-7778890.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kNTdjZGJjYi0wNzRmLTQyMGMtOGJmMS1iY2MyZTI2NzkyODciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ2aWRlb3MvaW1hZ2VzL3BleGVscy1yb24tbGFjaC03Nzc4ODkwLmpwZyIsImlhdCI6MTc3NTA2MzIwMiwiZXhwIjoxNzc3NjU1MjAyfQ.jk7lYLHUQXygEVLRhhtNTaJpGD0pB5MiSQOuGdpn59U";
+const editorialHeroFallbackImage = USAGE_MEDIA.jennieImage;
 
 const normalizeEditorialArticle = (
   article: Partial<EditorialArticle> & { [key: string]: unknown },
@@ -188,7 +188,7 @@ export default function EditorialPage() {
               id: String(look.id),
               image: String(look.image || editorialHeroFallbackImage),
               title: `Төрх ${look.number || ""}`.trim(),
-              designer: String(collection?.designer_name || collection?.designerName || "Дизайнер"),
+              designer: String(collection?.designer_name || collection?.designerName || "Брэнд/Дизайнер"),
               collection: seasonLabel || String(collection?.title || "Цуглуулга"),
               href: collection?.slug ? `/archive/${collection.slug}` : "/archive",
             } satisfies FeaturedPiece;
@@ -578,8 +578,7 @@ export default function EditorialPage() {
                 "
               </span>
               <blockquote className="-mt-10 mb-8 font-serif text-2xl leading-[1.36] text-white md:text-3xl lg:text-4xl">
-                Бид зөвхөн хувцас бүтээдэггүй. Бид амьдралын хэв маягийг хадгалж байна.
-                Ноосон цамц бүр сүргийн дурсамжийг тээдэг.
+                Хувцас бол зөвхөн хэрэглээ бус, харин хувь хүний дотоод ертөнц, өв соёлын гүн гүнзгий илэрхийлэл болон амилдаг урлаг юм.
               </blockquote>
               <cite className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#B7AEA9]/65 not-italic">
                 Цэцэг, ноолуур ангилагч

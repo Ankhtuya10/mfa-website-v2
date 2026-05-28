@@ -78,7 +78,7 @@ export const CollectionsGrid = () => {
           const collectionFrames = collections.slice(0, 4).map((col, idx) => ({
             id: col.id,
             frameId: String(idx + 1).padStart(2, "0"),
-            tag: `${col.designer_name || "Дизайнер"} ${formatSeasonYear(col.season, col.year)}`.trim(),
+            tag: `${col.designer_name || "Брэнд/Дизайнер"} ${formatSeasonYear(col.season, col.year)}`.trim(),
             title: col.title || "Гарчиггүй",
             image: col.cover_image || col.coverImage || "",
             href: `/archive/${col.slug}`,

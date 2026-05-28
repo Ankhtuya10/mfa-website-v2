@@ -37,7 +37,7 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
       },
     );
     if (!response.ok) {
-      alert("Дизайнер устгаж чадсангүй");
+      alert("Брэнд/дизайнер устгаж чадсангүй");
       return;
     }
     setDesigners(designers.filter((d) => d.id !== id));
@@ -75,7 +75,7 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
                 colSpan={6}
                 className="py-12 text-center text-[#9B9590] font-sans text-sm"
               >
-                Дизайнер олдсонгүй
+                Брэнд/дизайнер олдсонгүй
               </td>
             </tr>
           ) : (
@@ -119,7 +119,7 @@ export function DesignersTable({ initialDesigners }: DesignersTableProps) {
                     <Link
                       href={`/admin/designers/${d.id}/edit`}
                       className="text-[#9B9590] hover:text-[#111111] transition-colors p-1"
-                      title="Дизайнер засах"
+                      title="Брэнд/дизайнер засах"
                     >
                       <Pencil className="w-4 h-4" />
                     </Link>

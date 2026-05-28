@@ -1,0 +1,22 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,thick]
+  \tikzstyle{flowstep}=[draw, rounded corners=5pt, minimum width=4.1cm, minimum height=0.85cm,
+    text width=3.65cm, align=center, font=\scriptsize]
+  \tikzstyle{decision}=[draw, diamond, aspect=2.3, text width=2.7cm, align=center, font=\scriptsize]
+
+  \node[flowstep, fill=blue!8] (login) at (0,0) {Админ login form бөглөх};
+  \node[flowstep, fill=green!8] (session) at (0,-1.5) {Supabase Auth session шалгах};
+  \node[decision, fill=yellow!12] (hasuser) at (0,-3.3) {User байна уу?};
+  \node[flowstep, fill=red!6] (unauth) at (-5.2,-3.3) {401 / login руу буцаах};
+  \node[flowstep, fill=green!8] (role) at (0,-5.2) {profiles.role унших};
+  \node[decision, fill=yellow!12] (allowed) at (0,-7.0) {admin/editor уу?};
+  \node[flowstep, fill=red!6] (forbidden) at (-5.2,-7.0) {403 / эрх хүрэлцэхгүй};
+  \node[flowstep, fill=cyan!8] (admin) at (0,-8.9) {Admin dashboard ба protected API нээгдэх};
+
+  \draw[->] (login) -- (session);
+  \draw[->] (session) -- (hasuser);
+  \draw[->] (hasuser) -- node[above,font=\scriptsize] {Үгүй} (unauth);
+  \draw[->] (hasuser) -- node[right,font=\scriptsize] {Тийм} (role);
+  \draw[->] (role) -- (allowed);
+  \draw[->] (allowed) -- node[above,font=\scriptsize] {Үгүй} (forbidden);
+  \draw[->] (allowed) -- node[right,font=\scriptsize] {Тийм} (admin);
+\end{tikzpicture}

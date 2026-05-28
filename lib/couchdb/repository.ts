@@ -16,6 +16,7 @@ import {
   toCouchDesigner,
 } from "./content";
 import { CouchDbClient, CouchDbError, createCouchDbClient } from "./client";
+import { ASSET_FOLDERS, normalizeAssetFolder } from "@/lib/content/assetFolders";
 
 type ArticleFilters = {
   category?: string;
@@ -49,6 +50,8 @@ const byCollectionDateDesc = <T extends { year?: number; season?: string }>(left
   return String(right.season || "").localeCompare(String(left.season || ""));
 };
 
+const CONTENT_LIST_LIMIT = 1000;
+
 export class ContentRepository {
   constructor(private readonly client: CouchDbClient = createCouchDbClient()) {}
 
@@ -70,7 +73,7 @@ export class ContentRepository {
   }
 
   private async findByType<T extends ContentDocument>(type: ContentDocType) {
-    return this.client.find<T>({ type });
+    return this.client.find<T>({ type }, { limit: CONTENT_LIST_LIMIT });
   }
 
   private async preserveRevision<T extends ContentDocument>(doc: T) {
@@ -204,15 +207,16 @@ export class ContentRepository {
   }
 
   async listAssets(folder?: string) {
+    const normalizedFolder = folder ? normalizeAssetFolder(folder) : undefined;
     const docs = await this.findByType<CouchAssetDoc>("asset");
     return docs
-      .filter((doc) => !folder || doc.folder === folder)
+      .filter((doc) => !normalizedFolder || normalizeAssetFolder(doc.folder) === normalizedFolder)
       .sort(byUpdatedDesc)
       .map(fromCouchAsset);
   }
 
-  async createAsset(file: File, folder = "assets") {
-    const cleanFolder = slugify(folder) || "assets";
+  async createAsset(file: File, folder: string = ASSET_FOLDERS.general) {
+    const cleanFolder = normalizeAssetFolder(folder);
     const safeName = file.name.replace(/[^\w.\- ]+/g, "-").replace(/\s+/g, " ").trim();
     const stampedName = `${Date.now()}-${safeName || "asset"}`;
     const now = new Date().toISOString();
@@ -240,8 +244,12 @@ export class ContentRepository {
     return fromCouchAsset({ ...doc, _rev: attachment.rev });
   }
 
-  async getAssetAttachment(id: string, name: string) {
-    return this.client.getAttachment(decodeURIComponent(id), decodeURIComponent(name));
+  async getAssetAttachment(id: string, name: string, init: RequestInit = {}) {
+    return this.client.getAttachment(
+      decodeURIComponent(id),
+      decodeURIComponent(name),
+      init,
+    );
   }
 }
 

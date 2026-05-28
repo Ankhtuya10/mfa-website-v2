@@ -1,4 +1,4 @@
-export type SearchCategory = 'articles' | 'collections' | 'designers' | 'brands'
+export type SearchCategory = 'articles' | 'collections' | 'designers'
 export type SeasonFilter = 'all' | 'current' | 'archive'
 
 export type SearchResultItem = {
