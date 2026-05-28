@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from "lucide-react";
+import { ChevronLeft, Check, Loader2, AlertCircle } from "lucide-react";
 import { getDesigners } from "@/lib/supabase/queries";
 import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
 import {
   dateTimeLocalToIso,
   normalizeDateTimeLocalValue,
 } from "@/lib/content/calendarSchedule";
-import { postJson, uploadContentAsset } from "@/lib/content/client";
+import { postJson } from "@/lib/content/client";
+import { ImagePickerField } from "@/app/admin/components/ImagePickerField";
 
 type Designer = { id: string; slug: string; name: string };
 
@@ -29,8 +30,6 @@ function getInitialSchedule() {
 
 export default function NewArticlePage() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   // ── Form state ──────────────────────────────────────────────────────────
   const [formData, setFormData] = useState({
     title: "",
@@ -44,8 +43,6 @@ export default function NewArticlePage() {
     read_time: 5,
   });
   const [coverImage, setCoverImage] = useState<string | null>(null);
-  const [urlInput, setUrlInput] = useState("");
-  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -137,26 +134,6 @@ export default function NewArticlePage() {
     }
   }
 
-  // ── Image upload ─────────────────────────────────────────────────────────
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const asset = await uploadContentAsset(file, ASSET_FOLDERS.editorial);
-      setCoverImage(asset.url);
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy.coverImage;
-        return copy;
-      });
-    } catch {
-      setSaveError("Зураг оруулж чадсангүй. Дахин оролдоно уу.");
-    } finally {
-      setUploading(false);
-    }
-  }
 
   // ── Input class helpers ───────────────────────────────────────────────────
   const titleCls =
@@ -483,101 +460,17 @@ export default function NewArticlePage() {
 
             {/* ── Cover Image ────────────────────────────────────────── */}
             <section>
-              <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
-                Нүүр зураг
-              </p>
-
-              {coverImage ? (
-                <div className="relative rounded-lg overflow-hidden aspect-video bg-[#F0EDE8]">
-                  <img
-                    src={coverImage}
-                    alt="Нүүр зураг"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    onClick={() => setCoverImage(null)}
-                    className="absolute top-2 right-2 bg-black/60 text-white font-sans text-[9.5px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-md hover:bg-black/80 transition-colors"
-                  >
-                    Устгах
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <label
-                    className={
-                      "flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg py-6 cursor-pointer transition-all " +
-                      (errors.coverImage
-                        ? "border-red-300 bg-red-50/30 hover:border-red-400"
-                        : "border-[#E8E4DD] hover:border-[#C8C4BC] hover:bg-[#FAF8F5]")
-                    }
-                  >
-                    {uploading ? (
-                      <Loader2 className="w-5 h-5 text-[#C0BCB5] animate-spin" />
-                    ) : (
-                      <>
-                        <Upload
-                          className="w-5 h-5 text-[#C0BCB5]"
-                          strokeWidth={1.6}
-                        />
-                        <span className="font-sans text-[11px] text-[#B0ACA4]">
-                          Зураг оруулах
-                        </span>
-                      </>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      disabled={uploading}
-                      className="hidden"
-                    />
-                  </label>
-
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-px bg-[#E8E4DD]" />
-                    <span className="font-sans text-[10px] text-[#C0BCB5]">
-                      эсвэл медиа сангаас URL оруулах
-                    </span>
-                    <div className="flex-1 h-px bg-[#E8E4DD]" />
-                  </div>
-
-                  <div className="flex gap-1.5">
-                    <input
-                      type="text"
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      placeholder="/api/content/assets/…"
-                      className="flex-1 min-w-0 border border-[#E8E4DD] rounded-lg px-3 py-2 font-sans text-[11px] text-[#1A1A18] bg-white outline-none focus:border-[#0E0E0D] transition-colors placeholder:text-[#C8C4BC]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const v = urlInput.trim();
-                        if (v) {
-                          setCoverImage(v);
-                          setUrlInput("");
-                          setErrors((p) => {
-                            const c = { ...p };
-                            delete c.coverImage;
-                            return c;
-                          });
-                        }
-                      }}
-                      className="shrink-0 px-3 py-2 bg-[#0E0E0D] text-white rounded-lg font-sans text-[10px] tracking-[0.06em] uppercase hover:bg-[#2a2a28] transition-colors"
-                    >
-                      Ашиглах
-                    </button>
-                  </div>
-
-                  {errors.coverImage && (
-                    <p className="flex items-center gap-1 text-red-500 text-[11px]">
-                      <AlertCircle className="w-3 h-3 shrink-0" />
-                      {errors.coverImage}
-                    </p>
-                  )}
-                </div>
-              )}
+              <ImagePickerField
+                value={coverImage}
+                onChange={(url) => {
+                  setCoverImage(url);
+                  if (url) setErrors((p) => { const c = { ...p }; delete c.coverImage; return c; });
+                }}
+                label="Нүүр зураг"
+                error={errors.coverImage}
+                aspect="video"
+                uploadFolder={ASSET_FOLDERS.editorial as import("@/lib/content/assetFolders").AssetFolder}
+              />
             </section>
 
             <div className="border-t border-[#F0EDE8]" />

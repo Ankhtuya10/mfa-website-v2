@@ -5,8 +5,18 @@ import { useEffect, useRef, useState } from 'react';
 import { USAGE_MEDIA } from '@/lib/usageMedia';
 
 export const HeroSection = () => {
-  const bgImageUrl = USAGE_MEDIA.jennieImage;
-  const mediaVideoUrl = USAGE_MEDIA.jennieVideo;
+  const [bgImageUrl, setBgImageUrl] = useState(USAGE_MEDIA.jennieImage);
+  const [mediaVideoUrl, setMediaVideoUrl] = useState(USAGE_MEDIA.jennieVideo);
+
+  useEffect(() => {
+    fetch('/api/content/featured-media')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.hero_image) setBgImageUrl(data.hero_image);
+        if (data.hero_video) setMediaVideoUrl(data.hero_video);
+      })
+      .catch(() => {});
+  }, []);
 
   const ref = useRef<HTMLDivElement | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);

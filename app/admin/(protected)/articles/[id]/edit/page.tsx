@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from "lucide-react";
+import { ChevronLeft, Check, Loader2, AlertCircle } from "lucide-react";
+import { FeaturedDiscoverSetup } from "@/app/admin/components/FeaturedDiscoverSetup";
 import { getDesigners } from "@/lib/supabase/queries";
 import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
 import {
   dateTimeLocalToIso,
   normalizeDateTimeLocalValue,
 } from "@/lib/content/calendarSchedule";
-import { fetchJson, postJson, uploadContentAsset } from "@/lib/content/client";
+import { fetchJson, postJson } from "@/lib/content/client";
+import { ImagePickerField } from "@/app/admin/components/ImagePickerField";
 
 type Designer = { id: string; slug: string; name: string };
 
@@ -20,7 +22,6 @@ type ArticleRow = Record<string, any>;
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Form state ──────────────────────────────────────────────────────────
   const [formData, setFormData] = useState({
@@ -35,7 +36,6 @@ export default function EditArticlePage() {
     read_time: 5,
   });
   const [coverImage, setCoverImage] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,9 +55,11 @@ export default function EditArticlePage() {
     async function loadArticle() {
       if (!params.id) return;
 
-      const data = await fetchJson<ArticleRow>(
-        `/api/admin/content/articles/${encodeURIComponent(params.id as string)}`,
-      ).catch(() => null);
+      const [data] = await Promise.all([
+        fetchJson<ArticleRow>(
+          `/api/admin/content/articles/${encodeURIComponent(params.id as string)}`,
+        ).catch(() => null),
+      ]);
 
       if (!data) {
         setSaveError("Нийтлэл олдсонгүй.");
@@ -158,27 +160,6 @@ export default function EditArticlePage() {
     }
   }
 
-  // ── Image upload ─────────────────────────────────────────────────────────
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const asset = await uploadContentAsset(file, ASSET_FOLDERS.editorial);
-      setCoverImage(asset.url);
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy.coverImage;
-        return copy;
-      });
-    } catch {
-      setSaveError("Зураг оруулж чадсангүй. Дахин оролдоно уу.");
-    } finally {
-      setUploading(false);
-    }
-  }
-
   // ── Shared class builders ─────────────────────────────────────────────────
   const titleCls =
     "w-full font-serif text-[38px] text-[#1A1A18] bg-transparent outline-none " +
@@ -253,7 +234,13 @@ export default function EditArticlePage() {
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="relative flex items-center gap-3">
+          <FeaturedDiscoverSetup
+            contentId={String(params.id)}
+            contentType="article"
+            coverImageUrl={coverImage}
+          />
+
           {/* Save Draft */}
           <button
             onClick={() => handleSave(false)}
@@ -532,64 +519,17 @@ export default function EditArticlePage() {
 
             {/* ── Cover Image ────────────────────────────────────────── */}
             <section>
-              <p className="font-sans text-[9.5px] tracking-[0.14em] uppercase text-[#B0ACA4] mb-3 font-medium">
-                Нүүр зураг
-              </p>
-
-              {coverImage ? (
-                <div className="relative rounded-lg overflow-hidden aspect-video bg-[#F0EDE8]">
-                  <img
-                    src={coverImage}
-                    alt="Нүүр зураг"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    onClick={() => setCoverImage(null)}
-                    className="absolute top-2 right-2 bg-black/60 text-white font-sans text-[9.5px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-md hover:bg-black/80 transition-colors"
-                  >
-                    Устгах
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <label
-                    className={
-                      "flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg py-8 cursor-pointer transition-all " +
-                      (errors.coverImage
-                        ? "border-red-300 bg-red-50/30 hover:border-red-400"
-                        : "border-[#E8E4DD] hover:border-[#C8C4BC] hover:bg-[#FAF8F5]")
-                    }
-                  >
-                    {uploading ? (
-                      <Loader2 className="w-5 h-5 text-[#C0BCB5] animate-spin" />
-                    ) : (
-                      <>
-                        <Upload
-                          className="w-5 h-5 text-[#C0BCB5]"
-                          strokeWidth={1.6}
-                        />
-                        <span className="font-sans text-[11px] text-[#B0ACA4]">
-                          Зураг оруулах
-                        </span>
-                      </>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      disabled={uploading}
-                      className="hidden"
-                    />
-                  </label>
-                  {errors.coverImage && (
-                    <p className="flex items-center gap-1 text-red-500 text-[11px] mt-1.5">
-                      <AlertCircle className="w-3 h-3 shrink-0" />
-                      {errors.coverImage}
-                    </p>
-                  )}
-                </div>
-              )}
+              <ImagePickerField
+                value={coverImage}
+                onChange={(url) => {
+                  setCoverImage(url);
+                  if (url) setErrors((p) => { const c = { ...p }; delete c.coverImage; return c; });
+                }}
+                label="Нүүр зураг"
+                error={errors.coverImage}
+                aspect="video"
+                uploadFolder={ASSET_FOLDERS.editorial as import("@/lib/content/assetFolders").AssetFolder}
+              />
             </section>
 
             <div className="border-t border-[#F0EDE8]" />

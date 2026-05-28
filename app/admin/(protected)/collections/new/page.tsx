@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from "lucide-react";
+import { ChevronLeft, Check, Loader2, AlertCircle } from "lucide-react";
 import { getDesigners } from "@/lib/supabase/queries";
 import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
 import { ARCHIVE_SEASON_OPTIONS } from "@/lib/content/archiveTaxonomy";
-import { postJson, uploadContentAsset } from "@/lib/content/client";
+import { postJson } from "@/lib/content/client";
+import { ImagePickerField } from "@/app/admin/components/ImagePickerField";
+import { MultiImagePickerField, type LookItem } from "@/app/admin/components/MultiImagePickerField";
 import {
   ArchiveFilterFields,
   type ArchiveFilterFieldValue,
@@ -30,7 +32,6 @@ type CollectionFormData = {
 
 export default function NewCollectionPage() {
   const router = useRouter();
-  const localPreviewRef = useRef<string | null>(null);
 
   const [formData, setFormData] = useState<CollectionFormData>({
     title: "",
@@ -46,8 +47,7 @@ export default function NewCollectionPage() {
   });
   const [selectedDesignerId, setSelectedDesignerId] = useState("");
   const [coverImage, setCoverImage] = useState<string | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [looks, setLooks] = useState<LookItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -60,13 +60,6 @@ export default function NewCollectionPage() {
       setDesigners(await getDesigners());
     }
     loadDesigners();
-  }, []);
-
-  // Revoke blob URL on unmount
-  useEffect(() => {
-    return () => {
-      if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
-    };
   }, []);
 
   // Auto-generate slug from title
@@ -131,6 +124,14 @@ export default function NewCollectionPage() {
         materials: formData.materials,
         colors: formData.colors,
         occasions: formData.occasions,
+        looks: looks.map((l, i) => ({
+          id: l.id,
+          number: i + 1,
+          image: l.image,
+          description: l.description,
+          materials: [],
+          tags: [],
+        })),
       };
       if (selectedDesignerId) payload.designer_id = selectedDesignerId;
 
@@ -147,40 +148,6 @@ export default function NewCollectionPage() {
     }
   }
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Immediate local preview
-    const previewUrl = URL.createObjectURL(file);
-    if (localPreviewRef.current) URL.revokeObjectURL(localPreviewRef.current);
-    localPreviewRef.current = previewUrl;
-    setCoverPreview(previewUrl);
-
-    setUploading(true);
-    setErrors((prev) => ({ ...prev, coverImage: "" }));
-
-    try {
-      const asset = await uploadContentAsset(file, ASSET_FOLDERS.collection);
-      setCoverImage(asset.url);
-      setCoverPreview(`${asset.url}?v=${Date.now()}`);
-      if (localPreviewRef.current) {
-        URL.revokeObjectURL(localPreviewRef.current);
-        localPreviewRef.current = null;
-      }
-    } catch (err: any) {
-      setErrors((prev) => ({
-        ...prev,
-        coverImage: "Зураг оруулж чадсангүй. Дахин оролдоно уу.",
-      }));
-      setCoverPreview(null);
-    } finally {
-      setUploading(false);
-      e.target.value = "";
-    }
-  }
-
-  const coverSrc = coverPreview || coverImage;
 
   return (
     <div className="w-full">
@@ -199,7 +166,7 @@ export default function NewCollectionPage() {
         </div>
         <button
           onClick={handleSave}
-          disabled={loading || uploading}
+          disabled={loading}
           className="flex items-center gap-2 bg-[#0E0E0D] px-6 py-2 font-sans text-[11px] font-bold uppercase tracking-[4px] text-white transition-colors hover:bg-[#2A2522] disabled:opacity-50"
         >
           {loading ? (
@@ -426,86 +393,34 @@ export default function NewCollectionPage() {
 
           {/* ── Cover Image ── */}
           <div>
-            <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Нүүр зураг *
-            </h3>
+            <ImagePickerField
+              value={coverImage}
+              onChange={(url) => {
+                setCoverImage(url);
+                if (url) setErrors((p) => { const c = { ...p }; delete c.coverImage; return c; });
+              }}
+              label="Нүүр зураг"
+              required
+              error={errors.coverImage}
+              aspect="3/4"
+              uploadFolder={ASSET_FOLDERS.collection as import("@/lib/content/assetFolders").AssetFolder}
+            />
+          </div>
 
-            {coverSrc ? (
-              <div className="relative aspect-[3/4] overflow-hidden bg-[#F0EDE8]">
-                <img
-                  src={coverSrc}
-                  alt="Нүүр зургийн урьдчилсан харагдац"
-                  className="h-full w-full object-cover"
-                />
-                {uploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <Loader2 className="h-6 w-6 animate-spin text-white" />
-                  </div>
-                )}
-                {!uploading && (
-                  <button
-                    onClick={() => {
-                      setCoverImage(null);
-                      setCoverPreview(null);
-                      if (localPreviewRef.current) {
-                        URL.revokeObjectURL(localPreviewRef.current);
-                        localPreviewRef.current = null;
-                      }
-                      setErrors((prev) => ({
-                        ...prev,
-                        coverImage: "Цуглуулгад нүүр зураг шаардлагатай",
-                      }));
-                    }}
-                    className="absolute right-2 top-2 bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
-                  >
-                    Устгах
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div>
-                <label
-                  className={`flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-colors ${
-                    errors.coverImage
-                      ? "border-red-400 bg-red-50/50"
-                      : "border-[rgba(0,0,0,0.15)] hover:border-[#2A2522]"
-                  }`}
-                >
-                  {uploading ? (
-                    <Loader2 className="h-6 w-6 animate-spin text-[#9B9590]" />
-                  ) : (
-                    <>
-                      <Upload className="mb-2 h-6 w-6 text-[#9B9590]" />
-                      <span className="font-sans text-[11px] text-[#9B9590]">
-                        Зураг оруулах
-                      </span>
-                      <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
-                        JPG, PNG, WebP
-                      </span>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                    className="hidden"
-                  />
-                </label>
-                {errors.coverImage && (
-                  <p className="mt-1.5 flex items-center gap-1 font-sans text-[10px] text-red-500">
-                    <AlertCircle className="h-3 w-3 shrink-0" />
-                    {errors.coverImage}
-                  </p>
-                )}
-              </div>
-            )}
+          {/* ── Looks / Gallery ── */}
+          <div>
+            <MultiImagePickerField
+              value={looks}
+              onChange={setLooks}
+              label="Дүрс / Look-ууд"
+              uploadFolder={ASSET_FOLDERS.collection as import("@/lib/content/assetFolders").AssetFolder}
+            />
           </div>
 
           {/* ── Save button ── */}
           <button
             onClick={handleSave}
-            disabled={loading || uploading}
+            disabled={loading}
             className="flex w-full items-center justify-center gap-2 bg-[#0E0E0D] py-3 font-sans text-[11px] font-bold uppercase tracking-[4px] text-white transition-colors hover:bg-[#2A2522] disabled:opacity-50"
           >
             {loading ? (

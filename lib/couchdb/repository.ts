@@ -5,6 +5,7 @@ import {
   type CouchAssetDoc,
   type CouchCollectionDoc,
   type CouchDesignerDoc,
+  type FeaturedSlot,
   buildCouchId,
   fromCouchArticle,
   fromCouchAsset,
@@ -244,12 +245,133 @@ export class ContentRepository {
     return fromCouchAsset({ ...doc, _rev: attachment.rev });
   }
 
+  async deleteAsset(id: string) {
+    const doc = await this.getDoc<CouchAssetDoc>(id);
+    if (!doc?._rev) return false;
+    await this.client.deleteDoc(doc._id, doc._rev);
+    return true;
+  }
+
+  async updateAssetFeatured(id: string, slot: FeaturedSlot | null) {
+    const allDocs = await this.findByType<CouchAssetDoc>("asset");
+    const now = new Date().toISOString();
+
+    // clear previous occupant of this slot
+    if (slot !== null) {
+      for (const doc of allDocs) {
+        if (doc.featured === slot && doc._id !== id) {
+          await this.client.putDoc({ ...doc, featured: null, updated_at: now });
+        }
+      }
+    }
+
+    const target = allDocs.find((d) => d._id === id);
+    if (!target) throw new Error(`Asset not found: ${id}`);
+
+    const updated = await this.client.putDoc({ ...target, featured: slot, updated_at: now });
+    return fromCouchAsset({ ...target, featured: slot ?? undefined, _rev: updated.rev });
+  }
+
+  async getFeaturedMedia() {
+    const docs = await this.findByType<CouchAssetDoc>("asset");
+    const result: Partial<Record<FeaturedSlot, ReturnType<typeof fromCouchAsset>>> = {};
+    for (const doc of docs) {
+      if (doc.featured) result[doc.featured] = fromCouchAsset(doc);
+    }
+    return result;
+  }
+
   async getAssetAttachment(id: string, name: string, init: RequestInit = {}) {
     return this.client.getAttachment(
       decodeURIComponent(id),
       decodeURIComponent(name),
       init,
     );
+  }
+
+  async getFeaturedDiscover() {
+    const settings = await this.getDoc<{
+      _id: string; _rev?: string; type: string; featured_id: string; featured_type: "collection" | "article";
+    }>("settings:featured-discover").catch(() => null);
+
+    if (!settings) return null;
+
+    if (settings.featured_type === "collection") {
+      const col = await this.getDoc<CouchCollectionDoc>(settings.featured_id).catch(() => null);
+      if (!col) return null;
+      return {
+        type: "collection" as const,
+        id: col._id,
+        title: col.title,
+        description: col.description || "",
+        season: col.season,
+        year: col.year,
+        slug: col.slug,
+        designer_name: col.designer_name,
+      };
+    } else {
+      const article = await this.getDoc<CouchArticleDoc>(settings.featured_id).catch(() => null);
+      if (!article) return null;
+      return {
+        type: "article" as const,
+        id: article._id,
+        title: article.title,
+        description: article.subtitle || (typeof article.body === "string" ? article.body.slice(0, 220) : "") || "",
+        slug: article.slug,
+        season: null,
+        year: null,
+      };
+    }
+  }
+
+  async setFeaturedDiscover(
+    id: string,
+    type: "collection" | "article",
+    opts: { heroVideoId?: string | null; discoverVideoId?: string | null; discoverImageId?: string | null } = {},
+  ) {
+    // 1. Persist settings doc
+    const existing = await this.getDoc<{ _id: string; _rev?: string }>("settings:featured-discover").catch(() => null);
+    await this.client.putDoc({
+      _id: "settings:featured-discover",
+      ...(existing?._rev ? { _rev: existing._rev } : {}),
+      type: "settings",
+      key: "featured-discover",
+      featured_id: id,
+      featured_type: type,
+      updated_at: new Date().toISOString(),
+    });
+
+    // 2. Set hero_image from cover_image of the content
+    const content = type === "collection"
+      ? await this.getDoc<CouchCollectionDoc>(id).catch(() => null)
+      : await this.getDoc<CouchArticleDoc>(id).catch(() => null);
+
+    const coverUrl: string | null | undefined =
+      content && "cover_image" in content ? (content as { cover_image?: string | null }).cover_image : null;
+
+    if (coverUrl) {
+      // URL: /api/content/assets/{encodedId}/{encodedName}
+      const parts = coverUrl.split("/");
+      if (parts[3] === "assets" && parts[4]) {
+        const assetId = decodeURIComponent(parts[4]);
+        await this.updateAssetFeatured(assetId, "hero_image").catch(() => {});
+      }
+    }
+
+    // 3. Optionally set hero_video
+    if (opts.heroVideoId) {
+      await this.updateAssetFeatured(opts.heroVideoId, "hero_video").catch(() => {});
+    }
+
+    // 4. Optionally set discover_video
+    if (opts.discoverVideoId) {
+      await this.updateAssetFeatured(opts.discoverVideoId, "discover_video").catch(() => {});
+    }
+
+    // 5. Optionally set discover_image
+    if (opts.discoverImageId) {
+      await this.updateAssetFeatured(opts.discoverImageId, "discover_image").catch(() => {});
+    }
   }
 }
 

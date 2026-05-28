@@ -4,55 +4,79 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-import { fetchContentCollections } from "@/lib/content/client";
-import { formatSeasonYear } from "@/lib/localization";
 import { USAGE_MEDIA } from "@/lib/usageMedia";
 import { Button } from "./shared";
 
-const VIDEO_URL = USAGE_MEDIA.jennieVideo;
+type FeaturedDiscover = {
+  type: "collection" | "article";
+  title: string;
+  description: string;
+  season_label: string | null;
+  link: string;
+  link_label: string;
+} | null;
 
-const FALLBACK_LABEL = "Шинэ цуглуулга";
-const FALLBACK_DESCRIPTION =
-  "Монгол тал нутгийн өвөөс ундран, орчин үеийн амьдралд нийцүүлэн боловсруулсан цаглашгүй загвар.";
-
-type Collection = {
-  season: string;
-  year: number;
-  description?: string;
+const FALLBACK: FeaturedDiscover = {
+  type: "collection",
+  title: "Монгол ноолуурын гоо сайхан",
+  description:
+    "Монгол тал нутгийн өвөөс ундран, орчин үеийн амьдралд нийцүүлэн боловсруулсан цаглашгүй загвар.",
+  season_label: "Шинэ цуглуулга",
+  link: "/archive",
+  link_label: "Цуглуулга үзэх",
 };
 
+function splitTitle(title: string) {
+  const spaceIdx = title.indexOf(" ");
+  if (spaceIdx === -1) return { first: title, rest: null };
+  return { first: title.slice(0, spaceIdx), rest: title.slice(spaceIdx + 1) };
+}
+
 export const DiscoverSection = () => {
-  const [collection, setCollection] = useState<Collection | null>(null);
+  const [featured, setFeatured] = useState<FeaturedDiscover>(FALLBACK);
+  const [videoUrl, setVideoUrl] = useState<string | null>(USAGE_MEDIA.jennieVideo);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchContentCollections()
-      .then((collections) => {
-        if (collections.length > 0) {
-          setCollection(collections[0]);
-        }
+    fetch("/api/content/featured-discover")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data) setFeatured(data);
       })
-      .catch(() => {
-        // silently keep the fallback values on error
-      });
+      .catch(() => {});
+
+    fetch("/api/content/featured-media")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.discover_video) setVideoUrl(data.discover_video);
+        else if (data.discover_image) setVideoUrl(null);
+        if (data.discover_image) setImageUrl(data.discover_image);
+      })
+      .catch(() => {});
   }, []);
 
-  const label = collection
-    ? formatSeasonYear(collection.season, collection.year)
-    : FALLBACK_LABEL;
-  const description = collection?.description ?? FALLBACK_DESCRIPTION;
+  const data = featured ?? FALLBACK;
+  const { first, rest } = splitTitle(data.title);
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        className="absolute inset-0 h-full w-full object-cover"
-      >
-        <source src={VIDEO_URL} type="video/mp4" />
-      </video>
+      {videoUrl ? (
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src={videoUrl} type="video/mp4" />
+        </video>
+      ) : imageUrl ? (
+        <div
+          className="absolute inset-0 h-full w-full bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${imageUrl})` }}
+        />
+      ) : null}
 
       <div className="absolute inset-0 bg-black/40" />
 
@@ -64,48 +88,46 @@ export const DiscoverSection = () => {
           viewport={{ once: false, amount: 0.3 }}
           className="flex w-full max-w-4xl flex-col items-center text-center"
         >
-          <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-white/70">
-            {label}
-          </span>
+          {data.season_label && (
+            <span className="mb-6 block font-sans text-[10px] tracking-[0.3em] uppercase text-white/70">
+              {data.season_label}
+            </span>
+          )}
 
           <div className="relative z-20 mb-8 px-2">
             <h2 className="font-serif text-[48px] leading-[0.92] tracking-tight md:text-[82px]">
               <span
-                className="block bg-gradient-to-b from-[#FCF6F0] via-[#F0E4D7] to-[#E2D4C6] bg-clip-text text-transparent"
+                className="inline-block bg-gradient-to-b from-[#FCF6F0] via-[#F0E4D7] to-[#E2D4C6] bg-clip-text text-transparent pb-[0.15em]"
                 style={{
                   textShadow: "0 8px 32px rgba(255, 255, 255, 0.16)",
                   WebkitTextStroke: "0.5px rgba(255,255,255,0.28)",
                 }}
               >
-                Монгол
+                {first}
               </span>
-              <span
-                className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
-                style={{
-                  textShadow: "0 10px 40px rgba(255, 255, 255, 0.2)",
-                  WebkitTextStroke: "0.6px rgba(255,255,255,0.24)",
-                }}
-              >
-                ноолуурын
-              </span>
-              <span
-                className="block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic"
-                style={{
-                  textShadow: "0 10px 40px rgba(255, 255, 255, 0.2)",
-                  WebkitTextStroke: "0.6px rgba(255,255,255,0.24)",
-                }}
-              >
-                гоо сайхан
-              </span>
+              {rest && (
+                <>
+                  {" "}
+                  <span
+                    className="inline-block bg-gradient-to-b from-[#FFF4E8] via-[#EAD7C2] to-[#DCC4AB] bg-clip-text text-transparent italic pb-[0.15em]"
+                    style={{
+                      textShadow: "0 10px 40px rgba(255, 255, 255, 0.2)",
+                      WebkitTextStroke: "0.6px rgba(255,255,255,0.24)",
+                    }}
+                  >
+                    {rest}
+                  </span>
+                </>
+              )}
             </h2>
           </div>
 
           <p className="mx-auto mb-10 max-w-2xl font-sans text-base font-normal leading-relaxed text-white/82 [text-shadow:0_6px_20px_rgba(0,0,0,0.22)] md:text-lg">
-            {description}
+            {data.description}
           </p>
 
           <div className="relative z-10 flex items-center gap-5">
-            <Button href="/archive">Цуглуулга үзэх</Button>
+            <Button href={data.link}>{data.link_label}</Button>
             <span className="text-xs text-white/40">/</span>
             <Link
               href="/editorial"

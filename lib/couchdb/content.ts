@@ -90,6 +90,8 @@ export type CouchArticleDoc = CouchBaseDoc & {
   }>;
 };
 
+export type FeaturedSlot = "hero_image" | "hero_video" | "discover_video" | "discover_image";
+
 export type CouchAssetDoc = CouchBaseDoc & {
   type: "asset";
   name: string;
@@ -97,6 +99,7 @@ export type CouchAssetDoc = CouchBaseDoc & {
   folder: string;
   content_type: string;
   size: number;
+  featured?: FeaturedSlot | null;
 };
 
 export type ContentDocument =
@@ -355,6 +358,7 @@ export const fromCouchAsset = (doc: CouchAssetDoc) => ({
   size: doc.size,
   content_type: doc.content_type,
   contentType: doc.content_type,
+  featured: doc.featured ?? null,
   created_at: doc.created_at || null,
   updated_at: doc.updated_at || null,
 });

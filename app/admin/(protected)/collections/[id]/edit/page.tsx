@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Check, ChevronLeft, Loader2, Upload, AlertCircle } from "lucide-react";
+import { FeaturedDiscoverSetup } from "@/app/admin/components/FeaturedDiscoverSetup";
 import { getDesigners } from "@/lib/supabase/queries";
 import { ASSET_FOLDERS } from "@/lib/content/assetFolders";
 import { ARCHIVE_SEASON_OPTIONS } from "@/lib/content/archiveTaxonomy";
@@ -60,7 +61,7 @@ export default function EditCollectionPage() {
     occasions: [],
   });
 
-  // Load collection + designers in parallel
+  // Load collection + designers + featured status in parallel
   useEffect(() => {
     async function init() {
       const [collectionData, designersData] = await Promise.all([
@@ -260,21 +261,28 @@ export default function EditCollectionPage() {
             Цуглуулга засах
           </h1>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={loading || uploading}
-          className="flex items-center gap-2 bg-[#0E0E0D] px-6 py-2 font-sans text-[11px] font-bold uppercase tracking-[4px] text-white transition-colors hover:bg-[#2A2522] disabled:opacity-50"
-        >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : saved ? (
-            <>
-              <Check className="h-4 w-4" /> Хадгалсан
-            </>
-          ) : (
-            "Өөрчлөлт хадгалах"
-          )}
-        </button>
+        <div className="relative flex items-center gap-2">
+          <FeaturedDiscoverSetup
+            contentId={String(params.id)}
+            contentType="collection"
+            coverImageUrl={coverImage}
+          />
+          <button
+            onClick={handleSave}
+            disabled={loading || uploading}
+            className="flex items-center gap-2 bg-[#0E0E0D] px-6 py-2 font-sans text-[11px] font-bold uppercase tracking-[4px] text-white transition-colors hover:bg-[#2A2522] disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : saved ? (
+              <>
+                <Check className="h-4 w-4" /> Хадгалсан
+              </>
+            ) : (
+              "Өөрчлөлт хадгалах"
+            )}
+          </button>
+        </div>
       </header>
 
       {/* ── Two-panel layout ── */}

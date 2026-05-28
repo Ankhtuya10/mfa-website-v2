@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Copy, Upload, X } from "lucide-react";
+import { Check, Copy, Star, Trash2, Upload, X } from "lucide-react";
 import Image from "next/image";
 import {
   ASSET_FOLDER_OPTIONS,
@@ -10,6 +10,7 @@ import {
   type AssetFolder,
 } from "@/lib/content/assetFolders";
 import { fetchJson, uploadContentAsset } from "@/lib/content/client";
+import type { FeaturedSlot } from "@/lib/couchdb/content";
 
 type FolderFilter = "all" | AssetFolder;
 
@@ -23,6 +24,7 @@ interface Asset {
   content_type?: string;
   contentType?: string;
   created_at?: string | null;
+  featured?: FeaturedSlot | null;
 }
 
 const FOLDER_FILTERS: Array<{ value: FolderFilter; label: string }> = [
@@ -51,6 +53,17 @@ function formatBytes(size?: number) {
   if (size < 1024 * 1024) return `${Math.round(size / 1024)}KB`;
   return `${(size / (1024 * 1024)).toFixed(1)}MB`;
 }
+
+const FEATURED_SLOTS: Array<{
+  slot: FeaturedSlot;
+  label: string;
+  forVideo: boolean;
+}> = [
+  { slot: "hero_image", label: "Hero зураг", forVideo: false },
+  { slot: "hero_video", label: "Hero видео", forVideo: true },
+  { slot: "discover_video", label: "Нээлт видео", forVideo: true },
+  { slot: "discover_image", label: "Нээлт зураг", forVideo: false },
+];
 
 function AssetPreview({
   asset,
@@ -88,6 +101,9 @@ export default function AssetsPage() {
     done: number;
     total: number;
   } | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [featuredUpdating, setFeaturedUpdating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -164,6 +180,58 @@ export default function AssetsPage() {
 
     setUploadProgress(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  async function handleDelete(asset: Asset) {
+    const id = asset.id;
+    if (!id) return;
+    if (confirmDeleteId !== id) {
+      setConfirmDeleteId(id);
+      return;
+    }
+    setDeletingId(id);
+    setConfirmDeleteId(null);
+    try {
+      await fetchJson(`/api/admin/content/assets/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      setAssets((prev) => prev.filter((a) => a.id !== id));
+      if (selectedAsset?.id === id) setSelectedAsset(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleFeatured(asset: Asset, slot: FeaturedSlot | null) {
+    const id = asset.id;
+    if (!id) return;
+    setFeaturedUpdating(true);
+    try {
+      const updated = await fetchJson<Asset>(
+        `/api/admin/content/assets/${encodeURIComponent(id)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ featured: slot }),
+        },
+      );
+      setAssets((prev) =>
+        prev.map((a) => {
+          if (a.id === id) return { ...a, featured: updated.featured };
+          if (slot !== null && a.featured === slot) return { ...a, featured: null };
+          return a;
+        }),
+      );
+      setSelectedAsset((prev) =>
+        prev?.id === id ? { ...prev, featured: updated.featured } : prev,
+      );
+    } catch (err) {
+      console.error("Featured update failed:", err);
+    } finally {
+      setFeaturedUpdating(false);
+    }
   }
 
   if (loading) {
@@ -262,11 +330,31 @@ export default function AssetsPage() {
                 <motion.div
                   key={asset.id || asset.path}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => setSelectedAsset(asset)}
+                  onClick={() => {
+                    setSelectedAsset(asset);
+                    setConfirmDeleteId(null);
+                  }}
                   className="group relative aspect-square cursor-pointer overflow-hidden bg-[#EAEAEA]"
                 >
                   <AssetPreview asset={asset} />
-                  <div className="absolute inset-0 flex items-end bg-black/0 p-3 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
+
+                  {/* Featured badge */}
+                  {asset.featured && (
+                    <div className="absolute left-2 top-2 flex items-center gap-1 bg-[#111111]/80 px-2 py-1">
+                      <Star className="h-3 w-3 fill-[#F5C842] text-[#F5C842]" />
+                      <span className="font-sans text-[9px] uppercase tracking-[1px] text-white">
+                        {asset.featured === "hero_image"
+                          ? "Hero зураг"
+                          : asset.featured === "hero_video"
+                            ? "Hero видео"
+                            : asset.featured === "discover_image"
+                              ? "Нээлт зураг"
+                              : "Нээлт видео"}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="absolute inset-0 flex items-end justify-between bg-black/0 p-3 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
                     <div className="min-w-0">
                       <p className="truncate font-sans text-[10px] text-white">
                         {asset.name}
@@ -275,6 +363,21 @@ export default function AssetsPage() {
                         {getFolderLabel(asset.folder)}
                       </p>
                     </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(asset);
+                      }}
+                      className={`ml-2 shrink-0 p-1.5 transition-colors ${
+                        confirmDeleteId === asset.id
+                          ? "bg-red-600 text-white"
+                          : "bg-white/20 text-white hover:bg-red-600"
+                      }`}
+                      title={confirmDeleteId === asset.id ? "Устгах уу?" : "Устгах"}
+                      disabled={deletingId === asset.id}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -326,9 +429,49 @@ export default function AssetsPage() {
                   </div>
                 </div>
 
+                {/* Онцлох section */}
+                <div className="mb-6">
+                  <p className="mb-3 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
+                    Онцлох
+                  </p>
+                  <div className="space-y-2">
+                    {FEATURED_SLOTS.filter((s) =>
+                      isVideoAsset(selectedAsset) ? s.forVideo : !s.forVideo,
+                    ).map(({ slot, label }) => {
+                      const isActive = selectedAsset.featured === slot;
+                      return (
+                        <button
+                          key={slot}
+                          disabled={featuredUpdating}
+                          onClick={() =>
+                            handleFeatured(selectedAsset, isActive ? null : slot)
+                          }
+                          className={`flex w-full items-center justify-between border px-3 py-2.5 font-sans text-[10px] uppercase tracking-[1.5px] transition-colors disabled:opacity-50 ${
+                            isActive
+                              ? "border-[#111111] bg-[#111111] text-white"
+                              : "border-[rgba(0,0,0,0.15)] text-[#6F6A64] hover:border-[#111111] hover:text-[#111111]"
+                          }`}
+                        >
+                          <span>{label}</span>
+                          {isActive && <Star className="h-3 w-3 fill-[#F5C842] text-[#F5C842]" />}
+                        </button>
+                      );
+                    })}
+                    {FEATURED_SLOTS.filter((s) =>
+                      isVideoAsset(selectedAsset) ? s.forVideo : !s.forVideo,
+                    ).length === 0 && (
+                      <p className="font-sans text-[11px] text-[#9B9590]">
+                        {isVideoAsset(selectedAsset)
+                          ? "Видеонд тохирох slot байхгүй"
+                          : "Зургийн slot: Hero зураг"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <button
                   onClick={copyUrl}
-                  className="mb-4 flex w-full items-center justify-center gap-2 border border-[rgba(0,0,0,0.15)] py-2 font-sans text-[11px] uppercase tracking-[2px] text-[#111111] transition-colors hover:bg-[#F5F2ED]"
+                  className="mb-3 flex w-full items-center justify-center gap-2 border border-[rgba(0,0,0,0.15)] py-2 font-sans text-[11px] uppercase tracking-[2px] text-[#111111] transition-colors hover:bg-[#F5F2ED]"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
@@ -337,10 +480,31 @@ export default function AssetsPage() {
                   )}
                   {copied ? "Хуулагдлаа!" : "URL хуулах"}
                 </button>
+
+                {/* Delete button */}
+                <button
+                  onClick={() => handleDelete(selectedAsset)}
+                  disabled={deletingId === selectedAsset.id}
+                  className={`flex w-full items-center justify-center gap-2 border py-2 font-sans text-[11px] uppercase tracking-[2px] transition-colors disabled:opacity-50 ${
+                    confirmDeleteId === selectedAsset.id
+                      ? "border-red-600 bg-red-600 text-white"
+                      : "border-[rgba(0,0,0,0.15)] text-red-500 hover:border-red-500 hover:bg-red-50"
+                  }`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {deletingId === selectedAsset.id
+                    ? "Устгаж байна..."
+                    : confirmDeleteId === selectedAsset.id
+                      ? "Устгахыг баталгаажуулна уу"
+                      : "Устгах"}
+                </button>
               </div>
 
               <button
-                onClick={() => setSelectedAsset(null)}
+                onClick={() => {
+                  setSelectedAsset(null);
+                  setConfirmDeleteId(null);
+                }}
                 className="absolute right-4 top-4 bg-white p-1 transition-colors hover:bg-[#F5F2ED]"
               >
                 <X className="h-4 w-4" />

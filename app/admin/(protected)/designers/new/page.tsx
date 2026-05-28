@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Check, Loader2, Upload, AlertCircle } from 'lucide-react'
+import { ChevronLeft, Check, Loader2, AlertCircle } from 'lucide-react'
 import { ASSET_FOLDERS } from '@/lib/content/assetFolders'
-import { postJson, uploadContentAsset } from '@/lib/content/client'
+import { postJson } from '@/lib/content/client'
+import { ImagePickerField } from '@/app/admin/components/ImagePickerField'
 
 type Tier = 'high-end' | 'contemporary' | 'emerging'
 
@@ -17,8 +18,6 @@ const TIERS: { value: Tier; label: string }[] = [
 
 export default function NewDesignerPage() {
   const router = useRouter()
-  const profilePreviewRef = useRef<string | null>(null)
-  const coverPreviewRef = useRef<string | null>(null)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -30,22 +29,12 @@ export default function NewDesignerPage() {
     profile_image: '',
     cover_image: '',
   })
-  const [profilePreview, setProfilePreview] = useState<string | null>(null)
-  const [coverPreview, setCoverPreview] = useState<string | null>(null)
-  const [profileUploading, setProfileUploading] = useState(false)
-  const [coverUploading, setCoverUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saveError, setSaveError] = useState('')
 
-  // Revoke blob URLs on unmount
-  useEffect(() => {
-    return () => {
-      if (profilePreviewRef.current) URL.revokeObjectURL(profilePreviewRef.current)
-      if (coverPreviewRef.current) URL.revokeObjectURL(coverPreviewRef.current)
-    }
-  }, [])
+  useEffect(() => {}, [])
 
   // Auto-generate slug from name
   function handleNameChange(value: string) {
@@ -106,73 +95,6 @@ export default function NewDesignerPage() {
     }
   }
 
-  async function handleProfileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const previewUrl = URL.createObjectURL(file)
-    if (profilePreviewRef.current) URL.revokeObjectURL(profilePreviewRef.current)
-    profilePreviewRef.current = previewUrl
-    setProfilePreview(previewUrl)
-
-    setProfileUploading(true)
-    setErrors((prev) => ({ ...prev, profile_image: '' }))
-
-    try {
-      const asset = await uploadContentAsset(file, ASSET_FOLDERS.designer)
-      setFormData((prev) => ({ ...prev, profile_image: asset.url }))
-      setProfilePreview(`${asset.url}?v=${Date.now()}`)
-      if (profilePreviewRef.current) {
-        URL.revokeObjectURL(profilePreviewRef.current)
-        profilePreviewRef.current = null
-      }
-    } catch (err: any) {
-      setErrors((prev) => ({
-        ...prev,
-        profile_image: `Оруулж чадсангүй: ${err.message || 'Тодорхойгүй алдаа'}`,
-      }))
-      setProfilePreview(null)
-    } finally {
-      setProfileUploading(false)
-      e.target.value = ''
-    }
-  }
-
-  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const previewUrl = URL.createObjectURL(file)
-    if (coverPreviewRef.current) URL.revokeObjectURL(coverPreviewRef.current)
-    coverPreviewRef.current = previewUrl
-    setCoverPreview(previewUrl)
-
-    setCoverUploading(true)
-    setErrors((prev) => ({ ...prev, cover_image: '' }))
-
-    try {
-      const asset = await uploadContentAsset(file, ASSET_FOLDERS.designer)
-      setFormData((prev) => ({ ...prev, cover_image: asset.url }))
-      setCoverPreview(`${asset.url}?v=${Date.now()}`)
-      if (coverPreviewRef.current) {
-        URL.revokeObjectURL(coverPreviewRef.current)
-        coverPreviewRef.current = null
-      }
-    } catch (err: any) {
-      setErrors((prev) => ({
-        ...prev,
-        cover_image: `Оруулж чадсангүй: ${err.message || 'Тодорхойгүй алдаа'}`,
-      }))
-      setCoverPreview(null)
-    } finally {
-      setCoverUploading(false)
-      e.target.value = ''
-    }
-  }
-
-  const profileSrc = profilePreview || formData.profile_image || null
-  const coverSrc = coverPreview || formData.cover_image || null
-  const isUploading = profileUploading || coverUploading
 
   return (
     <div className="w-full">
@@ -191,7 +113,7 @@ export default function NewDesignerPage() {
         </div>
         <button
           onClick={handleSave}
-          disabled={loading || isUploading}
+          disabled={loading}
           className="flex items-center gap-2 bg-[#0E0E0D] px-6 py-2 font-sans text-[11px] font-bold uppercase tracking-[4px] text-white transition-colors hover:bg-[#2A2522] disabled:opacity-50"
         >
           {loading ? (
@@ -349,142 +271,33 @@ export default function NewDesignerPage() {
 
           {/* ── Profile Image ── */}
           <div>
-            <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Профайл зураг
-            </h3>
-            {profileSrc ? (
-              <div className="relative aspect-square overflow-hidden rounded-full bg-[#F0EDE8]">
-                <img
-                  src={profileSrc}
-                  alt="Профайл зургийн урьдчилсан харагдац"
-                  className="h-full w-full object-cover"
-                />
-                {profileUploading && (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30">
-                    <Loader2 className="h-5 w-5 animate-spin text-white" />
-                  </div>
-                )}
-                {!profileUploading && (
-                  <button
-                    onClick={() => {
-                      setFormData((prev) => ({ ...prev, profile_image: '' }))
-                      setProfilePreview(null)
-                      if (profilePreviewRef.current) {
-                        URL.revokeObjectURL(profilePreviewRef.current)
-                        profilePreviewRef.current = null
-                      }
-                    }}
-                    className="absolute right-2 top-2 rounded bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
-                  >
-                    Устгах
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div>
-                <label className="flex cursor-pointer flex-col items-center justify-center border-2 border-dashed border-[rgba(0,0,0,0.15)] p-6 text-center transition-colors hover:border-[#2A2522]">
-                  {profileUploading ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-[#9B9590]" />
-                  ) : (
-                    <>
-                      <Upload className="mb-2 h-5 w-5 text-[#9B9590]" />
-                      <span className="font-sans text-[11px] text-[#9B9590]">
-                        Зураг оруулах
-                      </span>
-                      <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
-                        Дөрвөлжин зураг тохиромжтой
-                      </span>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfileUpload}
-                    disabled={profileUploading}
-                    className="hidden"
-                  />
-                </label>
-                {errors.profile_image && (
-                  <p className="mt-1.5 flex items-center gap-1 font-sans text-[10px] text-red-500">
-                    <AlertCircle className="h-3 w-3 shrink-0" />
-                    {errors.profile_image}
-                  </p>
-                )}
-              </div>
-            )}
+            <ImagePickerField
+              value={formData.profile_image || null}
+              onChange={(url) => setFormData((prev) => ({ ...prev, profile_image: url || '' }))}
+              label="Профайл зураг"
+              error={errors.profile_image}
+              aspect="square"
+              uploadFolder={ASSET_FOLDERS.designer as import('@/lib/content/assetFolders').AssetFolder}
+              placeholder="Профайл зураг сонгох"
+            />
           </div>
 
           {/* ── Cover Image ── */}
           <div>
-            <h3 className="mb-4 font-sans text-[10px] uppercase tracking-[2px] text-[#9B9590]">
-              Нүүр зураг
-            </h3>
-            {coverSrc ? (
-              <div className="relative aspect-video overflow-hidden bg-[#F0EDE8]">
-                <img
-                  src={coverSrc}
-                  alt="Нүүр зургийн урьдчилсан харагдац"
-                  className="h-full w-full object-cover"
-                />
-                {coverUploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <Loader2 className="h-5 w-5 animate-spin text-white" />
-                  </div>
-                )}
-                {!coverUploading && (
-                  <button
-                    onClick={() => {
-                      setFormData((prev) => ({ ...prev, cover_image: '' }))
-                      setCoverPreview(null)
-                      if (coverPreviewRef.current) {
-                        URL.revokeObjectURL(coverPreviewRef.current)
-                        coverPreviewRef.current = null
-                      }
-                    }}
-                    className="absolute right-2 top-2 bg-white/90 px-2 py-1 font-sans text-[10px] text-[#2A2522] transition-colors hover:bg-white"
-                  >
-                    Устгах
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div>
-                <label className="flex cursor-pointer flex-col items-center justify-center border-2 border-dashed border-[rgba(0,0,0,0.15)] p-6 text-center transition-colors hover:border-[#2A2522]">
-                  {coverUploading ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-[#9B9590]" />
-                  ) : (
-                    <>
-                      <Upload className="mb-2 h-5 w-5 text-[#9B9590]" />
-                      <span className="font-sans text-[11px] text-[#9B9590]">
-                        Зураг оруулах
-                      </span>
-                      <span className="mt-1 font-sans text-[10px] text-[#B7AEA9]">
-                        16:9 харьцаа тохиромжтой
-                      </span>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverUpload}
-                    disabled={coverUploading}
-                    className="hidden"
-                  />
-                </label>
-                {errors.cover_image && (
-                  <p className="mt-1.5 flex items-center gap-1 font-sans text-[10px] text-red-500">
-                    <AlertCircle className="h-3 w-3 shrink-0" />
-                    {errors.cover_image}
-                  </p>
-                )}
-              </div>
-            )}
+            <ImagePickerField
+              value={formData.cover_image || null}
+              onChange={(url) => setFormData((prev) => ({ ...prev, cover_image: url || '' }))}
+              label="Нүүр зураг"
+              error={errors.cover_image}
+              aspect="video"
+              uploadFolder={ASSET_FOLDERS.designer as import('@/lib/content/assetFolders').AssetFolder}
+            />
           </div>
 
           {/* ── Save button ── */}
           <button
             onClick={handleSave}
-            disabled={loading || isUploading}
+            disabled={loading}
             className="flex w-full items-center justify-center gap-2 bg-[#0E0E0D] py-3 font-sans text-[11px] font-bold uppercase tracking-[4px] text-white transition-colors hover:bg-[#2A2522] disabled:opacity-50"
           >
             {loading ? (
