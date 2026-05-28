@@ -1,5 +1,7 @@
-import { MongoClient, Db, Filter, Document } from "mongodb";
+import { MongoClient, Db, Collection } from "mongodb";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+type StringIdDoc = { _id: string } & Record<string, unknown>;
 
 const STORAGE_BUCKET = "anoce-assets";
 
@@ -23,6 +25,10 @@ async function getDb(): Promise<Db> {
   return globalWithMongo._mongoConn.db;
 }
 
+function col(db: Db): Collection<StringIdDoc> {
+  return db.collection<StringIdDoc>("content");
+}
+
 export class CouchDbError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -35,14 +41,14 @@ export class CouchDbError extends Error {
 export class CouchDbClient {
   async getDoc<T>(id: string): Promise<T> {
     const db = await getDb();
-    const doc = await db.collection("content").findOne({ _id: id } as Filter<Document>);
+    const doc = await col(db).findOne({ _id: id });
     if (!doc) throw new CouchDbError("Not found", 404);
     return doc as unknown as T;
   }
 
   async find<T>(selector: Record<string, unknown>, options: { limit?: number } = {}): Promise<T[]> {
     const db = await getDb();
-    let cursor = db.collection("content").find(selector as Filter<Document>);
+    let cursor = col(db).find(selector);
     if (options.limit) cursor = cursor.limit(options.limit);
     return (await cursor.toArray()) as unknown as T[];
   }
@@ -51,17 +57,13 @@ export class CouchDbClient {
     const db = await getDb();
     const { _rev, ...rest } = doc as Record<string, unknown>;
     void _rev;
-    await db.collection("content").replaceOne(
-      { _id: doc._id } as Filter<Document>,
-      rest as Document,
-      { upsert: true },
-    );
+    await col(db).replaceOne({ _id: doc._id }, rest as StringIdDoc, { upsert: true });
     return { ok: true, id: doc._id, rev: "" };
   }
 
   async deleteDoc(id: string, _rev?: string): Promise<{ ok: boolean; id: string; rev: string }> {
     const db = await getDb();
-    await db.collection("content").deleteOne({ _id: id } as Filter<Document>);
+    await col(db).deleteOne({ _id: id });
     return { ok: true, id, rev: "" };
   }
 
@@ -107,12 +109,11 @@ export class CouchDbClient {
 
   async ensureIndexes(): Promise<void> {
     const db = await getDb();
-    const col = db.collection("content");
     await Promise.all([
-      col.createIndex({ type: 1, slug: 1 }),
-      col.createIndex({ type: 1, status: 1, published_at: 1 }),
-      col.createIndex({ type: 1, designer_slug: 1, year: 1 }),
-      col.createIndex({ type: 1, folder: 1, created_at: 1 }),
+      col(db).createIndex({ type: 1, slug: 1 }),
+      col(db).createIndex({ type: 1, status: 1, published_at: 1 }),
+      col(db).createIndex({ type: 1, designer_slug: 1, year: 1 }),
+      col(db).createIndex({ type: 1, folder: 1, created_at: 1 }),
     ]);
   }
 }
