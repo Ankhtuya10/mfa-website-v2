@@ -126,8 +126,8 @@ export class ContentRepository {
 
   async deleteDesigner(id: string) {
     const doc = await this.getDoc<CouchDesignerDoc>(id);
-    if (!doc?._rev) return false;
-    await this.client.deleteDoc(doc._id, doc._rev);
+    if (!doc) return false;
+    await this.client.deleteDoc(doc._id);
     return true;
   }
 
@@ -162,8 +162,8 @@ export class ContentRepository {
 
   async deleteCollection(id: string) {
     const doc = await this.getDoc<CouchCollectionDoc>(id);
-    if (!doc?._rev) return false;
-    await this.client.deleteDoc(doc._id, doc._rev);
+    if (!doc) return false;
+    await this.client.deleteDoc(doc._id);
     return true;
   }
 
@@ -202,8 +202,8 @@ export class ContentRepository {
 
   async deleteArticle(id: string) {
     const doc = await this.getDoc<CouchArticleDoc>(id);
-    if (!doc?._rev) return false;
-    await this.client.deleteDoc(doc._id, doc._rev);
+    if (!doc) return false;
+    await this.client.deleteDoc(doc._id);
     return true;
   }
 

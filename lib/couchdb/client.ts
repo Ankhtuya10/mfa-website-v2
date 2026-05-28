@@ -1,23 +1,30 @@
-export type CouchFindOptions = {
-  sort?: Array<Record<string, "asc" | "desc">>;
-  limit?: number;
-  fields?: string[];
+import { MongoClient, Db, Filter, Document } from "mongodb";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+const STORAGE_BUCKET = "anoce-assets";
+
+const globalWithMongo = global as typeof globalThis & {
+  _mongoConn?: { client: MongoClient; db: Db };
 };
 
-type CouchFindResponse<T> = {
-  docs?: T[];
-  warning?: string;
-};
+export function getMongoConfig() {
+  const uri = process.env.MONGODB_URI?.trim() ?? "";
+  const database = process.env.MONGODB_DATABASE?.trim() ?? "anoce_content";
+  if (!uri) throw new Error("MONGODB_URI is not set");
+  return { uri, database };
+}
 
-type CouchWriteResponse = {
-  ok: boolean;
-  id: string;
-  rev: string;
-};
+async function getDb(): Promise<Db> {
+  if (globalWithMongo._mongoConn) return globalWithMongo._mongoConn.db;
+  const { uri, database } = getMongoConfig();
+  const client = new MongoClient(uri);
+  await client.connect();
+  globalWithMongo._mongoConn = { client, db: client.db(database) };
+  return globalWithMongo._mongoConn.db;
+}
 
 export class CouchDbError extends Error {
   status: number;
-
   constructor(message: string, status: number) {
     super(message);
     this.name = "CouchDbError";
@@ -25,202 +32,88 @@ export class CouchDbError extends Error {
   }
 }
 
-const trimSlashes = (value: string) => value.replace(/\/+$/, "");
-
-export function getCouchConfig() {
-  const url = process.env.COUCHDB_URL?.trim() || "http://127.0.0.1:5984";
-  const database = process.env.COUCHDB_DATABASE?.trim() || "anoce_content";
-  const username = process.env.COUCHDB_USERNAME?.trim();
-  const password = process.env.COUCHDB_PASSWORD?.trim();
-
-  return {
-    url: trimSlashes(url),
-    database,
-    username,
-    password,
-  };
-}
-
 export class CouchDbClient {
-  private baseUrl: string;
-  private database: string;
-  private authorization?: string;
-
-  constructor(config = getCouchConfig()) {
-    this.baseUrl = config.url;
-    this.database = config.database;
-
-    if (config.username && config.password) {
-      this.authorization = `Basic ${Buffer.from(`${config.username}:${config.password}`).toString("base64")}`;
-    }
+  async getDoc<T>(id: string): Promise<T> {
+    const db = await getDb();
+    const doc = await db.collection("content").findOne({ _id: id } as Filter<Document>);
+    if (!doc) throw new CouchDbError("Not found", 404);
+    return doc as unknown as T;
   }
 
-  private dbUrl(path = "") {
-    const db = encodeURIComponent(this.database);
-    return `${this.baseUrl}/${db}${path}`;
+  async find<T>(selector: Record<string, unknown>, options: { limit?: number } = {}): Promise<T[]> {
+    const db = await getDb();
+    let cursor = db.collection("content").find(selector as Filter<Document>);
+    if (options.limit) cursor = cursor.limit(options.limit);
+    return (await cursor.toArray()) as unknown as T[];
   }
 
-  private async doRequest(path: string, init: RequestInit = {}) {
-    const headers = new Headers(init.headers);
-    if (this.authorization) headers.set("Authorization", this.authorization);
-    const url = this.dbUrl(path);
-    return fetch(url, { ...init, headers, cache: "no-store" });
-  }
-
-  async request(path: string, init: RequestInit = {}) {
-    let response = await this.doRequest(path, init);
-
-    // If the database doesn't exist yet, create it + indexes then retry once.
-    if (response.status === 404) {
-      const text = await response.text().catch(() => "");
-      if (text.includes("Database does not exist")) {
-        await this.ensureDatabase();
-        await this.ensureIndexes();
-        response = await this.doRequest(path, init);
-      } else {
-        // Genuine document-level 404 — surface it normally.
-        throw new CouchDbError(text || "Not found", 404);
-      }
-    }
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      throw new CouchDbError(
-        text || `CouchDB request failed with ${response.status}`,
-        response.status,
-      );
-    }
-
-    return response;
-  }
-
-  async ensureDatabase() {
-    const headers = new Headers();
-    if (this.authorization) headers.set("Authorization", this.authorization);
-
-    const response = await fetch(this.dbUrl(), {
-      method: "PUT",
-      headers,
-      cache: "no-store",
-    });
-
-    if (response.ok || response.status === 412) return;
-
-    const text = await response.text().catch(() => "");
-    throw new CouchDbError(
-      text || `Could not create CouchDB database`,
-      response.status,
+  async putDoc<T extends { _id: string; _rev?: string }>(doc: T): Promise<{ ok: boolean; id: string; rev: string }> {
+    const db = await getDb();
+    const { _rev, ...rest } = doc as Record<string, unknown>;
+    void _rev;
+    await db.collection("content").replaceOne(
+      { _id: doc._id } as Filter<Document>,
+      rest as Document,
+      { upsert: true },
     );
+    return { ok: true, id: doc._id, rev: "" };
   }
 
-  async getDoc<T>(id: string) {
-    const response = await this.request(`/${encodeURIComponent(id)}`);
-    return (await response.json()) as T;
-  }
-
-  async find<T>(
-    selector: Record<string, unknown>,
-    options: CouchFindOptions = {},
-  ) {
-    const response = await this.request("/_find", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        selector,
-        sort: options.sort,
-        limit: options.limit,
-        fields: options.fields,
-      }),
-    });
-
-    const payload = (await response.json()) as CouchFindResponse<T>;
-    return payload.docs || [];
-  }
-
-  async putDoc<T extends { _id: string; _rev?: string }>(doc: T) {
-    const response = await this.request(`/${encodeURIComponent(doc._id)}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(doc),
-    });
-
-    return (await response.json()) as CouchWriteResponse;
-  }
-
-  async deleteDoc(id: string, rev: string) {
-    const response = await this.request(
-      `/${encodeURIComponent(id)}?rev=${encodeURIComponent(rev)}`,
-      {
-        method: "DELETE",
-      },
-    );
-
-    return (await response.json()) as CouchWriteResponse;
+  async deleteDoc(id: string, _rev?: string): Promise<{ ok: boolean; id: string; rev: string }> {
+    const db = await getDb();
+    await db.collection("content").deleteOne({ _id: id } as Filter<Document>);
+    return { ok: true, id, rev: "" };
   }
 
   async putAttachment(
     docId: string,
-    rev: string,
+    _rev: string,
     attachmentName: string,
     body: BodyInit,
     contentType: string,
-  ) {
-    const response = await this.request(
-      `/${encodeURIComponent(docId)}/${encodeURIComponent(attachmentName)}?rev=${encodeURIComponent(rev)}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": contentType },
-        body,
-      },
-    );
-
-    return (await response.json()) as CouchWriteResponse;
+  ): Promise<{ ok: boolean; id: string; rev: string }> {
+    const supabase = createAdminClient();
+    const arrayBuffer = body instanceof ArrayBuffer ? body : await new Response(body).arrayBuffer();
+    const path = `${docId}/${attachmentName}`;
+    const { error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(path, arrayBuffer, { contentType, upsert: true });
+    if (error) throw new CouchDbError(error.message, 500);
+    return { ok: true, id: docId, rev: "" };
   }
 
-  async getAttachment(
-    docId: string,
-    attachmentName: string,
-    init: RequestInit = {},
-  ) {
-    return this.request(
-      `/${encodeURIComponent(docId)}/${encodeURIComponent(attachmentName)}`,
-      init,
-    );
+  async getAttachment(docId: string, attachmentName: string, init: RequestInit = {}): Promise<Response> {
+    const supabase = createAdminClient();
+    const path = `${docId}/${attachmentName}`;
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+    const rangeHeader = (init.headers as Record<string, string> | undefined)?.["Range"];
+    return fetch(data.publicUrl, {
+      headers: rangeHeader ? { Range: rangeHeader } : {},
+    });
   }
 
-  async ensureIndexes() {
-    const indexes = [
-      {
-        index: { fields: ["type", "slug"] },
-        name: "type-slug-json",
-        type: "json",
-      },
-      {
-        index: { fields: ["type", "status", "published_at"] },
-        name: "article-status-published-json",
-        type: "json",
-      },
-      {
-        index: { fields: ["type", "designer_slug", "year"] },
-        name: "designer-year-json",
-        type: "json",
-      },
-      {
-        index: { fields: ["type", "folder", "created_at"] },
-        name: "asset-folder-created-json",
-        type: "json",
-      },
-    ];
+  async ensureDatabase(): Promise<void> {
+    const db = await getDb();
+    const collections = await db.listCollections({ name: "content" }).toArray();
+    if (collections.length === 0) {
+      await db.createCollection("content");
+    }
+    const supabase = createAdminClient();
+    const { data: buckets } = await supabase.storage.listBuckets();
+    if (!buckets?.find((b) => b.name === STORAGE_BUCKET)) {
+      await supabase.storage.createBucket(STORAGE_BUCKET, { public: true });
+    }
+  }
 
-    await Promise.all(
-      indexes.map((index) =>
-        this.request("/_index", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(index),
-        }),
-      ),
-    );
+  async ensureIndexes(): Promise<void> {
+    const db = await getDb();
+    const col = db.collection("content");
+    await Promise.all([
+      col.createIndex({ type: 1, slug: 1 }),
+      col.createIndex({ type: 1, status: 1, published_at: 1 }),
+      col.createIndex({ type: 1, designer_slug: 1, year: 1 }),
+      col.createIndex({ type: 1, folder: 1, created_at: 1 }),
+    ]);
   }
 }
 
