@@ -6,7 +6,7 @@ type StringIdDoc = { _id: string } & Record<string, unknown>;
 const STORAGE_BUCKET = "anoce-assets";
 
 const globalWithMongo = global as typeof globalThis & {
-  _mongoConn?: { client: MongoClient; db: Db };
+  _mongoClientPromise?: Promise<MongoClient>;
 };
 
 export function getMongoConfig() {
@@ -16,13 +16,23 @@ export function getMongoConfig() {
   return { uri, database };
 }
 
+function createClient(uri: string): Promise<MongoClient> {
+  const client = new MongoClient(uri, {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 5000,
+    socketTimeoutMS: 15000,
+  });
+  return client.connect();
+}
+
 async function getDb(): Promise<Db> {
-  if (globalWithMongo._mongoConn) return globalWithMongo._mongoConn.db;
   const { uri, database } = getMongoConfig();
-  const client = new MongoClient(uri);
-  await client.connect();
-  globalWithMongo._mongoConn = { client, db: client.db(database) };
-  return globalWithMongo._mongoConn.db;
+  if (!globalWithMongo._mongoClientPromise) {
+    globalWithMongo._mongoClientPromise = createClient(uri);
+  }
+  const client = await globalWithMongo._mongoClientPromise;
+  return client.db(database);
 }
 
 function col(db: Db): Collection<StringIdDoc> {
