@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FollowButton } from "./FollowButton";
 
 interface Designer {
   id: string;
@@ -124,9 +123,6 @@ export function DesignerCard({
           </div>
         </motion.article>
       </Link>
-      <div className="absolute right-3 top-3 z-10 opacity-0 transition-opacity group-hover:opacity-100">
-        <FollowButton designerId={designer.id} size="sm" />
-      </div>
     </div>
   );
 }

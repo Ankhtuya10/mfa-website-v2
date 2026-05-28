@@ -5,29 +5,23 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { StickyNavbar } from "@/app/components";
 import { ArticleCard } from "@/app/components/shared/ArticleCard";
-import { DesignerCard } from "@/app/components/shared/DesignerCard";
 import { BookmarkButton } from "@/app/components/shared/BookmarkButton";
-import { FollowButton } from "@/app/components/shared/FollowButton";
 import { createClient } from "@/lib/supabase/client";
 import {
   getArticles,
   getCollections,
-  getDesigners,
 } from "@/lib/supabase/queries";
 import { useRouter } from "next/navigation";
 
 const TABS = [
   { id: "articles", label: "Хадгалсан нийтлэл", eyebrow: "Сан" },
   { id: "looks", label: "Хадгалсан төрх", eyebrow: "Сан" },
-  { id: "collections", label: "Хадгалсан цуглуулга", eyebrow: "Архив" },
-  { id: "following", label: "Дагаж буй", eyebrow: "Брэнд/Дизайнерууд" },
   { id: "settings", label: "Тохиргоо", eyebrow: "Бүртгэл" },
 ];
 
 const EMPTY_QUOTES: Record<string, string> = {
   articles: '"Хамгийн сайхан загвар бол өөрөөрөө байх мэдрэмж өгдөг загвар."',
   looks: '"Стиль бол үг хэлэлгүйгээр өөрийгөө илэрхийлэх хэл юм."',
-  following: '"Загвар бол шууд ойлгогдох хэл." - Miuccia Prada',
 };
 
 const NOTIFICATIONS_STORAGE_KEY = "anoce_profile_notifications";
@@ -79,8 +73,6 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [savedArticles, setSavedArticles] = useState<Article[]>([]);
   const [savedLooks, setSavedLooks] = useState<Look[]>([]);
-  const [followedDesigners, setFollowedDesigners] = useState<Designer[]>([]);
-  const [savedCollections, setSavedCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [nameValue, setNameValue] = useState("");
   const [saving, setSaving] = useState(false);
@@ -187,30 +179,6 @@ export default function ProfilePage() {
           setSavedLooks(looks);
         }
 
-        const designerIds = (bookmarks || [])
-          .filter((b) => b.content_type === "designer")
-          .map((b) => b.content_id);
-        if (designerIds.length) {
-          const designers = await getDesigners();
-          setFollowedDesigners(
-            (designers || []).filter((designer: Designer) =>
-              designerIds.includes(designer.id),
-            ),
-          );
-        }
-
-        const collectionIds = (bookmarks || [])
-          .filter((b) => b.content_type === "collection")
-          .map((b) => b.content_id);
-        if (collectionIds.length) {
-          const allCollections = await getCollections();
-          setSavedCollections(
-            (allCollections || []).filter(
-              (c: any) =>
-                collectionIds.includes(c.id) || collectionIds.includes(c._id),
-            ),
-          );
-        }
       } catch (err) {
         console.error("[Profile] Unexpected error:", err);
       } finally {
@@ -307,8 +275,6 @@ export default function ProfilePage() {
   const contentCounts: Record<string, number> = {
     articles: savedArticles.length,
     looks: savedLooks.length,
-    collections: savedCollections.length,
-    following: followedDesigners.length,
     settings: 0,
   };
 
@@ -449,8 +415,6 @@ export default function ProfilePage() {
               {[
                 { label: "Нийтлэл", value: savedArticles.length },
                 { label: "Төрх", value: savedLooks.length },
-                { label: "Цуглуулга", value: savedCollections.length },
-                { label: "Дагасан", value: followedDesigners.length },
               ].map((s) => (
                 <div
                   key={s.label}
@@ -603,112 +567,6 @@ export default function ProfilePage() {
                   />
                 ))}
 
-              {activeTab === "collections" &&
-                (savedCollections.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    {savedCollections.map((c: any) => {
-                      const cover = c.cover_image || c.coverImage || "";
-                      const title = c.title || "Гарчиггүй";
-                      const season = c.season || "";
-                      const year = c.year || "";
-                      const designer = c.designer_name || c.designerName || "";
-                      const looksCount = (c.looks || []).length;
-                      return (
-                        <a
-                          key={c.id || c._id}
-                          href={`/archive/${c.slug}`}
-                          className="group relative overflow-hidden rounded-[24px] border border-white/[0.07] bg-white/[0.02]"
-                        >
-                          <div className="relative aspect-[4/3] overflow-hidden">
-                            {cover ? (
-                              <Image
-                                src={cover}
-                                alt={title}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 bg-[#1A1714]" />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                            <div className="absolute bottom-0 left-0 right-0 p-4">
-                              <p className="font-sans text-[9px] tracking-[0.22em] uppercase text-white/50">
-                                {designer} · {season} {year}
-                              </p>
-                              <h3 className="mt-1 font-serif text-lg text-white">
-                                {title}
-                              </h3>
-                              <p className="mt-1 font-sans text-[10px] text-white/40">
-                                {looksCount} төрх
-                              </p>
-                            </div>
-                          </div>
-                          <div className="absolute right-3 top-3 z-10">
-                            <BookmarkButton
-                              id={c.id || c._id}
-                              type="collection"
-                              variant="dark"
-                            />
-                          </div>
-                        </a>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={
-                      <svg
-                        className="h-[22px] w-[22px]"
-                        fill="none"
-                        stroke="#6B6560"
-                        strokeWidth={1.3}
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                        />
-                      </svg>
-                    }
-                    title="Хадгалсан цуглуулга алга"
-                    description="Архиваар аялж, дараа дахин үзэх цуглуулгуудаа хадгалаарай."
-                    cta="Архив үзэх"
-                    href="/archive"
-                  />
-                ))}
-
-              {activeTab === "following" &&
-                (followedDesigners.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {followedDesigners.map((d) => (
-                      <DesignerCard key={d.id} designer={d} variant="grid" />
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={
-                      <svg
-                        className="h-[22px] w-[22px]"
-                        fill="none"
-                        stroke="#6B6560"
-                        strokeWidth={1.3}
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                        />
-                      </svg>
-                    }
-                    title="Одоогоор хэнийг ч дагаагүй байна"
-                    description="Дуртай дизайнеруудаа ойр байлгахын тулд профайлаас нь дагаарай."
-                    cta="Брэнд/дизайнер нээх"
-                    href="/designers"
-                    quote={EMPTY_QUOTES.following}
-                  />
-                ))}
 
               {activeTab === "settings" && (
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_1fr]">

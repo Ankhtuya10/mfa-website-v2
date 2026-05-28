@@ -36,21 +36,19 @@ export default function NewDesignerPage() {
 
   useEffect(() => {}, [])
 
-  // Auto-generate slug from name
+  // Auto-generate slug from name (Latin only; Cyrillic names produce empty slug — user fills manually)
   function handleNameChange(value: string) {
-    const newSlug = value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-    // Only auto-update slug if the user hasn't manually edited it
-    const currentAutoSlug = formData.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
+    const toAutoSlug = (s: string) =>
+      s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const newSlug = toAutoSlug(value)
+    const currentAutoSlug = toAutoSlug(formData.name)
     setFormData((prev) => ({
       ...prev,
       name: value,
-      slug: prev.slug === '' || prev.slug === currentAutoSlug ? newSlug : prev.slug,
+      // Only overwrite slug when it still tracks the auto-value AND the new auto-slug is non-empty
+      slug: (prev.slug === '' || prev.slug === currentAutoSlug) && newSlug !== ''
+        ? newSlug
+        : prev.slug,
     }))
     if (value.trim()) setErrors((prev) => ({ ...prev, name: '' }))
   }
@@ -159,11 +157,22 @@ export default function NewDesignerPage() {
             )}
           </div>
 
-          {/* Slug preview */}
-          <div className="mb-8 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <p className="font-sans text-[11px] text-[#9B9590]">
-              anoce.mn/designers/{displaySlug || 'slug'}
-            </p>
+          {/* Slug */}
+          <div className="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="font-sans text-[11px] text-[#9B9590]">anoce.mn/designers/</span>
+            <input
+              type="text"
+              value={displaySlug}
+              onChange={(e) => {
+                const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-')
+                setFormData((prev) => ({ ...prev, slug: val }))
+                if (val.trim()) setErrors((prev) => ({ ...prev, slug: '' }))
+              }}
+              placeholder="slug"
+              className={`font-sans text-[11px] text-[#2A2522] bg-transparent outline-none border-b ${
+                errors.slug ? 'border-red-400' : 'border-[rgba(0,0,0,0.15)] focus:border-[#2A2522]'
+              }`}
+            />
             {errors.slug && (
               <p className="flex items-center gap-1 font-sans text-[11px] text-red-500">
                 <AlertCircle className="h-3 w-3 shrink-0" />

@@ -176,6 +176,5 @@ export const users: User[] = [
     joinedAt: "2026-01-01T00:00:00.000Z",
     savedArticles: ["article:mongol-nooluuriin-shine-une-tsene"],
     savedLooks: ["gobi-fw25-look-1"],
-    followedBrands: ["designer:gobi-cashmere"],
   },
 ];

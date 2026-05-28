@@ -4,7 +4,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { getSeasonLabel } from "@/lib/localization";
-import { BookmarkButton } from "./BookmarkButton";
 
 interface Collection {
   id: string;
@@ -90,9 +89,6 @@ export function CollectionCard({
           </div>
         </motion.article>
       </Link>
-      <div className="absolute right-3 top-3 z-10 opacity-0 transition-opacity group-hover:opacity-100">
-        <BookmarkButton id={collection.id} type="collection" variant="dark" />
-      </div>
     </div>
   );
 }

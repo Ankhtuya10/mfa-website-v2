@@ -373,6 +373,25 @@ export class ContentRepository {
       await this.updateAssetFeatured(opts.discoverImageId, "discover_image").catch(() => {});
     }
   }
+
+  async getHeroQuotes(): Promise<{ text: string; author: string }[]> {
+    const doc = await this.getDoc<{
+      _id: string; _rev?: string; type: string; quotes: { text: string; author: string }[];
+    }>("settings:hero-quotes").catch(() => null);
+    return doc?.quotes ?? [];
+  }
+
+  async setHeroQuotes(quotes: { text: string; author: string }[]) {
+    const existing = await this.getDoc<{ _id: string; _rev?: string }>("settings:hero-quotes").catch(() => null);
+    await this.client.putDoc({
+      _id: "settings:hero-quotes",
+      ...(existing?._rev ? { _rev: existing._rev } : {}),
+      type: "settings",
+      key: "hero-quotes",
+      quotes,
+      updated_at: new Date().toISOString(),
+    });
+  }
 }
 
 export const createContentRepository = () => new ContentRepository();

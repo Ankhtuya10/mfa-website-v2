@@ -25,7 +25,7 @@ type AuthState = "loading" | "signed-in" | "signed-out";
 const starterSuggestions = [
   "Одоо ямар trend байна?",
   "Ноолуурын брэндүүд",
-  "Гудамжны стиль санал болго",
+  "Чөлөөт стиль санал болго",
 ];
 
 const insufficientContextMessage =

@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const quotes = [
+const FALLBACK_QUOTES = [
   {
-    text: '"Загвар бол өдөр тутмын бодит амьдралыг даван туулах хуяг юм."',
+    text: '"Загвар бол амьдралыг даван туулах хуяг юм."',
     author: "— Nomin D.",
   },
   {
@@ -28,10 +27,24 @@ export default function LoginPage() {
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [quotes, setQuotes] = useState(FALLBACK_QUOTES);
+  const [heroBg, setHeroBg] = useState<string | null>(null);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+
+  useEffect(() => {
+    fetch("/api/content/hero-quotes")
+      .then((r) => r.json())
+      .then((data) => { if (data.quotes?.length) setQuotes(data.quotes); })
+      .catch(() => {});
+
+    fetch("/api/content/featured-media")
+      .then((r) => r.json())
+      .then((data) => { if (data.hero_image) setHeroBg(data.hero_image); })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -93,7 +106,17 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       {/* Left half - hidden on mobile */}
       <div className="hidden lg:block lg:w-[55%] relative bg-[#0A0A0A] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1A1714] via-[#12100E] to-[#0A0A0A]" />
+        {heroBg ? (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${heroBg})` }}
+            />
+            <div className="absolute inset-0 bg-black/60" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1A1714] via-[#12100E] to-[#0A0A0A]" />
+        )}
 
         <div className="relative z-10 h-full flex flex-col justify-between p-12">
           <div>
@@ -283,7 +306,7 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="font-sans text-[10px] tracking-[2px] uppercase text-[#9B9590] block mb-2">
-                      Овог нэр
+                    Нэр
                     </label>
                     <input
                       type="text"

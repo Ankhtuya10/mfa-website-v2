@@ -66,5 +66,4 @@ export interface User {
   joinedAt: string
   savedArticles: string[]
   savedLooks: string[]
-  followedBrands: string[]
 }

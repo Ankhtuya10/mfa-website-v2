@@ -166,11 +166,6 @@ export default function CollectionPage({
                   <span className="shrink-0 font-sans text-[11px] tracking-[2px] uppercase text-white/60">
                     {collection.looks?.length || 0} төрх
                   </span>
-                  <BookmarkButton
-                    id={collection.id}
-                    type="collection"
-                    variant="dark"
-                  />
                 </div>
               </div>
             </div>
