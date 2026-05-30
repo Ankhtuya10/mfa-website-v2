@@ -23,8 +23,6 @@ function createClient(uri: string): Promise<MongoClient> {
     serverSelectionTimeoutMS: 8000,
     connectTimeoutMS: 8000,
     socketTimeoutMS: 20000,
-    tls: true,
-    tlsAllowInvalidCertificates: false,
   });
   return client.connect();
 }
