@@ -59,7 +59,7 @@ const defaultNavLinks: FooterLink[] = [
 
 export const Footer = ({
   brandName = "Anoce",
-  brandDescription = "fgeirgfksfjksgfg bfjewghfweg jdsbhfj",
+  brandDescription = "Монгол улсын загварын дижитал архив",
   socialLinks = defaultSocialLinks,
   navLinks = defaultNavLinks,
   creatorName,
