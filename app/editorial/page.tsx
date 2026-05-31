@@ -578,10 +578,10 @@ export default function EditorialPage() {
                 "
               </span>
               <blockquote className="-mt-10 mb-8 font-serif text-2xl leading-[1.36] text-white md:text-3xl lg:text-4xl">
-                Хувцас бол зөвхөн хэрэглээ бус, харин хувь хүний дотоод ертөнц, өв соёлын гүн гүнзгий илэрхийлэл болон амилдаг урлаг юм.
+                lkjhgfrf
               </blockquote>
               <cite className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#B7AEA9]/65 not-italic">
-                Цэцэг, ноолуур ангилагч
+                djbjckwsjkhkjsa sjadijs
               </cite>
             </motion.div>
           </section>

@@ -7,7 +7,7 @@ import { USAGE_MEDIA } from "@/lib/usageMedia";
 export const metadata = {
   title: "ANOCE-ийн тухай",
   description:
-    "ANOCE бол Монгол загвар, ур хийц, орчин үеийн дизайны амьд архив ба редакцийн платформ юм.",
+    "ANOCE бол ....",
 };
 
 const heroImageUrl = USAGE_MEDIA.jennieImage;
@@ -16,17 +16,17 @@ const pillars = [
   {
     label: "Архив",
     title: "Түүхийг хадгалах",
-    body: "Цуглуулга, дизайнер, материал, өгүүлэмжийг хооронд нь холбож, Монгол загварыг судлах, хайх, санах боломжтой болгоно.",
+    body: "Цуглуулга, дизайнер, материал, өгүүлэмжийг хооро.....",
   },
   {
     label: "Ур хийц",
     title: "Гарын ур дүйг хүндэтгэх",
-    body: "Ноолуур, эсгий, арьс, хатгамал, эсгүүрийг зүгээр нэг чимэг бус амьд мэдлэг гэж авч үздэг.",
+    body: "Ноолуур, эсгий......",
   },
   {
     label: "Ирээдүй",
     title: "Дараагийн үеийн орон зайг нээх",
-    body: "Шинэ брэндүүд өв уламжлалт орднуудтай зэрэгцэн байрлаж, дараагийн үед нэг ярианд багтах боломж олгоно.",
+    body: "Шинэ брэндүүд өв уламжлалт ......",
   },
 ];
 
@@ -88,15 +88,15 @@ export default function AboutPage() {
                   Яагаад хэрэгтэй вэ?
                 </span>
                 <h2 className="font-serif text-[clamp(2.6rem,5vw,5.5rem)] leading-[0.98] text-[#1F1B17]">
-                  Загварыг урагшлуулах хүч бол бүтээлч сэтгэлгээ
+                  Загварыг урагшлуулах хүч бол ......
                 </h2>
               </div>
               <div className="space-y-7 border-l border-[#D7D1C9] pl-8">
                 <p className="font-sans text-lg leading-8 text-[#5F574F] md:text-xl md:leading-9">
-                  Энэ бол зөвхөн хувцас төдийхнөөр хязгаарлагдахгүй, түүнийг амилуулж буй уран бүтээлчдийн түүх, дотоод ертөнц, урам зоригийг хуваалцах орон зай юм.
+                  Энэ бол зөвхөн хувцас төдийхнөөр .....
                 </p>
                 <p className="font-sans text-base leading-8 text-[#7A7168]">
-                  Манай хамт олон салбартаа манлайлагч дэлхийн брэндүүдээс эхлээд шинээр гарч ирж буй авьяаслаг дизайнеруудыг олон нийтэд таниулахыг зорьдог.
+                  Манай хамт ......
                 </p>
               </div>
             </div>
@@ -128,7 +128,7 @@ export default function AboutPage() {
                 Харах өнцөг
               </span>
               <h2 className="font-serif text-[clamp(2.4rem,4.6vw,5rem)] leading-[1] text-white">
-                Соёл, ур хийц, орчин үеийн дизайнд зориулсан нам гүм систем.
+                Соёл, ур хийц, орчин үеийн .......
               </h2>
             </div>
 
@@ -153,7 +153,7 @@ export default function AboutPage() {
 
             <div className="mt-14 flex flex-wrap items-center justify-between gap-8 border-t border-white/10 pt-8">
               <p className="max-w-2xl font-sans text-base leading-8 text-white/58">
-                ANOCE Улаанбаатараас эхэлж, Монголд төвлөрсөн анхааралтай, олон улсын ярианд нээлттэй, үлдэх ёстой бүтээлийг нямбай тэмдэглэдэг.
+                ANOCE Улаанбаатараас эхэлж ......
               </p>
               <Link
                 href="/editorial"
