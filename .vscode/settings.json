@@ -1,5 +1,5 @@
 {
-  "latex-workshop.latex.rootFile.useSubFile": false,
+  "latex-workshop.latex.rootFile.useSubFile": true,
   "latex-workshop.latex.rootFile.doNotPrompt": true,
   "latex-workshop.latex.autoBuild.run": "onSave",
   "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": true,
